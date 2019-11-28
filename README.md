@@ -1,16 +1,17 @@
-# MiAMI Assets
-
-## Contents
-The high-level components that are included in this project:
-
-#### IG
-* TBD
+# MiAMI Accelerators
 
 # IG Setup
-This project contains a number of custom java filters, routes and scripts for ForgeRock IG configurations.
+This project contains a number of custom java filters and routes for ForgeRock IG configurations.
 	
 The IG routes included in this project are:
-* TBD
+* agent-legacy-protected-app-route.json
+* j2ee-legacy-protected-app.json
+* legacy-am-authenticate-route.json
+* legacy-am-generic-route.json
+* web-legacy-protected-app-route.json
+
+The IG custom filters included in this project are:
+* HeaderAuthenticationProvisioningFilter
 
 ## Build and deploy custom java filters
 > Please see the dedicated README for details on how to build and deploy these java assets: [OpenIG/openig-miami-filters/README.md](OpenIG/openig-miami-filters/README.md)
