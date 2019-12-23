@@ -1,16 +1,25 @@
-# MiAMI Assets
+# Disclaimer
+The sample code described herein is provided on an "as is" basis, without warranty of any kind, to the fullest extent permitted by law. ForgeRock does not warrant or guarantee the individual success developers may have in implementing the sample code on their development platforms or in production configurations.
 
-## Contents
-The high-level components that are included in this project:
+ForgeRock does not warrant, guarantee or make any representations regarding the use, results of use, accuracy, timeliness or completeness of any data or information relating to the sample code. ForgeRock disclaims all warranties, expressed or implied, and in particular, disclaims all warranties of merchantability, and warranties related to the code, or any service or software related thereto.
 
-#### IG
-* TBD
+ForgeRock shall not be liable for any direct, indirect or consequential damages or costs of any type arising out of any action taken by you or others related to the sample code.
+
+
+# MiAMI Accelerators
 
 # IG Setup
-This project contains a number of custom java filters, routes and scripts for ForgeRock IG configurations.
+This project contains a number of custom java filters and routes for ForgeRock IG configurations.
 	
 The IG routes included in this project are:
-* TBD
+* agent-legacy-protected-app-route.json
+* j2ee-legacy-protected-app.json
+* legacy-am-authenticate-route.json
+* legacy-am-generic-route.json
+* web-legacy-protected-app-route.json
+
+The IG custom filters included in this project are:
+* HeaderAuthenticationProvisioningFilter
 
 ## Build and deploy custom java filters
 > Please see the dedicated README for details on how to build and deploy these java assets: [OpenIG/openig-miami-filters/README.md](OpenIG/openig-miami-filters/README.md)
