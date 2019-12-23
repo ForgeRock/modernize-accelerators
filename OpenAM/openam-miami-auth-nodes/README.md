@@ -87,6 +87,9 @@ spring-web-5.2.1.RELEASE
 
 + Make sure the cookie generated for new AM instance has correct domain to be visible in the protected APP and in AM.
 
+###Building the tree
+![alt text](https://github.com/ForgeRock/miami-accelerators/blob/master/OpenAM/openam-miami-auth-nodes/migrationTree.png)
+
 ## License
 
 This project is licensed under the Apache License, Version 2.0. The following text applies to 
