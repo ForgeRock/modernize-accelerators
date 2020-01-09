@@ -5,7 +5,7 @@ ForgeRock does not warrant, guarantee or make any representations regarding the 
 <br><br>
 ForgeRock shall not be liable for any direct, indirect or consequential damages or costs of any type arising out of any action taken by you or others related to the sample code.
 
-# MiAMI Accelerators
+# Modernize IAM Accelerators
 
 * The Modernize IAM Accelerators are applicable in the following high level typical migration scenarios:
     * Complex Legacy Access Management Deployment
