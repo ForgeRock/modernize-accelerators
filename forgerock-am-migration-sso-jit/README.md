@@ -32,7 +32,7 @@ AM      | Custom Nodes        | migration-am-custom-SNAPSHOT.jar | Custom AM nod
 
 In order to build the project from the command line follow the steps presented below. Make sure that you have all the prerequisites installed correctly before starting.
 <br>
-+ <b>Demo video</b> - [downloading and building the source code](link) - All the steps below can be followed in this video recording.
++ <b>Demo video</b> - [downloading and building the source code](https://github.com/ForgeRock/miami-accelerators/blob/master/forgerock-am-migration-sso-jit/video/Part1-Building_The_Code.mp4) - All the steps below can be followed in this video recording.
 
 ### 2.1. Prerequisites - Prepare your Environment
 
@@ -128,7 +128,7 @@ To set your custom authentication tree as the default inside a realm, navigate t
 
 #### 3.1.1. Building the tree
 
-+ <b>Demo video</b> - [building the tree](link) - In this recording you can watch how the tree is built step by step.
++ <b>Demo video</b> - [building the tree](https://github.com/ForgeRock/miami-accelerators/blob/master/forgerock-am-migration-sso-jit/video/Part2-Building_The_Tree.mp4) - In this recording you can watch how the tree is built step by step.
 <br>
 
 ![migrationTree](images/migrationTree.png)
@@ -238,7 +238,7 @@ IDM Admin Password     | idmPassword                                            
 
 ## 4. Scenarios
 
-+ <b>Demo video</b> - [testing the main tree scenarios](link) - This video recording demonstrates how the scenarios detailed below are triggered by using the authentication tree.
++ <b>Demo video</b> - [testing the main tree scenarios](https://github.com/ForgeRock/miami-accelerators/blob/master/forgerock-am-migration-sso-jit/video/Part3-Testing_The_Tree.mp4) - This video recording demonstrates how the scenarios detailed below are triggered by using the authentication tree.
 <br>
 
 
