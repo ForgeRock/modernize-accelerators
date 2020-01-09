@@ -1,0 +1,20 @@
+{
+  "metadata" : {
+    "realm" : "/",
+    "amsterVersion" : "6.5.2",
+    "entityType" : "CheckUserMigrationStatus",
+    "entityId" : "c22c3860-614e-4204-be77-1736e0ec4935",
+    "pathParams" : { }
+  },
+  "data" : {
+    "_id" : "c22c3860-614e-4204-be77-1736e0ec4935",
+    "idmAdminUser" : "",
+    "idmAdminPassword" : "",
+    "idmUserEndpoint" : "",
+    "_type" : {
+      "_id" : "CheckUserMigrationStatus",
+      "name" : "Is User Migrated",
+      "collection" : true
+    }
+  }
+}

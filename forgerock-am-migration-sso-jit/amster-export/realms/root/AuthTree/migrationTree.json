@@ -1,0 +1,102 @@
+{
+  "metadata" : {
+    "realm" : "/",
+    "amsterVersion" : "6.5.2",
+    "entityType" : "AuthTree",
+    "entityId" : "migrationTree",
+    "pathParams" : { }
+  },
+  "data" : {
+    "_id" : "migrationTree",
+    "nodes" : {
+      "70898d2e-9b2d-4cbd-91bc-67d0ef07eab7" : {
+        "displayName" : "Check Legacy Token",
+        "nodeType" : "CheckLegacyToken",
+        "connections" : {
+          "false" : "d487359c-c1ba-4d67-a8f5-2100216b5a3b",
+          "true" : "c22c3860-614e-4204-be77-1736e0ec4935"
+        }
+      },
+      "d487359c-c1ba-4d67-a8f5-2100216b5a3b" : {
+        "displayName" : "Page Node",
+        "nodeType" : "PageNode",
+        "connections" : {
+          "outcome" : "4c832822-2176-4e94-bba3-12df224185db"
+        }
+      },
+      "4c832822-2176-4e94-bba3-12df224185db" : {
+        "displayName" : "Data Store Decision",
+        "nodeType" : "DataStoreDecisionNode",
+        "connections" : {
+          "true" : "aea5ad63-51d8-49a2-8270-7b12e7f19174",
+          "false" : "2ccbc2f3-9c5d-4059-8f62-2598a4103846"
+        }
+      },
+      "747c5b32-00fa-4f34-b6bc-407c60101f1c" : {
+        "displayName" : "Legacy Login",
+        "nodeType" : "LegacyLogin",
+        "connections" : {
+          "true" : "901b0081-abb6-4cf1-bce8-1df36146fbba",
+          "false" : "e301438c-0bd0-429c-ab0c-66126501069a"
+        }
+      },
+      "d8416a1c-1710-420d-8763-b0a8809de6b8" : {
+        "displayName" : "Create User In DS",
+        "nodeType" : "CreateUser",
+        "connections" : {
+          "false" : "e301438c-0bd0-429c-ab0c-66126501069a",
+          "true" : "70e691a5-1e33-4ac3-a356-e7b6d60d92e0"
+        }
+      },
+      "901b0081-abb6-4cf1-bce8-1df36146fbba" : {
+        "displayName" : "Set password in DS",
+        "nodeType" : "SetUserPassword",
+        "connections" : {
+          "true" : "70e691a5-1e33-4ac3-a356-e7b6d60d92e0",
+          "false" : "e301438c-0bd0-429c-ab0c-66126501069a"
+        }
+      },
+      "2ccbc2f3-9c5d-4059-8f62-2598a4103846" : {
+        "displayName" : "Is User Migrated",
+        "nodeType" : "CheckUserMigrationStatus",
+        "connections" : {
+          "true" : "747c5b32-00fa-4f34-b6bc-407c60101f1c",
+          "false" : "94ca1135-2b37-43e9-9857-9cfd671b05a9"
+        }
+      },
+      "94ca1135-2b37-43e9-9857-9cfd671b05a9" : {
+        "displayName" : "Legacy Login",
+        "nodeType" : "LegacyLogin",
+        "connections" : {
+          "true" : "d8416a1c-1710-420d-8763-b0a8809de6b8",
+          "false" : "e301438c-0bd0-429c-ab0c-66126501069a"
+        }
+      },
+      "c22c3860-614e-4204-be77-1736e0ec4935" : {
+        "displayName" : "Is User Migrated",
+        "nodeType" : "CheckUserMigrationStatus",
+        "connections" : {
+          "true" : "70e691a5-1e33-4ac3-a356-e7b6d60d92e0",
+          "false" : "c1fb42b8-4030-49b5-a447-2773ffc1e1f1"
+        }
+      },
+      "c1fb42b8-4030-49b5-a447-2773ffc1e1f1" : {
+        "displayName" : "Create User In DS",
+        "nodeType" : "CreateUser",
+        "connections" : {
+          "true" : "70e691a5-1e33-4ac3-a356-e7b6d60d92e0",
+          "false" : "e301438c-0bd0-429c-ab0c-66126501069a"
+        }
+      },
+      "aea5ad63-51d8-49a2-8270-7b12e7f19174" : {
+        "displayName" : "Legacy Login",
+        "nodeType" : "LegacyLogin",
+        "connections" : {
+          "true" : "70e691a5-1e33-4ac3-a356-e7b6d60d92e0",
+          "false" : "e301438c-0bd0-429c-ab0c-66126501069a"
+        }
+      }
+    },
+    "entryNodeId" : "70898d2e-9b2d-4cbd-91bc-67d0ef07eab7"
+  }
+}

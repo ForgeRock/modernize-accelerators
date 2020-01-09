@@ -1,0 +1,19 @@
+{
+  "metadata" : {
+    "realm" : "/",
+    "amsterVersion" : "6.5.2",
+    "entityType" : "LegacyLogin",
+    "entityId" : "94ca1135-2b37-43e9-9857-9cfd671b05a9",
+    "pathParams" : { }
+  },
+  "data" : {
+    "_id" : "94ca1135-2b37-43e9-9857-9cfd671b05a9",
+    "legacyCookieName" : "",
+    "legacyLoginUri" : "",
+    "_type" : {
+      "_id" : "LegacyLogin",
+      "name" : "Legacy Login",
+      "collection" : true
+    }
+  }
+}
