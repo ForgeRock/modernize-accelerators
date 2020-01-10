@@ -37,6 +37,8 @@ AM      | Custom Nodes        | migration-am-custom-SNAPSHOT.jar | Custom AM nod
 
 ## 2. Building The Source Code
 
++ <b>Important note:</b> The assets presented below are built based on OpenAM version 6.5.2.
+
 In order to build the project from the command line follow the steps presented below. Make sure that you have all the prerequisites installed correctly before starting.
 <br>
 + <b>Demo video</b> - [downloading and building the source code](https://github.com/ForgeRock/modernize-accelerators/blob/master/forgerock-am-migration-sso-jit/video/Part1-Building_The_Code.mp4) - All the steps below can be followed in this video recording.
