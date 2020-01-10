@@ -17,7 +17,7 @@ package org.forgerock.openam.auth.node;
 
 import static org.forgerock.openam.auth.node.api.SharedStateConstants.PASSWORD;
 import static org.forgerock.openam.auth.node.api.SharedStateConstants.USERNAME;
-import static org.forgerock.openam.miami.utils.NodeConstants.LEGACY_COOKIE_SHARED_STATE_PARAM;
+import static org.forgerock.openam.modernize.utils.NodeConstants.LEGACY_COOKIE_SHARED_STATE_PARAM;
 
 import java.io.IOException;
 import java.util.List;
@@ -32,7 +32,7 @@ import org.forgerock.openam.auth.node.api.Node;
 import org.forgerock.openam.auth.node.api.NodeProcessException;
 import org.forgerock.openam.auth.node.api.TreeContext;
 import org.forgerock.openam.auth.node.treehook.LegacySessionTreeHook;
-import org.forgerock.openam.miami.utils.RequestUtils;
+import org.forgerock.openam.modernize.utils.RequestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;

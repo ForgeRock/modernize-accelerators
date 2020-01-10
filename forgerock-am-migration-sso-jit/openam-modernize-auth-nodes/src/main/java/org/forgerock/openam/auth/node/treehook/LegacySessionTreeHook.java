@@ -15,7 +15,7 @@
  ***************************************************************************/
 package org.forgerock.openam.auth.node.treehook;
 
-import static org.forgerock.openam.miami.utils.NodeConstants.LEGACY_COOKIE_SHARED_STATE_PARAM;
+import static org.forgerock.openam.modernize.utils.NodeConstants.LEGACY_COOKIE_SHARED_STATE_PARAM;
 
 import javax.inject.Inject;
 

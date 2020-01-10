@@ -13,10 +13,10 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  ***************************************************************************/
-package org.forgerock.openam.miami.utils;
+package org.forgerock.openam.modernize.utils;
 
 /**
- * This class represents all the constants that are used by the MiAMI
+ * This class represents all the constants that are used by the accelerators
  * Accelerator nodes.
  *
  */

@@ -39,7 +39,7 @@ AM      | Custom Nodes        | migration-am-custom-SNAPSHOT.jar | Custom AM nod
 
 In order to build the project from the command line follow the steps presented below. Make sure that you have all the prerequisites installed correctly before starting.
 <br>
-+ <b>Demo video</b> - [downloading and building the source code](https://github.com/ForgeRock/miami-accelerators/blob/master/forgerock-am-migration-sso-jit/video/Part1-Building_The_Code.mp4) - All the steps below can be followed in this video recording.
++ <b>Demo video</b> - [downloading and building the source code](https://github.com/ForgeRock/modernize-accelerators/blob/master/forgerock-am-migration-sso-jit/video/Part1-Building_The_Code.mp4) - All the steps below can be followed in this video recording.
 
 ### 2.1. Prerequisites - Prepare your Environment
 
@@ -72,7 +72,7 @@ If you want to run the code unmodified you can simply clone the ForgeRock reposi
 
 ```
 mkdir demo
-git clone https://github.com/ForgeRock/miami-accelerators.git
+git clone https://github.com/ForgeRock/modernize-accelerators.git
 ```
 
 
@@ -83,12 +83,12 @@ down all the dependencies and Maven plugins required by the build, which can tak
 Subsequent builds will be much faster!
 
 ```
-cd miami-accelerators/forgerock-am-migration-sso-jit/openam-miami-auth-nodes
+cd modernize-accelerators/forgerock-am-migration-sso-jit/openam-modernize-auth-nodes
 mvn package
 ```
 
-Maven builds the binary in `openam-miami-auth-nodes/target/`. The file name format is `openam-miami-auth-nodes-<nextversion>-SNAPSHOT.jar` , 
-for example "openam-miami-auth-nodes-1.0.0-SNAPSHOT.jar".
+Maven builds the binary in `openam-modernize-auth-nodes/target/`. The file name format is `openam-modernize-auth-nodes-<nextversion>-SNAPSHOT.jar` , 
+for example "openam-modernize-auth-nodes-1.0.0-SNAPSHOT.jar".
 
 
 ### 2.4. Adding the library to OpenAM war
@@ -104,7 +104,7 @@ jar -xf ~/Downloads/OpenAM-6.5.2.war
 + Copy the newly generated jar file to /ROOT/WEB-INF/lib folder
 
 ```
-cp ~/openam-miami-auth-nodes-<nextversion>-SNAPSHOT.jar WEB-INF/lib
+cp ~/openam-modernize-auth-nodes-<nextversion>-SNAPSHOT.jar WEB-INF/lib
 ```
 
 + The source files use some Spring dependencies from the 5.2.1.RELEASE which you need to download. The following jars must be added to WEB-INF/lib
@@ -126,7 +126,7 @@ jar -cf ../ROOT.war *
 
 ## 3. Configuration
 
-### 3.1. MiAMI Authentication Tree
+### 3.1. Authentication Tree
 
 Please see the ForgeRock [documentation](https://backstage.forgerock.com/docs/am/6.5/authentication-guide/index.html#sec-configure-authentication-trees) on how to create authentication trees.
 
@@ -135,7 +135,7 @@ To set your custom authentication tree as the default inside a realm, navigate t
 
 #### 3.1.1. Building the tree
 
-+ <b>Demo video</b> - [building the tree](https://github.com/ForgeRock/miami-accelerators/blob/master/forgerock-am-migration-sso-jit/video/Part2-Building_The_Tree.mp4) - In this recording you can watch how the tree is built step by step.
++ <b>Demo video</b> - [building the tree](https://github.com/ForgeRock/modernize-accelerators/blob/master/forgerock-am-migration-sso-jit/video/Part2-Building_The_Tree.mp4) - In this recording you can watch how the tree is built step by step.
 <br>
 
 ![migrationTree](images/migrationTree.png)
@@ -147,7 +147,7 @@ The SSO toolkit, also comes with built tree exported with Amster, that can be im
 The tree export and it's nodes can be found in the folder: 
 
 ```
-/miami-accelerators/forgerock-am-migration-sso-jit/amster-export
+/modernize-accelerators/forgerock-am-migration-sso-jit/amster-export
 ```
 
 In our example the tree was created and exported in the root realm, but as a best practice you should never use the root realm. If you choose to import the migrationTree with Amster, please make sure to replace the realm property with your own value in the amster-export resources provided.
@@ -245,7 +245,7 @@ IDM Admin Password     | idmPassword                                            
 
 ## 4. Scenarios
 
-+ <b>Demo video</b> - [testing the main tree scenarios](https://github.com/ForgeRock/miami-accelerators/blob/master/forgerock-am-migration-sso-jit/video/Part3-Testing_The_Tree.mp4) - This video recording demonstrates how the scenarios detailed below are triggered by using the authentication tree.
++ <b>Demo video</b> - [testing the main tree scenarios](https://github.com/ForgeRock/modernize-accelerators/blob/master/forgerock-am-migration-sso-jit/video/Part3-Testing_The_Tree.mp4) - This video recording demonstrates how the scenarios detailed below are triggered by using the authentication tree.
 <br>
 
 
@@ -277,7 +277,7 @@ IDM Admin Password     | idmPassword                                            
 
 
 ## 5. Extending & Customizing
-Any changes you need to make to adapt to a specific legacy system can be done in the provided sample nodes. To do so you first need to import the project you downloaded - /forgerock-am-migration-sso-jit/openam-miami-auth-nodes from GitHub in your preferred IDE. The node classes and additional files are described in <b>Chapter 3.2 - Tree Nodes</b>.
+Any changes you need to make to adapt to a specific legacy system can be done in the provided sample nodes. To do so you first need to import the project you downloaded - /forgerock-am-migration-sso-jit/openam-modernize-auth-nodes from GitHub in your preferred IDE. The node classes and additional files are described in <b>Chapter 3.2 - Tree Nodes</b>.
 + <b>Example</b>: To add or remove additional profile attributes, the node <b>CreateUser</b> can be updated. In the method <b>process</b> you can retrieve additional attributes from the legacy profile details call. You can then map them on the request body from the <b>createProvisioningRequestEntity()</b> method.
 
 ## 6. Troubleshooting common problems

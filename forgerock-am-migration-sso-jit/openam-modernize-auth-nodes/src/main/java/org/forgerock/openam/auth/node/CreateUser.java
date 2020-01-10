@@ -17,17 +17,17 @@ package org.forgerock.openam.auth.node;
 
 import static org.forgerock.openam.auth.node.api.SharedStateConstants.PASSWORD;
 import static org.forgerock.openam.auth.node.api.SharedStateConstants.USERNAME;
-import static org.forgerock.openam.miami.utils.NodeConstants.DEFAULT_IDM_USER;
-import static org.forgerock.openam.miami.utils.NodeConstants.DEFAULT_IDM_USER_ENDPOINT;
-import static org.forgerock.openam.miami.utils.NodeConstants.DEFAULT_IDM_USER_PASSWORD;
-import static org.forgerock.openam.miami.utils.NodeConstants.LEGACY_COOKIE_SHARED_STATE_PARAM;
-import static org.forgerock.openam.miami.utils.NodeConstants.OPEN_IDM_ADMIN_PASSWORD_HEADER;
-import static org.forgerock.openam.miami.utils.NodeConstants.OPEN_IDM_ADMIN_USERNAME_HEADER;
-import static org.forgerock.openam.miami.utils.NodeConstants.USER_EMAIL;
-import static org.forgerock.openam.miami.utils.NodeConstants.USER_FORCE_PASSWORD_RESET;
-import static org.forgerock.openam.miami.utils.NodeConstants.USER_GIVEN_NAME;
-import static org.forgerock.openam.miami.utils.NodeConstants.USER_NAME;
-import static org.forgerock.openam.miami.utils.NodeConstants.USER_SN;
+import static org.forgerock.openam.modernize.utils.NodeConstants.DEFAULT_IDM_USER;
+import static org.forgerock.openam.modernize.utils.NodeConstants.DEFAULT_IDM_USER_ENDPOINT;
+import static org.forgerock.openam.modernize.utils.NodeConstants.DEFAULT_IDM_USER_PASSWORD;
+import static org.forgerock.openam.modernize.utils.NodeConstants.LEGACY_COOKIE_SHARED_STATE_PARAM;
+import static org.forgerock.openam.modernize.utils.NodeConstants.OPEN_IDM_ADMIN_PASSWORD_HEADER;
+import static org.forgerock.openam.modernize.utils.NodeConstants.OPEN_IDM_ADMIN_USERNAME_HEADER;
+import static org.forgerock.openam.modernize.utils.NodeConstants.USER_EMAIL;
+import static org.forgerock.openam.modernize.utils.NodeConstants.USER_FORCE_PASSWORD_RESET;
+import static org.forgerock.openam.modernize.utils.NodeConstants.USER_GIVEN_NAME;
+import static org.forgerock.openam.modernize.utils.NodeConstants.USER_NAME;
+import static org.forgerock.openam.modernize.utils.NodeConstants.USER_SN;
 
 import java.io.IOException;
 
@@ -39,7 +39,7 @@ import org.forgerock.openam.auth.node.api.Action;
 import org.forgerock.openam.auth.node.api.Node;
 import org.forgerock.openam.auth.node.api.NodeProcessException;
 import org.forgerock.openam.auth.node.api.TreeContext;
-import org.forgerock.openam.miami.utils.RequestUtils;
+import org.forgerock.openam.modernize.utils.RequestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;

@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  ***************************************************************************/
-package org.forgerock.openam.miami.utils;
+package org.forgerock.openam.modernize.utils;
 
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
