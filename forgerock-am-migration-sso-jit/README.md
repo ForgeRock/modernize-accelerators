@@ -5,7 +5,7 @@ ForgeRock does not warrant, guarantee or make any representations regarding the 
 <br><br>
 ForgeRock shall not be liable for any direct, indirect or consequential damages or costs of any type arising out of any action taken by you or others related to the sample code.
 
-# MiAMI Accelerators - SSO Toolkit (with AM)
+# Modernize Accelerators - SSO Toolkit (with AM)
 With deployments of tens or hundreds of legacy applications, migration waves may be required to minimize the operational impact on production systems. With this type of use case, coexistence and SSO between legacy IAM and ForgeRock IAM is often needed.
 Sometimes putting IG in front of a legacy system is not an option for commercial reasons. 
 
