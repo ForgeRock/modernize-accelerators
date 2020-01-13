@@ -64,9 +64,16 @@ For example, your environment variables should look similar to this:
 
 ```
 JAVA_HOME=/usr/jdk/jdk1.8.0_201
-MAVEN_HOME=C:\Program Files\Apache_Maven_3.6.0
+MAVEN_HOME=/opt/apache-maven-3.6.3
 MAVEN_OPTS='-Xmx2g -Xms2g -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=512m'
 ```
+
++ The source files use some Spring dependencies from the 5.2.1.RELEASE that you will need to download. The following JAR files must be added to the WEB-INF/lib directory of the OpenAM war, before building it as described in section 2.4. below:
+
++ [spring-beans-5.2.1.RELEASE](https://mvnrepository.com/artifact/org.springframework/spring-beans)
++ [spring-core-5.2.1.RELEASE](https://mvnrepository.com/artifact/org.springframework/spring-core)
++ [spring-jcl-5.2.1.RELEASE](https://mvnrepository.com/artifact/org.springframework/spring-jcl)
++ [spring-web-5.2.1.RELEASE](https://mvnrepository.com/artifact/org.springframework/spring-web)
 
 ### 2.2. Getting the Code
 
@@ -108,15 +115,6 @@ jar -xf ~/Downloads/AM-6.5.2.2.war
 ```
 cp ~/openam-modernize-auth-nodes-<nextversion>-SNAPSHOT.jar WEB-INF/lib
 ```
-
-+ The source files use some Spring dependencies from the 5.2.1.RELEASE that you'll need to download. The following JAR files must be added to the WEB-INF/lib directory:
-
-
-+ [spring-beans-5.2.1.RELEASE](https://mvnrepository.com/artifact/org.springframework/spring-beans)
-+ [spring-core-5.2.1.RELEASE](https://mvnrepository.com/artifact/org.springframework/spring-core)
-+ [spring-jcl-5.2.1.RELEASE](https://mvnrepository.com/artifact/org.springframework/spring-jcl)
-+ [spring-web-5.2.1.RELEASE](https://mvnrepository.com/artifact/org.springframework/spring-web)
-
 
 + Rebuild the WAR file: 
 
