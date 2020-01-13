@@ -8,24 +8,24 @@ ForgeRock shall not be liable for any direct, indirect or consequential damages 
 # Modernize IAM Accelerators
 
 * The Modernize IAM Accelerators are applicable in the following high level typical migration scenarios:
-    * Complex Legacy Access Management Deployment
-    * Coexistence Strategy between ForgeRock and Legacy Platform
-    * Migration desired to the latest ForgeRock Platform
+    * Complex legacy access management deployment
+    * Coexistence strategy between ForgeRock and legacy platforms
+    * Migration desired to the latest ForgeRock platform
 
 <br>
 
-+ The Modernize IAM Accelerators provide a toolset designed to achieve a greater than 25% acceleration in the design and build activity around User Migration (Bulk Migration & Just In Time) and Single Sign On between legacy vendor and ForgeRock. ​
++ The Modernize IAM Accelerators provide a tool set designed to achieve a greater than 25% acceleration in the design and build activity around user migration (bulk migration & just-inttime) and single sign-on between legacy vendors and ForgeRock. ​
 
 <br>
 
-+ The Modernize IAM Accelerators do not currently cover migrations of Policies, Sessions, Customizations, Applications, or Services​
++ The Modernize IAM Accelerators do not currently cover migrations of policies, sessions, customizations, applications, or services​.
 
 ## Contents
-+ Bulk User Migration Tool Kit
-+ Just in Time User Migration Tool Kit
++ Bulk User Migration Toolkit
++ Just-in-Time User Migration ToolKit
 + [SSO Tool Kit (with AM)](https://github.com/ForgeRock/miami-accelerators/tree/master/forgerock-am-migration-sso-jit)
-+ SSO Tool Kit (with IG)
-+ Tool Kit Plug Ins
++ SSO Toolkit (with IG)
++ Toolkit Plugins
 
 ## License
 
