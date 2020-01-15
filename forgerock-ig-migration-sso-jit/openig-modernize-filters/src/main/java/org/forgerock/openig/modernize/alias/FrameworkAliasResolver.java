@@ -28,8 +28,6 @@ public class FrameworkAliasResolver implements ClassAliasResolver {
 
 	static {
 		ALIASES.put("MigrationSsoFilter", MigrationSsoFilter.class);
-		ALIASES.put("CookieDomainFilter", CookieDomainFilter.class);
-		
 	}
 
 	/**
