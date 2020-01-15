@@ -171,28 +171,50 @@ jar -cf ../ROOT.war *
 
 ### 3.1. Routes
 
+The route provided with this toolkit serves as an example of implementation. The route requires specific adaptation to each user's case and should not be used as packaged here.
 
-### 3.2. Other
++ [migration-assets-authentication-route](https://github.com/ForgeRock/modernize-accelerators/blob/develop/forgerock-ig-migration-sso-jit/openig-modernize-routes/migration-assets-authentication-route.json)
+<br>Route filters:
+
+- <b>MigrationSsoFilter</b> - Custom filter provided in this SSO toolkit. The filter does the following actions:
+    - Intercepts the user' creddentials from the authentication request by calling the framework method implementation <b>getUserCredentials</b> injected via java reflection API.
+	- Verifies if the user is migrated in ForgeRock IDM
+		- If the user is migrated:
+			- he is authenticated in ForgeRock AM
+			- the request is passed through to the legacy IAM and the user is authenticated there also
+			- when legacy IAM responds, the use will have on the HTTP response a Set-Cookie header representing the legacy SSO token. The filter also adds a Set-Cookie header with the value of the SSO token resulted after authentication to ForgeRock AM.
+			- As a result, the user will have in his browser two tokens, on for the legacy IAM, and one for the ForgeRock AM.
+			
+		- If the user is not migrated:
+			- the filter allows the request to pass directly to legacy IAM to validate the credentials
+			- on the response from legacy IAM, the filter verifies if the authentication succeeded by calling the framework method implementation <b>validateLegacyAuthResponse</b> injected via java reflection API.
+			- on successfull authentication in legacy IAM, the filter attempts to retrieve the user profile details by calling the framework method implementation <b>getExtendedUserAttributes</b> injected via java reflection API.
+			- with the user profile attributes retrieved, the filter provisions the user in ForgeRock IDM.
+```
+Node Class: /src/main/java/org.forgerock.openam.auth.node.CheckLegacyToken.java
+Plugin class: /src/main/java/org.forgerock.openam.auth.node.plugin.CheckLegacyTokenPlugin.java
+Configuration File: /src/main/resources/org/forgerock/openam/auth/node/CheckLegacyToken.properties
+
+Configuration          | Example                                                            | Description
+---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------
+Legacy Token Endpoint  | <<proto>>://<<host>>/openam/json/sessions?tokenId=                 | field for the end point used by the Legacy iAM to verify if an SSO token is valid
+Legacy cookie name     | iPlanetDirectoryPro                                                | field for the name of the SSO token expected by the legacy token verification end point.
+```
+
+<br>
+
+- <b>HeaderFilter-ChangeHostFilter</b> -Out of the box filter that comes with the IG application. This filter is used to remove and new headers on the HTTP request or response.
 
 
-## 4. Scenarios
-
-
-### 4.1. Scenario 1 - Migrated user accesses the authentication route that protects legacy IAM
-
-
-### 4.2. Scenario 2 - Non-migrated user accesses the authentication route that protects legacy IAM
-
-
-## 5. Extending & Customizing
+## 4. Extending & Customizing
 Any changes you need to make to adapt to a specific legacy system can be done in the provided sample projects. To do so, you first need to import the projects you downloaded - https://github.com/ForgeRock/modernize-accelerators/tree/develop/forgerock-ig-migration-sso-jit from GitHub.
 
-## 6. Troubleshooting Common Problems
+## 5. Troubleshooting Common Problems
 
-## 7. Known issues
+## 6. Known issues
 + N/A
 
-## 8. License
+## 7. License
 
 This project is licensed under the Apache License, Version 2.0. The following text applies to both this file, and should also be included in all files in the project:
 
