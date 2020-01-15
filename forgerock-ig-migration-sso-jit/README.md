@@ -139,8 +139,8 @@ cd modernize-accelerators/forgerock-ig-migration-sso-jit/openig-modernize-auth-n
 mvn package
 ```
 
-Maven builds the binary in `openig-modernize-filters/target/`. The file name format is `openam-modernize-auth-nodes-<nextversion>-SNAPSHOT.jar` . 
-For example, "openam-modernize-auth-nodes-1.0.0-SNAPSHOT.jar".
+Maven builds the binary in `openig-modernize-filters/target/`. The file name format is `openig-modernize-reflection-<nextversion>-SNAPSHOT.jar` . 
+For example, "openig-modernize-reflection-1.0-SNAPSHOT.jar".
 
 
 ### 2.4. Building the OpenIG war file
@@ -172,16 +172,16 @@ jar -cf ../ROOT.war *
 ### 3.1. Routes
 
 
-### 3.2. Others
+### 3.2. Other
 
 
 ## 4. Scenarios
 
 
-### 4.1. Scenario 1 - Migrated user accesses the authentication route that protects legacy IAM without
+### 4.1. Scenario 1 - Migrated user accesses the authentication route that protects legacy IAM
 
 
-### 4.2. Scenario 2 - Non-migrated user accesses the authentication route that protects legacy IAM without
+### 4.2. Scenario 2 - Non-migrated user accesses the authentication route that protects legacy IAM
 
 
 ## 5. Extending & Customizing
