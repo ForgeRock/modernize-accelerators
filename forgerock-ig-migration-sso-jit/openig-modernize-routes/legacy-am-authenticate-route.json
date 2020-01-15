@@ -1,8 +1,8 @@
 {
   "_copyright": "Copyright 2019 ForgeRock AS Licensed under the Apache License, Version 2.0 (the \"License\"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions andlimitations under the License.",
   "name": "Legacy AM Authenticate Route",
-  "baseURI": "https://as.legacy.miami-accelerators.com",
-  "condition": "${matches(request.uri.path, '/json/realms/root/realms/legacy/authenticate')}",
+  "baseURI": "<<proto>>://<<legacyIamHost>>",
+  "condition": "${matches(request.uri.path, '/authenticateResource')}",
   "capture": [
     "response",
     "request"
@@ -58,10 +58,10 @@
             ],
             "add": {
               "host": [
-                "as.legacy.miami-accelerators.com"
+                "<<legacyIamHost>>"
               ],
               "x-forwarded-host": [
-                "as.legacy.miami-accelerators.com"
+                "<<legacyIamHost>>"
               ]
             }
           }
@@ -71,11 +71,11 @@
           "type": "MigrationSsoFilter",
           "config": {
             "migrationImplClassName": "org.forgerock.openig.modernize.impl.LegacyOpenSSOProvider",
-            "getUserMigrationStatusEndpoint": "https://idm.dev.miami-accelerators.com/openidm/managed/user?_queryFilter=userName+eq+\"{0}\"",
-            "provisionUserEndpoint": "https://idm.dev.miami-accelerators.com/openidm/managed/user?_action=create",
+            "getUserMigrationStatusEndpoint": "<<proto>>://<<idmHost>>/openidm/managed/user?_queryFilter=userName+eq+\"{0}\"",
+            "provisionUserEndpoint": "<<proto>>://<<idmHost>>/openidm/managed/user?_action=create",
             "openIdmPassword": "openidm-admin",
             "openIdmUsername": "openidm-admin",
-            "openaAmAuthenticateURL": "https://am.dev.miami-accelerators.com/json/realms/root/authenticate",
+            "openaAmAuthenticateURL": "<<proto>>://<<amHost>>/json/realms/root/authenticate",
             "openAmCookieName": "iPlanetDirectoryPro",
             "openIdmUsernameHeader": "X-OpenIDM-Username",
             "openIdmPasswordHeader": "X-OpenIDM-Password",
