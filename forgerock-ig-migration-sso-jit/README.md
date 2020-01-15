@@ -61,7 +61,7 @@ MAVEN_HOME=/opt/apache-maven-3.6.3
 MAVEN_OPTS='-Xmx2g -Xms2g -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=512m'
 ```
 
-+ The source files use some Spring dependencies from the 5.2.1.RELEASE. The resources can be accessed in the folder [resources](todolink).
++ The source files use some Spring dependencies from the 5.2.1.RELEASE. The resources can be accessed in the folder [resources](https://github.com/ForgeRock/modernize-accelerators/tree/develop/forgerock-ig-migration-sso-jit/resources).
 
 + [spring-beans-5.2.1.RELEASE](https://mvnrepository.com/artifact/org.springframework/spring-beans)
 + [spring-core-5.2.1.RELEASE](https://mvnrepository.com/artifact/org.springframework/spring-core)
@@ -82,7 +82,7 @@ cd forgerock-ig-migration-sso-jit
 
 #### 2.3.1. The framework
 
-In the [resources](todolink) folder you will find the pre-built jar file named openig-modernize-library.x.y.x.jar. This jar file is not editable and contains the base interface with the pre-defined mandatory methods that need to be implemented for any migration project.
+In the [resources](https://github.com/ForgeRock/modernize-accelerators/tree/develop/forgerock-ig-migration-sso-jit/resources) folder you will find the pre-built jar file named openig-modernize-library.x.y.x.jar. This jar file is not editable and contains the base interface with the pre-defined mandatory methods that need to be implemented for any migration project.
 You should use this jar file as a dependency, and implement the class <b>LegacyIAMProvider</b>.
 
 + LegacyIAMProvider contains the 3 base methods that must be implemented:
@@ -116,10 +116,10 @@ Example that shows how the installed jar file can be used within a maven's proje
 
 #### 2.3.2. The framework implementation project
 
-This [project](todolink) holds an example of code that implements the framework described in section 2.3.1. 
+This [project](https://github.com/ForgeRock/modernize-accelerators/tree/develop/forgerock-ig-migration-sso-jit/openig-modernize-client-implementation) holds an example of code that implements the framework described in section 2.3.1. 
 We can see that the 3 main methods of the interface from the framework are implemented here, along with other methods that do specific actions for the client's IAM platform.
 
-This project uses a config file for any configurable properties you might need. The <b>config.properties</b> gile is located under /src/maine/resources.
+This project uses a config file for any configurable properties you might need. The <b>config.properties</b> gile is located under /src/main/resources.
 
 #### 2.3.3. The IG filters
 
@@ -150,7 +150,8 @@ jar -xf ~/Downloads/IG-6.5.2.war
 ```
 
 + Copy the following files in the /ROOT/WEB-INF/lib folder:
-    + the newly generated JAR file `cp ~/openig-modernize-filters-<nextversion>-SNAPSHOT.jar WEB-INF/lib`
+    + the jar files from [resources](todolink) folder: `cp ~/resources/* WEB-INF/lib`
+    + the newly generated JAR file: `cp ~/openig-modernize-filters-<nextversion>-SNAPSHOT.jar WEB-INF/lib`
 
 + Rebuild the WAR file: 
 
@@ -318,7 +319,7 @@ Any changes you need to make to adapt to a specific legacy system can be done in
 
 ## 6. Troubleshooting Common Problems
 + <b>Problem:</b> Changes in configuration don't appear in the AM console after deploying them.<br>
-<b>Solution:</b> Make sure to imcrement the plugin version from the method getPluginVersion() associated with the modified node if any changes have been made to the configuration of a node in the Java class or the properties file.
+<b>Solution:</b> Make sure to increment the plugin version from the method getPluginVersion() associated with the modified node if any changes have been made to the configuration of a node in the Java class or the properties file.
 <br><br>
 + <b>Problem:</b> No nodes, not even the out-of-the-box ones, are displayed in the tree creation screen.<br>
 <b>Solution:</b> Check the nodes <b>@Attribute(order = number)</b> annotations. This can happen if two or more properties in the same node, have the same <b>order = number</b>.
