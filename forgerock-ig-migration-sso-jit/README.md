@@ -85,6 +85,8 @@ cd forgerock-ig-migration-sso-jit
 In the [resources](https://github.com/ForgeRock/modernize-accelerators/tree/develop/forgerock-ig-migration-sso-jit/resources) folder you will find the pre-built jar file named openig-modernize-library.x.y.x.jar. This jar file is not editable and contains the base interface with the pre-defined mandatory methods that need to be implemented for any migration project.
 You should use this jar file as a dependency, and implement the class <b>LegacyIAMProvider</b>.
 
+If you need to update this framework yourself, you can do so by importing the [openig-modernize-library](https://github.com/ForgeRock/modernize-accelerators/tree/develop/forgerock-ig-migration-sso-jit/openig-modernize-library) project into your preferred IDE.
+
 + LegacyIAMProvider contains the 3 base methods that must be implemented:
     + getUserCredentials - Implementation must read the user credentials from the Forgerock HTTP Request. The HTTP request gives flexibility to capture the user's credentials from the request headers or from the request body. Should output a User object with the intercepted username and password.
     + getExtendedUserAttributes - Get user profile attributes from the legacy IAM, with userName as input.
@@ -114,12 +116,12 @@ Example that shows how the installed jar file can be used within a maven's proje
 </dependency>
 ```
 
-#### 2.3.2. The framework implementation project
+#### 2.3.2. The framework implementation
 
 This [project](https://github.com/ForgeRock/modernize-accelerators/tree/develop/forgerock-ig-migration-sso-jit/openig-modernize-client-implementation) holds an example of code that implements the framework described in section 2.3.1. 
 We can see that the 3 main methods of the interface from the framework are implemented here, along with other methods that do specific actions for the client's IAM platform.
 
-This project uses a config file for any configurable properties you might need. The <b>config.properties</b> gile is located under /src/main/resources.
+This project uses a config file for any configurable properties you might need. The <b>config.properties</b> file is located under /src/main/resources.
 
 #### 2.3.3. The IG filters
 
