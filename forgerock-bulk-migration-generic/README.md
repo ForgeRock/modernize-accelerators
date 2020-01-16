@@ -23,9 +23,9 @@ This toolkit implements one-way synchronization from an external Legacy IAM user
 ```
 System         | Type                | Name                               | Description
 ---------------|---------------------|------------------------------------|--------------------------------------------------------------------------------------------------------
-IDM		       | Managed Object      | managed.json						  | Enhanced user object definition that brings several other typical attributes in the IDM definition.
-IDM	           | Mapping             | sync.json			              | Source mapping set for Legacy IAM to IDM managed object.
-IDM            | Mapping             | sync.json				          | Source mapping set for IDM managed object to Forgerock DS.
+IDM	       | Managed Object      | managed.json			  | Enhanced user object definition that brings several other typical attributes in the IDM definition.
+IDM	       | Mapping             | sync.json			  | Source mapping set for Legacy IAM to IDM managed object.
+IDM            | Mapping             | sync.json			  | Source mapping set for IDM managed object to Forgerock DS.
 IDM            | Connector           | provisioner.openicf-legacyIAM.json | Source connector that pulls user identities from Legacy IAM (LDAPv3 connector)
 IDM            | Connector           | provisioner.openicf-FRDS.json      | Target connector that pushes identity information inside Forgerock Directory Server (LDAPv3 connector)
 ```
@@ -43,7 +43,7 @@ cd forgerock-bulk-migration-generic
 ## 3. Configuration
 
 ### 3.1. JSON config files
-
+TBD 
 The route provided with this toolkit serves as an example of implementation. The route requires specific adaptation to each user's case and should not be used as packaged here.
 
 + [migration-assets-authentication-route](https://github.com/ForgeRock/modernize-accelerators/blob/develop/forgerock-ig-migration-sso-jit/openig-modernize-routes/migration-assets-authentication-route.json)
@@ -73,10 +73,6 @@ Configuration          | Example                                                
 Legacy Token Endpoint  | <<proto>>://<<host>>/openam/json/sessions?tokenId=                 | field for the end point used by the Legacy iAM to verify if an SSO token is valid
 Legacy cookie name     | iPlanetDirectoryPro                                                | field for the name of the SSO token expected by the legacy token verification end point.
 ```
-
-<br>
-
-- <b>HeaderFilter-ChangeHostFilter</b> -Out of the box filter that comes with the IG application. This filter is used to remove and new headers on the HTTP request or response.
 
 
 ## 4. Extending & Customizing
