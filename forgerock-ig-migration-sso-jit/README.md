@@ -190,15 +190,46 @@ The route provided with this toolkit serves as an example of implementation. The
 			- on the response from legacy IAM, the filter verifies if the authentication succeeded by calling the framework method implementation <b>validateLegacyAuthResponse</b> injected via java reflection API.
 			- on successfull authentication in legacy IAM, the filter attempts to retrieve the user profile details by calling the framework method implementation <b>getExtendedUserAttributes</b> injected via java reflection API.
 			- with the user profile attributes retrieved, the filter provisions the user in ForgeRock IDM.
-```
-Node Class: /src/main/java/org.forgerock.openam.auth.node.CheckLegacyToken.java
-Plugin class: /src/main/java/org.forgerock.openam.auth.node.plugin.CheckLegacyTokenPlugin.java
-Configuration File: /src/main/resources/org/forgerock/openam/auth/node/CheckLegacyToken.properties
 
-Configuration          | Example                                                            | Description
----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------
-Legacy Token Endpoint  | <<proto>>://<<host>>/openam/json/sessions?tokenId=                 | field for the end point used by the Legacy iAM to verify if an SSO token is valid
-Legacy cookie name     | iPlanetDirectoryPro                                                | field for the name of the SSO token expected by the legacy token verification end point.
+- Filter config example:
+```
+{
+  "name": "MigrationSsoFilter",
+  "type": "MigrationSsoFilter",
+  "config": {
+	"migrationImplClassName": "org.forgerock.openig.modernize.impl.LegacyOpenSSOProvider",
+	"getUserMigrationStatusEndpoint": "<<proto>>://<<idmHost>>/openidm/managed/user?_queryFilter=userName+eq+\"{0}\"",
+	"provisionUserEndpoint": "<<proto>>://<<idmHost>>/openidm/managed/user?_action=create",
+	"openIdmPassword": "openidm-admin",
+	"openIdmUsername": "openidm-admin",
+	"openaAmAuthenticateURL": "<<proto>>://<<amHost>>/json/realms/root/authenticate",
+	"openAmCookieName": "iPlanetDirectoryPro",
+	"openIdmUsernameHeader": "X-OpenIDM-Username",
+	"openIdmPasswordHeader": "X-OpenIDM-Password",
+	"acceptApiVersionHeader": "Accept-API-Version",
+	"acceptApiVersionHeaderValue": "resource=2.0, protocol=1.0",
+	"setCookieHeader": "Set-Cookie"
+  }
+}
+```
+
+```
+Filter Class: /openig-modernize-filters/src/main/java/org/forgerock/openig/modernize/filter/MigrationSsoFilter.java
+
+Configuration                      | Example                                                                        | Description
+---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+migrationImplClassName             | org.forgerock.openig.modernize.impl.LegacyOpenSSOProvider                      | This should be the package.class implemented byt the user. In this toolkit is presented under /openig-modernize-client-implementation/src/main/java/org/forgerock/openig/modernize/impl/LegacyOpenSSOProvider.java
+getUserMigrationStatusEndpoint     | <<proto>>://<<idmHost>>/openidm/managed/user?_queryFilter=userName+eq+\"{0}\"" | This represents the user endpoint from ForgeRock IDM, with a query action.
+provisionUserEndpoint              | <<proto>>://<<idmHost>>/openidm/managed/user?_action=create                    | This represents the user endpoint from ForgeRock IDM, with a create action.
+openIdmPassword                    | openidm-admin                                                                  | The openidm admin user password.
+openIdmUsername                    | openidm-admin                                                                  | The openidm admin user name.
+openaAmAuthenticateURL             | <<proto>>://<<amHost>>/json/realms/root/authenticate                           | The ForgeRock OpenAM authenticate endpoint.
+openAmCookieName                   | iPlanetDirectoryPro                                                            | The ForgeRock OpenAM cookie name.
+openIdmUsernameHeader              | X-OpenIDM-Username                                                             | The header name used to send the openidm admin user name.
+openIdmPasswordHeader              | X-OpenIDM-Password                                                             | The header name used to send the openidm admin user password.
+acceptApiVersionHeader             | Accept-API-Version                                                             | The Accept-API-Version header name
+acceptApiVersionHeaderValue        | resource=2.0, protocol=1.0                                                     | The Accept-API-Version version used.
+setCookieHeader                    | Set-Cookie                                                                     | The Set-Cookie header name.
 ```
 
 <br>
