@@ -24,7 +24,7 @@ ForgeRock shall not be liable for any direct, indirect or consequential damages 
 + Bulk User Migration Toolkit
 + Just-in-Time User Migration ToolKit
 + [SSO Tool Kit (with AM)](https://github.com/ForgeRock/miami-accelerators/tree/master/forgerock-am-migration-sso-jit)
-+ SSO Toolkit (with IG)
++ [SSO Toolkit (with IG)](https://github.com/ForgeRock/modernize-accelerators/tree/develop/forgerock-ig-migration-sso-jit)
 + Toolkit Plugins
 
 ## License
