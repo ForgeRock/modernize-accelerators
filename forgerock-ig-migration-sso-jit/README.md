@@ -241,6 +241,7 @@ setCookieHeader                    | Set-Cookie                                 
 Any changes you need to make to adapt to a specific legacy system can be done in the provided sample projects. To do so, you first need to import the projects you downloaded - https://github.com/ForgeRock/modernize-accelerators/tree/develop/forgerock-ig-migration-sso-jit from GitHub.
 
 ## 5. Troubleshooting Common Problems
++ N/A
 
 ## 6. Known issues
 + N/A
