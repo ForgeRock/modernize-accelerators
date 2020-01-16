@@ -129,7 +129,7 @@ The [openig-modernize-filters](https://github.com/ForgeRock/modernize-accelerato
 
 #### 2.3.4. The IG routes
 
-### 2.3. Building the Code
+### 2.4. Building the Code
 
 The build process and dependencies are managed by Maven. The first time you build the project, Maven will pull down all the dependencies and Maven plugins required by the build, which can take a longer time. 
 Subsequent builds will be much faster!
@@ -143,7 +143,7 @@ Maven builds the binary in `openig-modernize-filters/target/`. The file name for
 For example, "openig-modernize-reflection-1.0-SNAPSHOT.jar".
 
 
-### 2.4. Building the OpenIG war file
+### 2.5. Building the OpenIG war file
 
 + Download and unzip the IG.war file from ForgeRock BackStage:
 
