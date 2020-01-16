@@ -234,7 +234,7 @@ setCookieHeader                    | Set-Cookie                                 
 
 <br>
 
-- <b>HeaderFilter-ChangeHostFilter</b> -Out of the box filter that comes with the IG application. This filter is used to remove and new headers on the HTTP request or response.
+- <b>HeaderFilter-ChangeHostFilter</b> - Out of the box filter that comes with the IG application. This filter is used to remove and new headers on the HTTP request or response.
 
 
 ## 4. Extending & Customizing
