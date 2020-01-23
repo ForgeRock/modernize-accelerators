@@ -51,26 +51,26 @@ The mappings and configuration provided with this toolkit serves as an example o
 + [managed.json](https://github.com/ForgeRock/modernize-accelerators/blob/develop/forgerock-bulk-migration-oud/openidm-modernize-config/conf/managed.json)
 
 ```
-Configuration               	| Change type              		| Description
-------------------------------- | ------------------------------------- | --------------------------------------------------------------------------------------------
-User Managed Object		| Update                   		| The existing IDM User managed object was extended with some attributes OUD specific
+Configuration               	| Change type          		| Description
+------------------------------- | ----------------------------- | ---------------------------------------------------------------------------------------------------
+User Managed Object		| Update                   	| The existing IDM User managed object was extended with some attributes OUD specific
 Group Managed Object		| New					| A new IDM managed object was created in order to store the OUD groups	
 ```
 
 + [provisioner.openicf-legacyOUD.json](https://github.com/ForgeRock/modernize-accelerators/blob/develop/forgerock-bulk-migration-oud/openidm-modernize-config/conf/provisioner.openicf-legacyOUD.json)
 
 ```
-Configuration               	| Change type              		| Description
-------------------------------- | ------------------------------------- | ----------------------------------------------------------------------------------------------------
-LDAPv3 OUD Connector		| New                   		| A new LDAPv3 Connector that connects to the OUD repository for retreiving user and group information
+Configuration               	| Change type          		| Description
+------------------------------- | ----------------------------- | --------------------------------------------------------------------------------------------------------------
+LDAPv3 OUD Connector		| New                   	| A new LDAPv3 Connector that connects to the OUD repository for retreiving user and group information
 ```
 
 + [provisioner.openicf-ldap.json](https://github.com/ForgeRock/modernize-accelerators/blob/develop/forgerock-bulk-migration-oud/openidm-modernize-config/conf/provisioner.openicf-ldap.json)
 
 ```
-Configuration               	| Change type              		| Description
-------------------------------- | ------------------------------------- | --------------------------------------------------------------------------------------------------------------
-LDAPv3 Forgerock DS Connector	| Update                   		| A new LDAPv3 Connector that connects to the Forgerock DS repository for pushing the user and group information
+Configuration               	| Change type          		| Description
+------------------------------- | ----------------------------- | --------------------------------------------------------------------------------------------------------------
+LDAPv3 Forgerock DS Connector	| Update               		| A new LDAPv3 Connector that connects to the Forgerock DS repository for pushing the user and group information
 ```
 
 + [sync.json](https://github.com/ForgeRock/modernize-accelerators/blob/develop/forgerock-bulk-migration-oud/openidm-modernize-config/conf/sync.json)
@@ -96,6 +96,7 @@ Copy the content of the /conf folder to your IDM /conf location and restart the 
 + <b>Configure</b> -> <b>Managed Objects</b> (check if the User managed object has the new attributes and if the new Group managed object exists);
 + <b>Configure</b> -> <b>Connectors</b> (validate that the two LDAPv3 connectors are in Active state);
 + <b>Configure</b> -> <b>Mappings</b> (check if the two mappings are presents).
+
 
 
 ## 4. Extending & Customizing
