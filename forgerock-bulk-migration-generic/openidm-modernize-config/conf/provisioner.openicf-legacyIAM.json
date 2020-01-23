@@ -1,0 +1,682 @@
+{
+    "connectorRef" : {
+        "displayName" : "LDAP Connector",
+        "bundleVersion" : "1.4.8.0",
+        "systemType" : "provisioner.openicf",
+        "bundleName" : "org.forgerock.openicf.connectors.ldap-connector",
+        "connectorName" : "org.identityconnectors.ldap.LdapConnector"
+    },
+    "poolConfigOption" : {
+        "maxObjects" : 10,
+        "maxIdle" : 10,
+        "maxWait" : 150000,
+        "minEvictableIdleTimeMillis" : 120000,
+        "minIdle" : 1
+    },
+    "resultsHandlerConfig" : {
+        "enableNormalizingResultsHandler" : false,
+        "enableFilteredResultsHandler" : false,
+        "enableCaseInsensitiveFilter" : false,
+        "enableAttributesToGetSearchResultsHandler" : true
+    },
+    "operationTimeout" : {
+        "CREATE" : -1,
+        "UPDATE" : -1,
+        "DELETE" : -1,
+        "TEST" : -1,
+        "SCRIPT_ON_CONNECTOR" : -1,
+        "SCRIPT_ON_RESOURCE" : -1,
+        "GET" : -1,
+        "RESOLVEUSERNAME" : -1,
+        "AUTHENTICATE" : -1,
+        "SEARCH" : -1,
+        "VALIDATE" : -1,
+        "SYNC" : -1,
+        "SCHEMA" : -1
+    },
+    "configurationProperties" : {
+        "filterWithOrInsteadOfAnd" : false,
+        "objectClassesToSynchronize" : [
+            "inetOrgPerson"
+        ],
+        "baseContextsToSynchronize" : [
+            "ou=People,dc=example,dc=com"
+        ],
+        "attributesToSynchronize" : [ ],
+        "changeNumberAttribute" : "changeNumber",
+        "modifiersNamesToFilterOut" : [ ],
+        "credentials" : {
+            "$crypto" : {
+                "type" : "x-simple-encryption",
+                "value" : {
+                    "cipher" : "AES/CBC/PKCS5Padding",
+                    "stableId" : "openidm-sym-default",
+                    "salt" : "5pgxEzMAjlKAuYZwKD0wKg==",
+                    "data" : "kuGMRQQfJHJS5YeumPadwQ==",
+                    "keySize" : 16,
+                    "purpose" : "idm.config.encryption",
+                    "iv" : "u1IvamP45Liqw/aOG7ne/w==",
+                    "mac" : "H6MGSy/3NREUIwq6w5l0EA=="
+                }
+            }
+        },
+        "changeLogBlockSize" : "100",
+        "useTimestampsForSync" : false,
+        "accountSynchronizationFilter" : null,
+        "removeLogEntryObjectClassFromFilter" : true,
+        "alternateKeyStorePassword" : null,
+        "groupSynchronizationFilter" : null,
+        "groupMemberAttribute" : "uniqueMember",
+        "accountSearchFilter" : null,
+        "privateKeyAlias" : null,
+        "ssl" : false,
+        "maintainPosixGroupMembership" : false,
+        "groupSearchFilter" : null,
+        "referralsHandling" : "follow",
+        "host" : "miamioracle.frdpcloud.com",
+        "maintainLdapGroupMembership" : false,
+        "resetSyncToken" : "never",
+        "vlvSortAttribute" : "uid",
+        "convertGTToISO8601" : [
+            "whenCreated",
+            "whenChanged"
+        ],
+        "baseContexts" : [
+            "ou=People,dc=example,dc=com"
+        ],
+        "hostNameVerification" : false,
+        "blockSize" : "100",
+        "groupObjectClasses" : [
+            "top",
+            "groupOfUniqueNames"
+        ],
+        "accountUserNameAttributes" : [
+            "uid",
+            "cn"
+        ],
+        "failover" : [ ],
+        "port" : "1389",
+        "convertADIntervalToISO8601" : [
+            "pwdLastSet",
+            "accountExpires",
+            "lockoutTime",
+            "lastLogon"
+        ],
+        "hostNameVerifierPattern" : null,
+        "passwordAttribute" : "userPassword",
+        "useDNSSRVRecord" : false,
+        "getGroupMemberId" : false,
+        "startTLS" : false,
+        "allowTreeDelete" : false,
+        "respectResourcePasswordPolicyChangeAfterReset" : false,
+        "uidAttribute" : "entryUUID",
+        "principal" : "cn=Directory Manager",
+        "accountObjectClasses" : [
+            "top",
+            "person",
+            "organizationalPerson",
+            "inetOrgPerson"
+        ],
+        "alternateKeyStoreType" : null,
+        "passwordHashAlgorithm" : null,
+        "alternateKeyStore" : null,
+        "authType" : "simple",
+        "connectionTimeout" : 30000,
+        "useBlocks" : false,
+        "readSchema" : false,
+        "usePagedResultControl" : false,
+        "useOldADGUIDFormat" : false,
+        "sendCAUDTxId" : false,
+        "gssapiLoginContext" : null
+    },
+    "enabled" : true,
+    "objectTypes" : {
+        "__GROUP__" : {
+            "$schema" : "http://json-schema.org/draft-03/schema",
+            "id" : "__GROUP__",
+            "type" : "object",
+            "nativeType" : "__GROUP__",
+            "properties" : {
+                "uniqueMember" : {
+                    "type" : "array",
+                    "items" : {
+                        "type" : "string",
+                        "nativeType" : "string"
+                    },
+                    "required" : true,
+                    "nativeName" : "uniqueMember",
+                    "nativeType" : "string"
+                },
+                "owner" : {
+                    "type" : "array",
+                    "items" : {
+                        "type" : "string",
+                        "nativeType" : "string"
+                    },
+                    "nativeName" : "owner",
+                    "nativeType" : "string"
+                },
+                "seeAlso" : {
+                    "type" : "array",
+                    "items" : {
+                        "type" : "string",
+                        "nativeType" : "string"
+                    },
+                    "nativeName" : "seeAlso",
+                    "nativeType" : "string"
+                },
+                "description" : {
+                    "type" : "array",
+                    "items" : {
+                        "type" : "string",
+                        "nativeType" : "string"
+                    },
+                    "nativeName" : "description",
+                    "nativeType" : "string"
+                },
+                "ou" : {
+                    "type" : "array",
+                    "items" : {
+                        "type" : "string",
+                        "nativeType" : "string"
+                    },
+                    "nativeName" : "ou",
+                    "nativeType" : "string"
+                },
+                "businessCategory" : {
+                    "type" : "array",
+                    "items" : {
+                        "type" : "string",
+                        "nativeType" : "string"
+                    },
+                    "nativeName" : "businessCategory",
+                    "nativeType" : "string"
+                },
+                "__NAME__" : {
+                    "type" : "string",
+                    "nativeName" : "__NAME__",
+                    "nativeType" : "string"
+                },
+                "cn" : {
+                    "type" : "array",
+                    "items" : {
+                        "type" : "string",
+                        "nativeType" : "string"
+                    },
+                    "required" : true,
+                    "nativeName" : "cn",
+                    "nativeType" : "string"
+                },
+                "objectClass" : {
+                    "type" : "array",
+                    "items" : {
+                        "type" : "string",
+                        "nativeType" : "string"
+                    },
+                    "nativeName" : "objectClass",
+                    "nativeType" : "string"
+                },
+                "o" : {
+                    "type" : "array",
+                    "items" : {
+                        "type" : "string",
+                        "nativeType" : "string"
+                    },
+                    "nativeName" : "o",
+                    "nativeType" : "string"
+                }
+            }
+        },
+        "Account" : {
+            "$schema" : "http://json-schema.org/draft-03/schema",
+            "type" : "object",
+            "id" : "__ACCOUNT__",
+            "nativeType" : "__ACCOUNT__",
+            "properties" : {
+                "audio" : {
+                    "type" : "array",
+                    "items" : {
+                        "type" : "string",
+                        "nativeType" : "JAVA_TYPE_BYTE_ARRAY"
+                    },
+                    "nativeName" : "audio",
+                    "nativeType" : "JAVA_TYPE_BYTE_ARRAY"
+                },
+                "carLicense" : {
+                    "type" : "array",
+                    "items" : {
+                        "type" : "string",
+                        "nativeType" : "string"
+                    },
+                    "nativeName" : "carLicense",
+                    "nativeType" : "string"
+                },
+                "departmentNumber" : {
+                    "type" : "array",
+                    "items" : {
+                        "type" : "string",
+                        "nativeType" : "string"
+                    },
+                    "nativeName" : "departmentNumber",
+                    "nativeType" : "string"
+                },
+                "manager" : {
+                    "type" : "array",
+                    "items" : {
+                        "type" : "string",
+                        "nativeType" : "string"
+                    },
+                    "nativeName" : "manager",
+                    "nativeType" : "string"
+                },
+                "businessCategory" : {
+                    "type" : "array",
+                    "items" : {
+                        "type" : "string",
+                        "nativeType" : "string"
+                    },
+                    "nativeName" : "businessCategory",
+                    "nativeType" : "string"
+                },
+                "homePostalAddress" : {
+                    "type" : "array",
+                    "items" : {
+                        "type" : "string",
+                        "nativeType" : "string"
+                    },
+                    "nativeName" : "homePostalAddress",
+                    "nativeType" : "string"
+                },
+                "secretary" : {
+                    "type" : "array",
+                    "items" : {
+                        "type" : "string",
+                        "nativeType" : "string"
+                    },
+                    "nativeName" : "secretary",
+                    "nativeType" : "string"
+                },
+                "photo" : {
+                    "type" : "array",
+                    "items" : {
+                        "type" : "string",
+                        "nativeType" : "JAVA_TYPE_BYTE_ARRAY"
+                    },
+                    "nativeName" : "photo",
+                    "nativeType" : "JAVA_TYPE_BYTE_ARRAY"
+                },
+                "objectClass" : {
+                    "type" : "array",
+                    "items" : {
+                        "type" : "string",
+                        "nativeType" : "string"
+                    },
+                    "nativeName" : "objectClass",
+                    "nativeType" : "string"
+                },
+                "labeledURI" : {
+                    "type" : "array",
+                    "items" : {
+                        "type" : "string",
+                        "nativeType" : "string"
+                    },
+                    "nativeName" : "labeledURI",
+                    "nativeType" : "string"
+                },
+                "displayName" : {
+                    "type" : "string",
+                    "nativeName" : "displayName",
+                    "nativeType" : "string"
+                },
+                "__PASSWORD__" : {
+                    "type" : "string",
+                    "nativeName" : "__PASSWORD__",
+                    "nativeType" : "JAVA_TYPE_GUARDEDSTRING",
+                    "flags" : [
+                        "NOT_RETURNED_BY_DEFAULT"
+                    ]
+                },
+                "roomNumber" : {
+                    "type" : "array",
+                    "items" : {
+                        "type" : "string",
+                        "nativeType" : "string"
+                    },
+                    "nativeName" : "roomNumber",
+                    "nativeType" : "string"
+                },
+                "physicalDeliveryOfficeName" : {
+                    "type" : "array",
+                    "items" : {
+                        "type" : "string",
+                        "nativeType" : "string"
+                    },
+                    "nativeName" : "physicalDeliveryOfficeName",
+                    "nativeType" : "string"
+                },
+                "seeAlso" : {
+                    "type" : "array",
+                    "items" : {
+                        "type" : "string",
+                        "nativeType" : "string"
+                    },
+                    "nativeName" : "seeAlso",
+                    "nativeType" : "string"
+                },
+                "destinationIndicator" : {
+                    "type" : "array",
+                    "items" : {
+                        "type" : "string",
+                        "nativeType" : "string"
+                    },
+                    "nativeName" : "destinationIndicator",
+                    "nativeType" : "string"
+                },
+                "preferredLanguage" : {
+                    "type" : "string",
+                    "nativeName" : "preferredLanguage",
+                    "nativeType" : "string"
+                },
+                "preferredDeliveryMethod" : {
+                    "type" : "string",
+                    "nativeName" : "preferredDeliveryMethod",
+                    "nativeType" : "string"
+                },
+                "facsimileTelephoneNumber" : {
+                    "type" : "array",
+                    "items" : {
+                        "type" : "string",
+                        "nativeType" : "string"
+                    },
+                    "nativeName" : "facsimileTelephoneNumber",
+                    "nativeType" : "string"
+                },
+                "employeeType" : {
+                    "type" : "array",
+                    "items" : {
+                        "type" : "string",
+                        "nativeType" : "string"
+                    },
+                    "nativeName" : "employeeType",
+                    "nativeType" : "string"
+                },
+                "internationalISDNNumber" : {
+                    "type" : "array",
+                    "items" : {
+                        "type" : "string",
+                        "nativeType" : "string"
+                    },
+                    "nativeName" : "internationalISDNNumber",
+                    "nativeType" : "string"
+                },
+                "postOfficeBox" : {
+                    "type" : "array",
+                    "items" : {
+                        "type" : "string",
+                        "nativeType" : "string"
+                    },
+                    "nativeName" : "postOfficeBox",
+                    "nativeType" : "string"
+                },
+                "employeeNumber" : {
+                    "type" : "string",
+                    "nativeName" : "employeeNumber",
+                    "nativeType" : "string",
+                    "flags" : [ ],
+                    "required" : false,
+                    "runAsUser" : false
+                },
+                "jpegPhoto" : {
+                    "type" : "array",
+                    "items" : {
+                        "type" : "string",
+                        "nativeType" : "JAVA_TYPE_BYTE_ARRAY"
+                    },
+                    "nativeName" : "jpegPhoto",
+                    "nativeType" : "JAVA_TYPE_BYTE_ARRAY"
+                },
+                "o" : {
+                    "type" : "array",
+                    "items" : {
+                        "type" : "string",
+                        "nativeType" : "string"
+                    },
+                    "nativeName" : "o",
+                    "nativeType" : "string"
+                },
+                "ldapGroups" : {
+                    "type" : "array",
+                    "items" : {
+                        "type" : "string",
+                        "nativeType" : "string"
+                    },
+                    "nativeName" : "ldapGroups",
+                    "nativeType" : "string"
+                },
+                "userPKCS12" : {
+                    "type" : "array",
+                    "items" : {
+                        "type" : "string",
+                        "nativeType" : "string"
+                    },
+                    "nativeName" : "userPKCS12",
+                    "nativeType" : "string"
+                },
+                "__NAME__" : {
+                    "type" : "string",
+                    "nativeName" : "__NAME__",
+                    "nativeType" : "string"
+                },
+                "telexNumber" : {
+                    "type" : "array",
+                    "items" : {
+                        "type" : "string",
+                        "nativeType" : "string"
+                    },
+                    "nativeName" : "telexNumber",
+                    "nativeType" : "string"
+                },
+                "userSMIMECertificate" : {
+                    "type" : "array",
+                    "items" : {
+                        "type" : "string",
+                        "nativeType" : "string"
+                    },
+                    "nativeName" : "userSMIMECertificate",
+                    "nativeType" : "string"
+                },
+                "userCertificate" : {
+                    "type" : "array",
+                    "items" : {
+                        "type" : "string",
+                        "nativeType" : "JAVA_TYPE_BYTE_ARRAY"
+                    },
+                    "nativeName" : "userCertificate",
+                    "nativeType" : "JAVA_TYPE_BYTE_ARRAY"
+                },
+                "teletexTerminalIdentifier" : {
+                    "type" : "array",
+                    "items" : {
+                        "type" : "string",
+                        "nativeType" : "string"
+                    },
+                    "nativeName" : "teletexTerminalIdentifier",
+                    "nativeType" : "string"
+                },
+                "ou" : {
+                    "type" : "array",
+                    "items" : {
+                        "type" : "string",
+                        "nativeType" : "string"
+                    },
+                    "nativeName" : "ou",
+                    "nativeType" : "string"
+                },
+                "registeredAddress" : {
+                    "type" : "array",
+                    "items" : {
+                        "type" : "string",
+                        "nativeType" : "string"
+                    },
+                    "nativeName" : "registeredAddress",
+                    "nativeType" : "string"
+                },
+                "x121Address" : {
+                    "type" : "array",
+                    "items" : {
+                        "type" : "string",
+                        "nativeType" : "string"
+                    },
+                    "nativeName" : "x121Address",
+                    "nativeType" : "string"
+                },
+                "title" : {
+                    "type" : "array",
+                    "items" : {
+                        "type" : "string",
+                        "nativeType" : "string"
+                    },
+                    "nativeName" : "title",
+                    "nativeType" : "string"
+                },
+                "x500uniqueIdentifier" : {
+                    "type" : "array",
+                    "items" : {
+                        "type" : "string",
+                        "nativeType" : "JAVA_TYPE_BYTE_ARRAY"
+                    },
+                    "nativeName" : "x500uniqueIdentifier",
+                    "nativeType" : "JAVA_TYPE_BYTE_ARRAY"
+                },
+                "cn" : {
+                    "type" : "string",
+                    "nativeName" : "cn",
+                    "nativeType" : "string",
+                    "required" : true
+                },
+                "sn" : {
+                    "type" : "string",
+                    "nativeName" : "sn",
+                    "nativeType" : "string",
+                    "required" : true
+                },
+                "description" : {
+                    "type" : "string",
+                    "nativeName" : "description",
+                    "nativeType" : "string",
+                    "required" : false,
+                    "flags" : [ ],
+                    "runAsUser" : false
+                },
+                "givenName" : {
+                    "type" : "string",
+                    "nativeName" : "givenName",
+                    "nativeType" : "string",
+                    "required" : true
+                },
+                "homePhone" : {
+                    "type" : "string",
+                    "nativeName" : "homePhone",
+                    "nativeType" : "string",
+                    "required" : false,
+                    "flags" : [ ],
+                    "runAsUser" : false
+                },
+                "initials" : {
+                    "type" : "string",
+                    "nativeName" : "initials",
+                    "nativeType" : "string",
+                    "required" : false,
+                    "flags" : [ ],
+                    "runAsUser" : false
+                },
+                "mail" : {
+                    "type" : "string",
+                    "nativeName" : "mail",
+                    "nativeType" : "string",
+                    "required" : false,
+                    "flags" : [ ],
+                    "runAsUser" : false
+                },
+                "mobile" : {
+                    "type" : "string",
+                    "nativeName" : "mobile",
+                    "nativeType" : "string",
+                    "required" : false,
+                    "flags" : [ ],
+                    "runAsUser" : false
+                },
+                "pager" : {
+                    "type" : "string",
+                    "nativeName" : "pager",
+                    "nativeType" : "string",
+                    "required" : false,
+                    "flags" : [ ],
+                    "runAsUser" : false
+                },
+                "postalAddress" : {
+                    "type" : "string",
+                    "nativeName" : "postalAddress",
+                    "nativeType" : "string",
+                    "required" : false,
+                    "flags" : [ ],
+                    "runAsUser" : false
+                },
+                "postalCode" : {
+                    "type" : "string",
+                    "nativeName" : "postalCode",
+                    "nativeType" : "string",
+                    "required" : false,
+                    "flags" : [ ],
+                    "runAsUser" : false
+                },
+                "st" : {
+                    "type" : "string",
+                    "nativeName" : "st",
+                    "nativeType" : "string",
+                    "required" : false,
+                    "flags" : [ ],
+                    "runAsUser" : false
+                },
+                "street" : {
+                    "type" : "string",
+                    "nativeName" : "street",
+                    "nativeType" : "string",
+                    "required" : false,
+                    "flags" : [ ],
+                    "runAsUser" : false
+                },
+                "telephoneNumber" : {
+                    "type" : "string",
+                    "nativeName" : "telephoneNumber",
+                    "nativeType" : "string",
+                    "required" : false,
+                    "flags" : [ ],
+                    "runAsUser" : false
+                },
+                "uid" : {
+                    "type" : "string",
+                    "nativeName" : "uid",
+                    "nativeType" : "string",
+                    "required" : true
+                },
+                "I" : {
+                    "type" : "string",
+                    "nativeName" : "l",
+                    "nativeType" : "string",
+                    "required" : false,
+                    "flags" : [ ],
+                    "runAsUser" : false
+                },
+                "dn" : {
+                    "type" : "string",
+                    "nativeName" : "dn",
+                    "nativeType" : "string",
+                    "required" : false,
+                    "flags" : [ ],
+                    "runAsUser" : false
+                }
+            }
+        }
+    }
+}

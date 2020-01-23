@@ -44,42 +44,60 @@ cd forgerock-bulk-migration-generic
 
 ### 3.1. JSON config files
 TBD 
-The route provided with this toolkit serves as an example of implementation. The route requires specific adaptation to each user's case and should not be used as packaged here.
+The mappings and configuration provided with this toolkit serves as an example of implementation but it can be adapted to any source repository and also to any attributes that are needed in the functional usecases.
 
-+ [migration-assets-authentication-route](https://github.com/ForgeRock/modernize-accelerators/blob/develop/forgerock-ig-migration-sso-jit/openig-modernize-routes/migration-assets-authentication-route.json)
-<br>Route filters:
++ [managed.json](https://github.com/ForgeRock/modernize-accelerators/blob/develop/forgerock-bulk-migration-generic/openidm-modernize-config/conf/managed.json)
 
-- <b>MigrationSsoFilter</b> - Custom filter provided in this SSO toolkit. The filter does the following actions:
-    - Intercepts the user' creddentials from the authentication request by calling the framework method implementation <b>getUserCredentials</b> injected via java reflection API.
-	- Verifies if the user is migrated in ForgeRock IDM
-		- If the user is migrated:
-			- he is authenticated in ForgeRock AM
-			- the request is passed through to the legacy IAM and the user is authenticated there also
-			- when legacy IAM responds, the use will have on the HTTP response a Set-Cookie header representing the legacy SSO token. The filter also adds a Set-Cookie header with the value of the SSO token resulted after authentication to ForgeRock AM.
-			- As a result, the user will have in his browser two tokens, on for the legacy IAM, and one for the ForgeRock AM.
-			
-		- If the user is not migrated:
-			- the filter allows the request to pass directly to legacy IAM to validate the credentials
-			- on the response from legacy IAM, the filter verifies if the authentication succeeded by calling the framework method implementation <b>validateLegacyAuthResponse</b> injected via java reflection API.
-			- on successfull authentication in legacy IAM, the filter attempts to retrieve the user profile details by calling the framework method implementation <b>getExtendedUserAttributes</b> injected via java reflection API.
-			- with the user profile attributes retrieved, the filter provisions the user in ForgeRock IDM.
 ```
-Node Class: /src/main/java/org.forgerock.openam.auth.node.CheckLegacyToken.java
-Plugin class: /src/main/java/org.forgerock.openam.auth.node.plugin.CheckLegacyTokenPlugin.java
-Configuration File: /src/main/resources/org/forgerock/openam/auth/node/CheckLegacyToken.properties
-
-Configuration          | Example                                                            | Description
----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------
-Legacy Token Endpoint  | <<proto>>://<<host>>/openam/json/sessions?tokenId=                 | field for the end point used by the Legacy iAM to verify if an SSO token is valid
-Legacy cookie name     | iPlanetDirectoryPro                                                | field for the name of the SSO token expected by the legacy token verification end point.
+Configuration                 | Example                                                            | Description
+----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------
+User Managed ObjectAttributes | TBD                                                                | TBD
 ```
+
++ [sync.json](https://github.com/ForgeRock/modernize-accelerators/blob/develop/forgerock-bulk-migration-generic/openidm-modernize-config/conf/sync.json)
+
+```
+Configuration               | Example                                                            | Description
+--------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------
+Mapping Legacy -> IDM       | TBD                                                                | TBD
+Mapping IDM -> Forgerock DS | TBD                                                                | TBD
+```
+
++ [provisioner.openicf-FRDS.json](https://github.com/ForgeRock/modernize-accelerators/blob/develop/forgerock-bulk-migration-generic/openidm-modernize-config/conf/provisioner.openicf-FRDS.json)
+
+```
+Configuration               | Example                                                            | Description
+--------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------
+LDAP Server Hostname        | TBD                                                                | TBD
+LDAP Server Port            | TBD                                                                | TBD
+LDAP Server Bind Username   | TBD                                                                | TBD
+LDAP Server Bind Password   | TBD                                                                | TBD
+LDAP Server ObjectClass     | TBD                                                                | TBD
+```
+
++ [provisioner.openicf-FRDS.json](https://github.com/ForgeRock/modernize-accelerators/blob/develop/forgerock-bulk-migration-generic/openidm-modernize-config/conf/provisioner.openicf-FRDS.json)
+
+```
+Configuration               | Example                                                            | Description
+--------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------
+LDAP Server Hostname        | TBD                                                                | TBD
+LDAP Server Port            | TBD                                                                | TBD
+LDAP Server Bind Username   | TBD                                                                | TBD
+LDAP Server Bind Password   | TBD                                                                | TBD
+LDAP Server ObjectClass     | TBD                                                                | TBD
+```
+
+### 3.2. Install config files
+Before copying the config files (under /conf location on the github repository, you should change accordingly all the properties inside them).
+
+Copy the content of the /conf folder to your IDM /conf location and restart the server. To check if the changes were properly applied you can login to the IDM Administration Console (using the openidm_admin or another admin account if it was created before) and access from the menu: Configure -> Connectors and Configure -> Mappings to see the new assets.
 
 
 ## 4. Extending & Customizing
 TBD
 
 ## 5. Troubleshooting Common Problems
-TBD
++ N/A
 
 ## 6. Known issues
 + N/A

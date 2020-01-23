@@ -1,0 +1,275 @@
+{
+    "mappings" : [
+        {
+            "target" : "managed/user",
+            "source" : "system/LdapAWS/Account",
+            "name" : "systemLdapawsAccount_managedUser",
+            "icon" : null,
+            "displayName" : "systemLdapawsAccount_managedUser",
+            "properties" : [
+                {
+                    "target" : "givenName",
+                    "source" : "givenName"
+                },
+                {
+                    "target" : "sn",
+                    "source" : "sn"
+                },
+                {
+                    "target" : "uid",
+                    "source" : "uid"
+                },
+                {
+                    "target" : "cn",
+                    "source" : "cn"
+                },
+                {
+                    "target" : "I",
+                    "source" : "I"
+                },
+                {
+                    "target" : "employeeNumber",
+                    "source" : "employeeNumber"
+                },
+                {
+                    "target" : "homePhone",
+                    "source" : "homePhone"
+                },
+                {
+                    "target" : "mail",
+                    "source" : "mail"
+                },
+                {
+                    "target" : "mobile",
+                    "source" : "mobile"
+                },
+                {
+                    "target" : "pager",
+                    "source" : "pager"
+                },
+                {
+                    "target" : "postalCode",
+                    "source" : "postalCode"
+                },
+                {
+                    "target" : "postalAddress",
+                    "source" : "postalAddress"
+                },
+                {
+                    "target" : "st",
+                    "source" : "st"
+                },
+                {
+                    "target" : "street",
+                    "source" : "street"
+                },
+                {
+                    "target" : "telephoneNumber",
+                    "source" : "telephoneNumber"
+                },
+                {
+                    "target" : "description",
+                    "source" : "description"
+                },
+                {
+                    "target" : "initials",
+                    "source" : "initials"
+                }
+            ],
+            "policies" : [
+                {
+                    "action" : "EXCEPTION",
+                    "situation" : "AMBIGUOUS"
+                },
+                {
+                    "action" : "CREATE",
+                    "situation" : "SOURCE_MISSING"
+                },
+                {
+                    "action" : "CREATE",
+                    "situation" : "MISSING"
+                },
+                {
+                    "action" : "UPDATE",
+                    "situation" : "FOUND_ALREADY_LINKED"
+                },
+                {
+                    "action" : "DELETE",
+                    "situation" : "UNQUALIFIED"
+                },
+                {
+                    "action" : "EXCEPTION",
+                    "situation" : "UNASSIGNED"
+                },
+                {
+                    "action" : "EXCEPTION",
+                    "situation" : "LINK_ONLY"
+                },
+                {
+                    "action" : "IGNORE",
+                    "situation" : "TARGET_IGNORED"
+                },
+                {
+                    "action" : "IGNORE",
+                    "situation" : "SOURCE_IGNORED"
+                },
+                {
+                    "action" : "IGNORE",
+                    "situation" : "ALL_GONE"
+                },
+                {
+                    "action" : "UPDATE",
+                    "situation" : "CONFIRMED"
+                },
+                {
+                    "action" : "UPDATE",
+                    "situation" : "FOUND"
+                },
+                {
+                    "action" : "CREATE",
+                    "situation" : "ABSENT"
+                }
+            ]
+        },
+        {
+            "target" : "system/LdapOpenAm/Account",
+            "source" : "managed/user",
+            "name" : "managedUser_systemLdapopenamAccount",
+            "icon" : null,
+            "displayName" : "managedUser_systemLdapopenamAccount",
+            "properties" : [
+                {
+                    "target" : "cn",
+                    "source" : "cn"
+                },
+                {
+                    "target" : "sn",
+                    "source" : "sn"
+                },
+                {
+                    "target" : "givenName",
+                    "source" : "givenName"
+                },
+                {
+                    "target" : "uid",
+                    "source" : "uid"
+                },
+                {
+                    "target" : "I",
+                    "source" : "I"
+                },
+                {
+                    "target" : "description",
+                    "source" : "description"
+                },
+                {
+                    "target" : "initials",
+                    "source" : "initials"
+                },
+                {
+                    "target" : "homePhone",
+                    "source" : "homePhone"
+                },
+                {
+                    "target" : "employeeNumber",
+                    "source" : "employeeNumber"
+                },
+                {
+                    "target" : "mail",
+                    "source" : "mail"
+                },
+                {
+                    "target" : "mobile",
+                    "source" : "mobile"
+                },
+                {
+                    "target" : "pager",
+                    "source" : "pager"
+                },
+                {
+                    "target" : "postalCode",
+                    "source" : "postalCode"
+                },
+                {
+                    "target" : "postalAddress",
+                    "source" : "postalAddress"
+                },
+                {
+                    "target" : "st",
+                    "source" : "st"
+                },
+                {
+                    "target" : "street",
+                    "source" : "street"
+                },
+                {
+                    "target" : "telephoneNumber",
+                    "source" : "telephoneNumber"
+                },
+                {
+                    "target" : "__NAME__",
+                    "transform" : {
+                        "type" : "text/javascript",
+                        "globals" : { },
+                        "source" : "\"uid=\" + source.uid +\",ou=people,dc=openam,dc=forgerock,dc=org\""
+                    },
+                    "source" : ""
+                }
+            ],
+            "policies" : [
+                {
+                    "action" : "EXCEPTION",
+                    "situation" : "AMBIGUOUS"
+                },
+                {
+                    "action" : "CREATE",
+                    "situation" : "SOURCE_MISSING"
+                },
+                {
+                    "action" : "CREATE",
+                    "situation" : "MISSING"
+                },
+                {
+                    "action" : "EXCEPTION",
+                    "situation" : "FOUND_ALREADY_LINKED"
+                },
+                {
+                    "action" : "DELETE",
+                    "situation" : "UNQUALIFIED"
+                },
+                {
+                    "action" : "EXCEPTION",
+                    "situation" : "UNASSIGNED"
+                },
+                {
+                    "action" : "EXCEPTION",
+                    "situation" : "LINK_ONLY"
+                },
+                {
+                    "action" : "IGNORE",
+                    "situation" : "TARGET_IGNORED"
+                },
+                {
+                    "action" : "IGNORE",
+                    "situation" : "SOURCE_IGNORED"
+                },
+                {
+                    "action" : "IGNORE",
+                    "situation" : "ALL_GONE"
+                },
+                {
+                    "action" : "UPDATE",
+                    "situation" : "CONFIRMED"
+                },
+                {
+                    "action" : "UPDATE",
+                    "situation" : "FOUND"
+                },
+                {
+                    "action" : "CREATE",
+                    "situation" : "ABSENT"
+                }
+            ]
+        }
+    ]
+}
