@@ -5,7 +5,7 @@ ForgeRock does not warrant, guarantee or make any representations regarding the 
 <br><br>
 ForgeRock shall not be liable for any direct, indirect or consequential damages or costs of any type arising out of any action taken by you or others related to the sample code.
 
-# Modernize Accelerators - SSO Toolkit (with AM) - Migration from Oracle 11G OAM to ForgeRock
+# Modernize Accelerators - SSO Toolkit (with AM) - Migration from Oracle 11G OAM to ForgerRock
 With deployments of tens or hundreds of legacy applications, migration waves may be required to minimize the operational impact on production systems. With this type of use case, coexistence and SSO between legacy IAM and ForgeRock IAM is often needed.
 Sometimes putting IG in front of a legacy system is not an option for commercial reasons. 
 
@@ -67,6 +67,48 @@ MAVEN_HOME=/opt/apache-maven-3.6.3
 MAVEN_OPTS='-Xmx2g -Xms2g -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=512m'
 ```
 
++ The source files use some Spring dependencies from the 5.2.1.RELEASE which you need to download. The following jars must be added to WEB-INF/lib
+    + [spring-beans-5.2.1.RELEASE](https://mvnrepository.com/artifact/org.springframework/spring-beans)
+    + [spring-core-5.2.1.RELEASE](https://mvnrepository.com/artifact/org.springframework/spring-core)
+    + [spring-jcl-5.2.1.RELEASE](https://mvnrepository.com/artifact/org.springframework/spring-jcl)
+    + [spring-web-5.2.1.RELEASE](https://mvnrepository.com/artifact/org.springframework/spring-web)
+
++ The source files also use the Oracle Access Manager Access SDK. The following jars must be downloaded from the Oracle downloads page, and added to WEB-INF/lib.
+    + identitystore.jar
+	+ jps-api.jar
+	+ jps-common.jar
+	+ jps-internal.jar
+	+ jps-unsupported-api.jar
+	+ oamasdk-api.jar
+	+ oraclepki.jar
+	+ osdt_cert.jar
+	+ osdt_core.jar
+	+ osdt_xmlsec.jar
+	
+In addition to copying the dependencies inside the AM-x.y.z.war file, you must also add them to your classpath. To use the library as a dependency, you can add it to your lib directory for a simple java project, or import it to your maven or gradle project as an artifact.
+
+Example for installing the jar as a maven artifact on a local maven repository:
+
+```
+mvn install:install-file \
+   -Dfile='/path/to/identitystore.jar' \
+   -DgroupId=com.oracle \
+   -DartifactId=identitystore \
+   -Dversion=1.0.0 \
+   -Dpackaging=jar \
+   -DgeneratePom=true
+```
+
+Example usage of the jar file in the maven's project pom.xml:
+
+```
+<dependency>
+	<groupId>com.oracle</groupId>
+	<artifactId>identitystore</artifactId>
+	<version>1.0.0</version>
+</dependency>
+```
+
 ### 2.2. Getting the Code
 
 If you want to run the code unmodified you can simply clone the ForgeRock repository:
@@ -107,15 +149,6 @@ jar -xf ~/Downloads/OpenAM-6.5.2.war
 ```
 cp ~/openam-modernize-oracle-auth-nodes-<nextversion>-SNAPSHOT.jar WEB-INF/lib
 ```
-
-+ The source files use some Spring dependencies from the 5.2.1.RELEASE which you need to download. The following jars must be added to WEB-INF/lib
-
-
-+ [spring-beans-5.2.1.RELEASE](https://mvnrepository.com/artifact/org.springframework/spring-beans)
-+ [spring-core-5.2.1.RELEASE](https://mvnrepository.com/artifact/org.springframework/spring-core)
-+ [spring-jcl-5.2.1.RELEASE](https://mvnrepository.com/artifact/org.springframework/spring-jcl)
-+ [spring-web-5.2.1.RELEASE](https://mvnrepository.com/artifact/org.springframework/spring-web)
-
 
 + Rebuild the war file: 
 
