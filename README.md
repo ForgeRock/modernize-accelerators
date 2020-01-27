@@ -21,8 +21,8 @@ ForgeRock shall not be liable for any direct, indirect or consequential damages 
 + The Modernize IAM Accelerators do not currently cover migrations of policies, sessions, customizations, applications, or services​.
 
 ## Contents
-+ [SSO Tool Kit (with AM)](https://github.com/ForgeRock/miami-accelerators/tree/master/forgerock-am-migration-sso-jit)
-+ [SSO Toolkit (with IG)](https://github.com/ForgeRock/modernize-accelerators/tree/develop/forgerock-ig-migration-sso-jit)
++ [SSO Tool Kit (with AM)](forgerock-am-migration-sso-jit)
++ [SSO Toolkit (with IG)](forgerock-ig-migration-sso-jit)
 + [Bulk User Migration Toolkit (with OUD)](forgerock-bulk-migration-oud)
 
 ## License
