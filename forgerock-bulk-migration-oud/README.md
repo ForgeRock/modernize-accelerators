@@ -56,7 +56,7 @@ The mappings and configuration provided with this toolkit serves as an example o
 Configuration               	| Change type          		| Description
 ------------------------------- | ----------------------------- | ---------------------------------------------------------------------------------------------------
 User Managed Object		| Update                   	| The existing IDM User managed object was extended with some attributes OUD specific
-Group Managed Object		| New					| A new IDM managed object was created in order to store the OUD groups	
+Group Managed Object		| New				| A new IDM managed object was created in order to store the OUD groups	
 ```
 
 + [provisioner.openicf-legacyOUD.json](openidm-modernize-config/conf/provisioner.openicf-legacyOUD.json)
