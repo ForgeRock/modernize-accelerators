@@ -184,7 +184,7 @@ The tree export and it's nodes can be found in the folder:
 In this example the tree was created and exported in the root realm, but as a best practice you should never use the root realm. If you choose to import the oracleMigrationSsoTree with Amster, please make sure to replace the realm property with your own value in the amster-export resources provided.
 
 
-### 3.2. Tree Nodes
+### 3.3. Tree Nodes
 
 A node is the core abstraction within an authentication tree. Trees are made up of nodes, which may modify the shared state and/or request input from the user via callbacks.
 
@@ -312,8 +312,8 @@ IDM Password Secret ID | openidmadminpass                                       
 <br>
 
 ## 5. Extending & Customizing
-Any changes you need to make to adapt to a specific legacy system can be done in the provided sample nodes. To do so you first need to import the project you downloaded - /forgerock-am-ora-migration-sso-jit/openam-modernize-oracle-auth-nodes from GitHub in your preferred IDE. The node classes and additional files are described in <b>Chapter 3.2 - Tree Nodes</b>.
-+ <b>Example</b>: To add or remove additional profile attributes, the node <b>CreateUser</b> can be updated. In the method <b>process</b> you can retrieve additional attributes from the legacy profile details call. You can then map them on the request body from the <b>createProvisioningRequestEntity()</b> method.
+Any changes you need to make to adapt to a specific legacy system can be done in the provided sample nodes. To do so you first need to import the project you downloaded - /forgerock-am-ora-migration-sso-jit/openam-modernize-oracle-auth-nodes from GitHub in your preferred IDE. The node classes and additional files are described in <b>Chapter 3.3 - Tree Nodes</b>.
++ <b>Example</b>: To add or remove additional profile attributes, the node <b>Legacy-ORA-Create FR User</b> can be updated. In the method <b>process</b> you can retrieve additional attributes from the legacy profile details call. You can then map them on the request body from the <b>createProvisioningRequestEntity()</b> method.
 
 ## 6. Troubleshooting common problems
 + <b>Problem:</b> Changes in configuration don't show up in the OpenAM console after deploy.<br>
