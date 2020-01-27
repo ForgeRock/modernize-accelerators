@@ -85,7 +85,7 @@ MAVEN_OPTS='-Xmx2g -Xms2g -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=512m'
 	+ osdt_core.jar
 	+ osdt_xmlsec.jar
 	
-In addition to copying the dependencies inside the AM-x.y.z.war file, you must also add them to your classpath. To use the library as a dependency, you can add it to your lib directory for a simple java project, or import it to your maven or gradle project as an artifact.
+In addition to copying the dependencies inside the AM-x.y.z.war file, you must also add them to your classpath so that your IDE can see all the dependencies correctly. To use the library as a dependency, you can add it to your lib directory for a simple java project, or import it to your maven or gradle project as an artifact.
 
 Example for installing the jar as a maven artifact on a local maven repository:
 
@@ -160,11 +160,26 @@ jar -cf ../ROOT.war *
 
 ## 3. Configuration
 
-### 3.1. Configuring Secret Stores
+### 3.1. Configuring the OAM access client
+
+To generate an access client configuration file, follow the instructions below:
+
++ Login to OAM console with am administrator user
++ Go to Agents -> Webgates -> Search
++ From the list of available agents, select your SSO Webgate agent
++ From the agent's dedicated page, click the download button. Save the generated <b>OBAccessClient.xml</b> file
++ Create the following folder structure on the ForgeRock AM instance:
+```
+/path/to/config/oblix/lib
+```
++ Copy the previously generated file, <b>OBAccessClient.xml</b>, to the /path/to/config/oblix/lib location.
+
+
+### 3.2. Configuring Secret Stores
 
 The passwords that are used in the toolkit nodes, must be saved in secret stores for security reasons. Before proceeding with the secret store configuration described below, please also see the ForgeRock [documentation](https://backstage.forgerock.com/docs/am/6.5/maintenance-guide/#configure-secret-stores) regarding secret store.
 
-#### 3.1.1. To Configure a File System Secret Volume Store
+#### 3.2.1. To Configure a File System Secret Volume Store
 
 + To configure a global file system secret volume store:
     + Navigate to Configure > Secret Stores.
@@ -193,18 +208,18 @@ The passwords that are used in the toolkit nodes, must be saved in secret stores
 
 
 
-### 3.2. Authentication Tree
+### 3.3. Authentication Tree
 
 Please see the ForgeRock [documentation](https://backstage.forgerock.com/docs/am/6.5/authentication-guide/index.html#sec-configure-authentication-trees) on how to create authentication trees.
 
 To set your custom authentication tree as the default inside a realm, navigate to 'Authentication' -> 'Settings' and on the 'Core' tab select your custom authentication tree in the field for 'Organization Authentication Configuration'. 
 
 
-#### 3.2.1. Building the tree
+#### 3.3.1. Building the tree
 
 ![oracleMigrationSsoTree](images/oracleMigrationSsoTree.PNG)
 
-#### 3.2.2. Alternative - Importing the tree with Amster
+#### 3.3.2. Alternative - Importing the tree with Amster
 
 The SSO toolkit, also comes with built tree exported with Amster, that can be imported on other AM servers. Please refer to the [documentation](https://backstage.forgerock.com/docs/amster/6.5/user-guide/#sec-usage-import) for how to use Amster for importing resources.
 
@@ -217,7 +232,7 @@ The tree export and it's nodes can be found in the folder:
 In this example the tree was created and exported in the root realm, but as a best practice you should never use the root realm. If you choose to import the oracleMigrationSsoTree with Amster, please make sure to replace the realm property with your own value in the amster-export resources provided.
 
 
-### 3.3. Tree Nodes
+### 3.4. Tree Nodes
 
 A node is the core abstraction within an authentication tree. Trees are made up of nodes, which may modify the shared state and/or request input from the user via callbacks.
 
