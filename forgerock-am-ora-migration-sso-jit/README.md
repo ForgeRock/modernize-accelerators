@@ -298,10 +298,18 @@ IDM Password Secret ID | openidmadminpass                                       
 ![Scenario3](images/Scenario3.jpg)
 <br>
 
-### 4.4. Scenario 4 - This is the standard scenario triggered when the user is already migrated, and Data Store decision node authenticates the user successfully
+### 4.4. Scenario 4 - This scenario is triggered when the user has a valid legacy SSO token in the browser and is already migrated
+- The user (previously migrated) authenticates first in the Legacy iAM.
+- The user accesses the authentication tree
+- The outcome of this scenario is that the user is authenticated automatically with both legacy iAM and ForgeRock token at the end of the tree.
+![Scenario4](images/Scenario4.jpg)
+<br>
+
+### 4.5. Scenario 5 - This is the standard scenario triggered when the user is already migrated, and Data Store decision node authenticates the user successfully
 - The user accesses the authentication tree. The tree is prompting the user for the username and password.
 - The outcome of this scenario is that the user is authenticated automatically with both legacy iAM and ForgeRock token at the end of the tree.
-
+![Scenario5](images/Scenario5.jpg)
+<br>
 
 ## 5. Extending & Customizing
 Any changes you need to make to adapt to a specific legacy system can be done in the provided sample nodes. To do so you first need to import the project you downloaded - /forgerock-am-ora-migration-sso-jit/openam-modernize-oracle-auth-nodes from GitHub in your preferred IDE. The node classes and additional files are described in <b>Chapter 3.2 - Tree Nodes</b>.
