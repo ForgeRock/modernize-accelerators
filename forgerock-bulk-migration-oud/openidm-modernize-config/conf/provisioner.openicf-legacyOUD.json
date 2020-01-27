@@ -264,6 +264,22 @@
                     "nativeName" : "title",
                     "nativeType" : "string",
                     "required" : false
+                },
+                "isMemberOf" : {
+                    "type" : "array",
+                    "items" : {
+                        "type" : "string",
+                        "nativeType" : "string"
+                    },
+                    "nativeName" : "isMemberOf",
+                    "nativeType" : "string",
+                    "required" : false
+                },
+                "orclGUID" : {
+                    "type" : "string",
+                    "nativeName" : "orclGUID",
+                    "nativeType" : "string",
+                    "required" : false									  
                 }
             }
         },

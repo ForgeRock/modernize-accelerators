@@ -87,8 +87,37 @@
             "displayName" : "LegacyOUD_to_IDMUserObject",
             "properties" : [
                 {
+                    "source" : "uid",
+                    "target" : "userName"
+                },
+                {
                     "source" : "cn",
                     "target" : "cn"
+                },
+                {
+                    "source" : "givenName",
+                    "target" : "givenName"
+                },
+                {
+                    "target" : "accountStatus",
+                    "transform" : {
+                        "type" : "text/javascript",
+                        "globals" : { },
+                        "source" : "(source.oblockouttime != null || source.orclIsEnabled.equalsIgnoreCase('disabled')) ?  'inactive' : 'active'"
+                    },
+                    "source" : ""
+                },
+                {
+                    "source" : "sn",
+                    "target" : "sn"
+                },
+                {
+                    "source" : "mail",
+                    "target" : "mail"
+                },
+                {
+                    "source" : "telephoneNumber",
+                    "target" : "telephoneNumber"
                 },
                 {
                     "source" : "departmentNumber",
@@ -99,24 +128,24 @@
                     "target" : "description"
                 },
                 {
-                    "source" : "displayName",
-                    "target" : "displayName"
-                },
-                {
                     "source" : "employeeType",
                     "target" : "employeeType"
                 },
                 {
-                    "source" : "givenName",
-                    "target" : "givenName"
-                },
-                {
-                    "source" : "mail",
-                    "target" : "mail"
+                    "target" : "employeeNumber",
+                    "source" : "employeeNumber"
                 },
                 {
                     "source" : "o",
                     "target" : "organization"
+                },
+                {
+                    "source" : "title",
+                    "target" : "title"
+                },
+                {
+                    "source" : "displayName",
+                    "target" : "displayName"
                 },
                 {
                     "source" : "oblastfailedlogin",
@@ -135,33 +164,15 @@
                     "target" : "loginTryCount"
                 },
                 {
-                    "source" : "sn",
-                    "target" : "sn"
+                    "target" : "groups"
                 },
                 {
-                    "source" : "telephoneNumber",
-                    "target" : "telephoneNumber"
+                    "target" : "groups",
+                    "source" : "isMemberOf"
                 },
                 {
-                    "source" : "title",
-                    "target" : "title"
-                },
-                {
-                    "source" : "uid",
-                    "target" : "userName"
-                },
-                {
-                    "target" : "employeeNumber",
-                    "source" : "employeeNumber"
-                },
-                {
-                    "target" : "accountStatus",
-                    "transform" : {
-                        "type" : "text/javascript",
-                        "globals" : { },
-                        "source" : "(source.oblockouttime != null || source.orclIsEnabled.equalsIgnoreCase('disabled')) ?  'inactive' : 'active'"
-                    },
-                    "source" : ""
+                    "target" : "uniqueId",
+                    "source" : "orclGUID"
                 }
             ],
             "policies" : [
@@ -241,11 +252,11 @@
             ],
             "policies" : [
                 {
-                    "action" : "EXCEPTION",
+                    "action" : "IGNORE",
                     "situation" : "AMBIGUOUS"
                 },
                 {
-                    "action" : "EXCEPTION",
+                    "action" : "DELETE",
                     "situation" : "SOURCE_MISSING"
                 },
                 {
@@ -257,11 +268,11 @@
                     "situation" : "FOUND_ALREADY_LINKED"
                 },
                 {
-                    "action" : "DELETE",
+                    "action" : "IGNORE",
                     "situation" : "UNQUALIFIED"
                 },
                 {
-                    "action" : "EXCEPTION",
+                    "action" : "IGNORE",
                     "situation" : "UNASSIGNED"
                 },
                 {
@@ -285,7 +296,7 @@
                     "situation" : "CONFIRMED"
                 },
                 {
-                    "action" : "UPDATE",
+                    "action" : "LINK",
                     "situation" : "FOUND"
                 },
                 {

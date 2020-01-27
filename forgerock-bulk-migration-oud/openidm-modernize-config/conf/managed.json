@@ -665,6 +665,23 @@
                         "viewable" : true,
                         "searchable" : true,
                         "userEditable" : true
+                    },
+                    "groups" : {
+                        "title" : "Groups",
+                        "type" : "array",
+                        "viewable" : true,
+                        "searchable" : false,
+                        "userEditable" : true,
+                        "items" : {
+                            "type" : "string"
+                        }
+                    },
+                    "uniqueId" : {
+                        "title" : "Unique Id",
+                        "type" : "string",
+                        "viewable" : true,
+                        "searchable" : true,
+                        "userEditable" : true
                     }
                 },
                 "order" : [
@@ -704,7 +721,9 @@
                     "lockoutTime",
                     "loginTryCount",
                     "cn",
-                    "employeeNumber"
+                    "employeeNumber",
+                    "groups",
+                    "uniqueId"						  
                 ],
                 "required" : [
                     "userName",
