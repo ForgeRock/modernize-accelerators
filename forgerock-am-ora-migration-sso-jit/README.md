@@ -155,7 +155,7 @@ The passwords that are used in the toolkit nodes, must be saved in secret stores
     + AM console configuration:
 	![secretStore](images/secretStore.png)
 
-    + Filesystem secret id:
+    + Filesystem secret id:<br>
 	![secretStore](images/secretFilesystem.png)
 
 
