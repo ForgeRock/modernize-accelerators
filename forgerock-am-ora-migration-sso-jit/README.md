@@ -169,7 +169,7 @@ To set your custom authentication tree as the default inside a realm, navigate t
 
 #### 3.1.1. Building the tree
 
-![oracleMigrationSsoTree](images/oracleMigrationSsoTree.png)
+![oracleMigrationSsoTree](images/oracleMigrationSsoTree.PNG)
 
 #### 3.1.2. Alternative - Importing the tree with Amster
 
