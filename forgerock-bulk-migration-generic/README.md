@@ -5,18 +5,18 @@ ForgeRock does not warrant, guarantee or make any representations regarding the 
 <br><br>
 ForgeRock shall not be liable for any direct, indirect or consequential damages or costs of any type arising out of any action taken by you or others related to the sample code.
 
-# Modernize Accelerators - Bulk Migration OUD (Oracle Unified Directory) Toolkit 
-One-time and incremental import of user profiles and groups from Legacy OUD LDAP store to Forgerock DS is often a requirement in complex migration process.
+# Modernize Accelerators - Bulk Migration Generic Toolkit 
+One-time and incremental import of user profiles and groups from an external legacy IAM user store to Forgerock DS is often a requirement in complex migration process.
 With custom schema being used by Legacy IAM systems (custom object classes, custom attributes, custom naming and organization units/suffix) the process of synchronizing information can be complex to design and implement. In addition, the particular mapping of the extended schema (attributes, object classes and group-membership used for core IAM transactions) can also be cumbersome and lengthy.
 
 ## 1. Contents
 The following assets have been included in the Migration Accelerators for this purpose:
-	- Template for OUD LDAPv3 to LDAPv3 user reconciliation from Legacy IAM to Forgerock DS;
+	- A template for LDAPv3 to LDAPv3 user reconciliation from Legacy IAM to ForgeRock DS;
 	- Mapping for common group information: common name, description, displayName, uniqueMember;
 	- Mapping for common identity information: UID, common name, group membership, status, mail, telephone number, given name, last name, department details, description, employee details, last login, account locked features, number of wrong attempts.
 
 ### 1.1. Assets Included
-This toolkit implements one-way synchronization from an external Legacy OUD userstore to the Forgerock IDM repository and then synchronization to Forgerock Directory Server as the next generation userstore.
+This toolkit implements one-way synchronization from an external legacy IAM user store to the Forgerock IDM repository and then synchronization to Forgerock Directory Server as the next generation userstore.
 	- User and group objects in the source system file are synchronized with the managed users and groups in the Forgerock IDM repository and then are pushed in Forgerock DS based on the provided mappings;
 	- Both inbound mappings and outbound mappings can be extended for the specific customer scenarios;
 	- The sample source connector is LDAPv3 but may be adapted in the customer context.
@@ -26,11 +26,11 @@ System	| Type                | Name                 	          	| Description
 --------|---------------------|---------------------------------------- | --------------------------------------------------------------------------------------------------------
 IDM	| Managed Object      | managed.json			  	| Enhanced user object definition that brings several other typical attributes in the IDM definition
 IDM	| Managed Object      | managed.json			  	| New group managed object definition
-IDM	| Mapping             | sync.json			  	| Source mapping set for Legacy OUD to IDM User managed object
-IDM	| Mapping             | sync.json			  	| Source mapping set for Legacy OUD to IDM Group managed object
+IDM	| Mapping             | sync.json			  	| Source mapping set for Legacy IAM to IDM User managed object
+IDM	| Mapping             | sync.json			  	| Source mapping set for Legacy IAM to IDM Group managed object
 IDM	| Mapping             | sync.json			  	| Source mapping set for IDM User managed object to Forgerock Directory Server
 IDM	| Mapping             | sync.json			  	| Source mapping set for IDM Group managed object to Forgerock Directory Server
-IDM	| Connector           | provisioner.openicf-legacyOUD.json	| Source connector that pulls user identities from Legacy OUD (LDAPv3 connector)
+IDM	| Connector           | provisioner.openicf-legacyIAM.json	| Source connector that pulls user identities from Legacy IAM (LDAPv3 connector)
 IDM	| Connector           | provisioner.openicf-ldap.json      	| Target connector that pushes identity information inside Forgerock Directory Server (LDAPv3 connector)
 ```
 
@@ -41,7 +41,7 @@ If you want to get the assets contained in this package, you must start by cloni
 ```
 mkdir demo
 git clone https://github.com/ForgeRock/modernize-accelerators.git
-cd forgerock-bulk-migration-oud
+cd forgerock-bulk-migration-generic
 ```
 
 ## 3. Configuration
@@ -55,16 +55,16 @@ The mappings and configuration provided with this toolkit serves as an example o
 ```
 Configuration               	| Change type          		| Description
 ------------------------------- | ----------------------------- | ---------------------------------------------------------------------------------------------------
-User Managed Object		| Update                   	| The existing IDM User managed object was extended with some attributes OUD specific
-Group Managed Object		| New					| A new IDM managed object was created in order to store the OUD groups	
+User Managed Object		| Update                   	| The existing IDM User managed object was extended with some attributes Legacy IAM specific
+Group Managed Object		| New				| A new IDM managed object was created in order to store the Legacy IAM groups	
 ```
 
-+ [provisioner.openicf-legacyOUD.json](openidm-modernize-config/conf/provisioner.openicf-legacyOUD.json)
++ [provisioner.openicf-legacyIAM.json](openidm-modernize-config/conf/provisioner.openicf-legacyIAM.json)
 
 ```
 Configuration               	| Change type          		| Description
 ------------------------------- | ----------------------------- | --------------------------------------------------------------------------------------------------------------
-LDAPv3 OUD Connector		| New                   	| A new LDAPv3 Connector that connects to the OUD repository for retrieving user and group information
+LDAPv3 IAM Connector		| New                   	| A new LDAPv3 Connector that connects to the Legacy IAM repository for retrieving user and group information
 ```
 
 + [provisioner.openicf-ldap.json](openidm-modernize-config/conf/provisioner.openicf-ldap.json)
@@ -80,10 +80,10 @@ LDAPv3 Forgerock DS Connector	| Update               		| A new LDAPv3 Connector 
 ```
 Configuration               	| Change type			| Description
 ------------------------------- | ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------
-Mapping OUD Ldap -> IDM User   	| New				| A new mapping definition was created in order to map the target OUD user attributes to the IDM User managed object ones
-Mapping OUD Ldap -> IDM Group  	| New				| A new mapping definition was created in order to map the target OUD group attributes to the IDM Group managed object ones
-Mapping IDM User -> Forgerock DS| Update			| The existing mapping was updated in order to pass to the Forgerock DS the additional user attributes OUD specific
-Mapping IDM Group -> Forgerock 	| New				| A new mapping was created in order to pass to the Forgerock DS the group atributes that were previously reconciled from OUD
+Mapping IAM Ldap -> IDM User   	| New				| A new mapping definition was created in order to map the target Legacy IAM user attributes to the IDM User managed object ones
+Mapping IAM Ldap -> IDM Group  	| New				| A new mapping definition was created in order to map the target Legacy IAM group attributes to the IDM Group managed object ones
+Mapping IDM User -> Forgerock DS| Update			| The existing mapping was updated in order to pass to the Forgerock DS the additional user attributes Legacy IAM specific
+Mapping IDM Group -> Forgerock 	| New				| A new mapping was created in order to pass to the Forgerock DS the group atributes that were previously reconciled from Legacy IAM
 ```
 
 
@@ -91,7 +91,7 @@ Mapping IDM Group -> Forgerock 	| New				| A new mapping was created in order to
 + <b>Important note:</b> The assets presented below are built based on OpenIDM version 6.5.2.
 
 Before copying the config files (under /conf location on the github repository, you should change accordingly all the properties inside them):
-+ connection details to the <b>OUD repository</b>
++ connection details to the <b>Legacy IAM repository</b>
 + connection details to the <b>Forgerock Directory Server</b>
 
 Copy the content of the /conf folder to your IDM /conf location and restart the server. To check if the changes were properly applied you can login to the IDM Administration Console (using the openidm-admin or another admin account if it was created before) and access from the menu: 
@@ -103,7 +103,7 @@ Copy the content of the /conf folder to your IDM /conf location and restart the 
 
 ## 4. Extending & Customizing
 
-### 4.1. Extending the OUD connector with other attributes and configuration
+### 4.1. Extending the Legacy IAM connector with other attributes and configuration
 Please see the ForgeRock [documentation](https://backstage.forgerock.com/docs/idm/6.5/connector-reference/#ldap-connector-config) for information about how to create and update a generic LDAPv3 connector.
 
 ### 4.2. Extendind the mapping

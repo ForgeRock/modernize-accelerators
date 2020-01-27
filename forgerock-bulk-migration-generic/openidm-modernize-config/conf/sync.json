@@ -1,0 +1,525 @@
+{
+    "mappings" : [
+        {
+            "target" : "managed/Group",
+            "source" : "system/LegacyIAM/group",
+            "name" : "LegacyIAM_to_IDMGroupObject",
+            "icon" : null,
+            "displayName" : "LegacyIAM_to_IDMGroupObject",
+            "properties" : [
+                {
+                    "source" : "cn",
+                    "target" : "cn"
+                },
+                {
+                    "source" : "description",
+                    "target" : "description"
+                },
+                {
+                    "source" : "displayName",
+                    "target" : "displayName"
+                },
+                {
+                    "source" : "uniqueMember",
+                    "target" : "uniqueMember"
+                }
+            ],
+            "policies" : [
+                {
+                    "action" : "EXCEPTION",
+                    "situation" : "AMBIGUOUS"
+                },
+                {
+                    "action" : "EXCEPTION",
+                    "situation" : "SOURCE_MISSING"
+                },
+                {
+                    "action" : "CREATE",
+                    "situation" : "MISSING"
+                },
+                {
+                    "action" : "EXCEPTION",
+                    "situation" : "FOUND_ALREADY_LINKED"
+                },
+                {
+                    "action" : "DELETE",
+                    "situation" : "UNQUALIFIED"
+                },
+                {
+                    "action" : "EXCEPTION",
+                    "situation" : "UNASSIGNED"
+                },
+                {
+                    "action" : "EXCEPTION",
+                    "situation" : "LINK_ONLY"
+                },
+                {
+                    "action" : "IGNORE",
+                    "situation" : "TARGET_IGNORED"
+                },
+                {
+                    "action" : "IGNORE",
+                    "situation" : "SOURCE_IGNORED"
+                },
+                {
+                    "action" : "IGNORE",
+                    "situation" : "ALL_GONE"
+                },
+                {
+                    "action" : "UPDATE",
+                    "situation" : "CONFIRMED"
+                },
+                {
+                    "action" : "UPDATE",
+                    "situation" : "FOUND"
+                },
+                {
+                    "action" : "CREATE",
+                    "situation" : "ABSENT"
+                }
+            ]
+        },
+        {
+            "target" : "managed/user",
+            "source" : "system/LegacyIAM/account",
+            "name" : "LegacyIAM_to_IDMUserObject",
+            "icon" : null,
+            "displayName" : "LegacyIAM_to_IDMUserObject",
+            "properties" : [
+                {
+                    "source" : "uid",
+                    "target" : "userName"
+                },
+                {
+                    "source" : "cn",
+                    "target" : "cn"
+                },
+                {
+                    "source" : "givenName",
+                    "target" : "givenName"
+                },
+                {
+                    "target" : "accountStatus",
+                    "transform" : {
+                        "type" : "text/javascript",
+                        "globals" : { },
+                        "source" : "(source.oblockouttime != null || source.orclIsEnabled.equalsIgnoreCase('disabled')) ?  'inactive' : 'active'"
+                    },
+                    "source" : ""
+                },
+                {
+                    "source" : "sn",
+                    "target" : "sn"
+                },
+                {
+                    "source" : "mail",
+                    "target" : "mail"
+                },
+                {
+                    "source" : "telephoneNumber",
+                    "target" : "telephoneNumber"
+                },
+                {
+                    "source" : "departmentNumber",
+                    "target" : "departmentNumber"
+                },
+                {
+                    "source" : "description",
+                    "target" : "description"
+                },
+                {
+                    "source" : "employeeType",
+                    "target" : "employeeType"
+                },
+                {
+                    "target" : "employeeNumber",
+                    "source" : "employeeNumber"
+                },
+                {
+                    "source" : "o",
+                    "target" : "organization"
+                },
+                {
+                    "source" : "title",
+                    "target" : "title"
+                },
+                {
+                    "source" : "displayName",
+                    "target" : "displayName"
+                },
+                {
+                    "source" : "oblastfailedlogin",
+                    "target" : "lastFailedLogin"
+                },
+                {
+                    "source" : "oblastsuccessfullogin",
+                    "target" : "lastSuccessfulLogin"
+                },
+                {
+                    "source" : "oblockouttime",
+                    "target" : "lockoutTime"
+                },
+                {
+                    "source" : "oblogintrycount",
+                    "target" : "loginTryCount"
+                },
+                {
+                    "target" : "groups"
+                },
+                {
+                    "target" : "groups",
+                    "source" : "isMemberOf"
+                },
+                {
+                    "target" : "uniqueId",
+                    "source" : "orclGUID"
+                }
+            ],
+            "policies" : [
+                {
+                    "action" : "EXCEPTION",
+                    "situation" : "AMBIGUOUS"
+                },
+                {
+                    "action" : "DELETE",
+                    "situation" : "SOURCE_MISSING"
+                },
+                {
+                    "action" : "CREATE",
+                    "situation" : "MISSING"
+                },
+                {
+                    "action" : "EXCEPTION",
+                    "situation" : "FOUND_ALREADY_LINKED"
+                },
+                {
+                    "action" : "IGNORE",
+                    "situation" : "UNQUALIFIED"
+                },
+                {
+                    "action" : "IGNORE",
+                    "situation" : "UNASSIGNED"
+                },
+                {
+                    "action" : "EXCEPTION",
+                    "situation" : "LINK_ONLY"
+                },
+                {
+                    "action" : "IGNORE",
+                    "situation" : "TARGET_IGNORED"
+                },
+                {
+                    "action" : "IGNORE",
+                    "situation" : "SOURCE_IGNORED"
+                },
+                {
+                    "action" : "IGNORE",
+                    "situation" : "ALL_GONE"
+                },
+                {
+                    "action" : "UPDATE",
+                    "situation" : "CONFIRMED"
+                },
+                {
+                    "action" : "UPDATE",
+                    "situation" : "FOUND"
+                },
+                {
+                    "action" : "CREATE",
+                    "situation" : "ABSENT"
+                }
+            ]
+        },
+        {
+            "target" : "system/ldap/group",
+            "source" : "managed/Group",
+            "name" : "managedGroup_systemLdapGroup",
+            "icon" : null,
+            "displayName" : "managedGroup_systemLdapGroup",
+            "properties" : [
+                {
+                    "source" : "cn",
+                    "target" : "cn"
+                },
+                {
+                    "source" : "description",
+                    "target" : "description"
+                },
+                {
+                    "source" : "uniqueMember",
+                    "target" : "uniqueMember"
+                }
+            ],
+            "policies" : [
+                {
+                    "action" : "IGNORE",
+                    "situation" : "AMBIGUOUS"
+                },
+                {
+                    "action" : "DELETE",
+                    "situation" : "SOURCE_MISSING"
+                },
+                {
+                    "action" : "CREATE",
+                    "situation" : "MISSING"
+                },
+                {
+                    "action" : "EXCEPTION",
+                    "situation" : "FOUND_ALREADY_LINKED"
+                },
+                {
+                    "action" : "IGNORE",
+                    "situation" : "UNQUALIFIED"
+                },
+                {
+                    "action" : "IGNORE",
+                    "situation" : "UNASSIGNED"
+                },
+                {
+                    "action" : "EXCEPTION",
+                    "situation" : "LINK_ONLY"
+                },
+                {
+                    "action" : "IGNORE",
+                    "situation" : "TARGET_IGNORED"
+                },
+                {
+                    "action" : "IGNORE",
+                    "situation" : "SOURCE_IGNORED"
+                },
+                {
+                    "action" : "IGNORE",
+                    "situation" : "ALL_GONE"
+                },
+                {
+                    "action" : "UPDATE",
+                    "situation" : "CONFIRMED"
+                },
+                {
+                    "action" : "LINK",
+                    "situation" : "FOUND"
+                },
+                {
+                    "action" : "CREATE",
+                    "situation" : "ABSENT"
+                }
+            ],
+            "onCreate" : {
+                "type" : "text/javascript",
+                "globals" : { },
+                "source" : "target.dn = 'cn=' + source.cn + ',ou=groups,&{userstore.basecontext}';"
+            }
+        },
+        {
+            "name" : "managedUser_systemLdapAccounts",
+            "source" : "managed/user",
+            "target" : "system/ldap/account",
+            "links" : "systemLdapAccounts_managedUser",
+            "onCreate" : {
+                "type" : "text/javascript",
+                "globals" : { },
+                "source" : "target.dn = 'uid=' + source.userName + ',ou=people,&{userstore.basecontext}';"
+            },
+            "properties" : [
+                {
+                    "source" : "givenName",
+                    "target" : "givenName"
+                },
+                {
+                    "source" : "sn",
+                    "target" : "sn"
+                },
+                {
+                    "transform" : {
+                        "type" : "text/javascript",
+                        "globals" : { },
+                        "source" : "source.displayName || (source.givenName + ' ' + source.sn);"
+                    },
+                    "target" : "cn",
+                    "source" : ""
+                },
+                {
+                    "source" : "userName",
+                    "target" : "uid"
+                },
+                {
+                    "source" : "description",
+                    "target" : "description",
+                    "condition" : {
+                        "type" : "text/javascript",
+                        "source" : "!!object.description"
+                    }
+                },
+                {
+                    "source" : "mail",
+                    "target" : "mail"
+                },
+                {
+                    "condition" : {
+                        "type" : "text/javascript",
+                        "globals" : { },
+                        "source" : "object.password != null"
+                    },
+                    "target" : "userPassword",
+                    "default" : "Passw0rd123"
+                },
+                {
+                    "source" : "telephoneNumber",
+                    "target" : "telephoneNumber",
+                    "condition" : {
+                        "type" : "text/javascript",
+                        "source" : "!!object.telephoneNumber"
+                    }
+                },
+                {
+                    "target" : "employeeType",
+                    "source" : "employeeType"
+                },
+                {
+                    "target" : "inetUserStatus",
+                    "source" : "accountStatus"
+                },
+                {
+                    "target" : "employeeNumber",
+                    "source" : "employeeNumber"
+                },
+                {
+                    "target" : "sunAMAuthInvalidAttemptsData",
+                    "transform" : {
+                        "type" : "text/javascript",
+                        "globals" : { },
+                        "source" : "source.lockoutTime != null ?  '<InvalidPassword><InvalidCount>' + \n  source.loginTryCount + '</InvalidCount><LastInvalidAt>' +\n  '0' + '</LastInvalidAt><LockedoutAt>' +\n  '0' + '</LockedoutAt><ActualLockoutDuration>0</ActualLockoutDuration>' +\n  '<NoOfTimesLocked>1</NoOfTimesLocked></InvalidPassword>' : null"
+                    },
+                    "source" : ""
+                }
+            ],
+            "policies" : [
+                {
+                    "action" : "IGNORE",
+                    "situation" : "AMBIGUOUS"
+                },
+                {
+                    "action" : "DELETE",
+                    "situation" : "SOURCE_MISSING"
+                },
+                {
+                    "action" : "CREATE",
+                    "situation" : "MISSING"
+                },
+                {
+                    "action" : "EXCEPTION",
+                    "situation" : "FOUND_ALREADY_LINKED"
+                },
+                {
+                    "action" : "IGNORE",
+                    "situation" : "UNQUALIFIED"
+                },
+                {
+                    "action" : "IGNORE",
+                    "situation" : "UNASSIGNED"
+                },
+                {
+                    "action" : "EXCEPTION",
+                    "situation" : "LINK_ONLY"
+                },
+                {
+                    "action" : "IGNORE",
+                    "situation" : "TARGET_IGNORED"
+                },
+                {
+                    "action" : "IGNORE",
+                    "situation" : "SOURCE_IGNORED"
+                },
+                {
+                    "action" : "IGNORE",
+                    "situation" : "ALL_GONE"
+                },
+                {
+                    "action" : "UPDATE",
+                    "situation" : "CONFIRMED"
+                },
+                {
+                    "action" : "LINK",
+                    "situation" : "FOUND"
+                },
+                {
+                    "action" : "CREATE",
+                    "situation" : "ABSENT"
+                }
+            ]
+        },
+        {
+            "name" : "systemLdapAccounts_managedUser",
+            "source" : "system/ldap/account",
+            "target" : "managed/user",
+            "properties" : [
+                {
+                    "source" : "cn",
+                    "target" : "displayName"
+                },
+                {
+                    "source" : "description",
+                    "target" : "description"
+                },
+                {
+                    "source" : "givenName",
+                    "target" : "givenName"
+                },
+                {
+                    "source" : "mail",
+                    "target" : "mail"
+                },
+                {
+                    "source" : "telephoneNumber",
+                    "target" : "telephoneNumber"
+                },
+                {
+                    "source" : "sn",
+                    "target" : "sn"
+                },
+                {
+                    "source" : "uid",
+                    "target" : "userName"
+                },
+                {
+                    "source" : "inetuserstatus",
+                    "target" : "accountStatus"
+                }
+            ],
+            "policies" : [
+                {
+                    "situation" : "CONFIRMED",
+                    "action" : "UPDATE"
+                },
+                {
+                    "situation" : "FOUND",
+                    "action" : "UPDATE"
+                },
+                {
+                    "situation" : "ABSENT",
+                    "action" : "CREATE"
+                },
+                {
+                    "situation" : "AMBIGUOUS",
+                    "action" : "EXCEPTION"
+                },
+                {
+                    "situation" : "MISSING",
+                    "action" : "CREATE"
+                },
+                {
+                    "situation" : "SOURCE_MISSING",
+                    "action" : "DELETE"
+                },
+                {
+                    "situation" : "UNQUALIFIED",
+                    "action" : "IGNORE"
+                },
+                {
+                    "situation" : "UNASSIGNED",
+                    "action" : "IGNORE"
+                }
+            ]
+        }
+    ]
+}
