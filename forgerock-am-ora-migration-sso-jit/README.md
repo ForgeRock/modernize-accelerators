@@ -281,21 +281,21 @@ IDM Password Secret ID | openidmadminpass                                       
 - The user accesses the authentication tree
 - As soon as the user accesses the tree, he is automatically logged in because the Legacy sso token is present in the browser and it's valid. As a result a user profile is created in ForgeRock IDM and AM, with no password set.
 <br><br>
-![Scenario1](images/Scenario1.png)
+![Scenario1](images/Scenario1.jpg)
 <br>
 
 ### 4.2. Scenario 2 - The user accesses the authentication tree, with no legacy SSO token in the browser, after previously he accessed Scenario 1 - was created with no password
 - The user accesses the authentication tree. The tree is prompting the user for the username and password.
 - After the user fills the credentials, he is successfully authenticated. This happens because the user was logged in successfully in the Legacy iAM. Since Data Store Decision has returned false but the user was already migrated, and the legacy login is successful, the password is also updated in DS.
 <br><br>
-![Scenario2](images/Scenario2.png)
+![Scenario2](images/Scenario2.jpg)
 <br>
 
 ### 4.3. Scenario 3 - The user is not migrated, does not have a valid legacy SSO token, and accesses the authentication tree
 - The user accesses the authentication tree. The tree is prompting the user for the username and password.
 - After the user fills the credentials, he is successfully authenticated. This happens because the user was logged in successfully in the Legacy iAM, and his profile was successfully provisioned in ForgeRock DS, including his password.
 <br><br>
-![Scenario3](images/Scenario3.png)
+![Scenario3](images/Scenario3.jpg)
 <br>
 
 ### 4.4. Scenario 4 - This is the standard scenario triggered when the user is already migrated, and Data Store decision node authenticates the user successfully
