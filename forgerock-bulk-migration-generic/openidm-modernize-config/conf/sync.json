@@ -100,12 +100,7 @@
                 },
                 {
                     "target" : "accountStatus",
-                    "transform" : {
-                        "type" : "text/javascript",
-                        "globals" : { },
-                        "source" : "(source.oblockouttime != null || source.orclIsEnabled.equalsIgnoreCase('disabled')) ?  'inactive' : 'active'"
-                    },
-                    "source" : ""
+                    "source" : "inetUserStatus"
                 },
                 {
                     "source" : "sn",
@@ -148,19 +143,19 @@
                     "target" : "displayName"
                 },
                 {
-                    "source" : "oblastfailedlogin",
+                    "source" : "lastfailedlogin",
                     "target" : "lastFailedLogin"
                 },
                 {
-                    "source" : "oblastsuccessfullogin",
+                    "source" : "lastsuccessfullogin",
                     "target" : "lastSuccessfulLogin"
                 },
                 {
-                    "source" : "oblockouttime",
+                    "source" : "lockouttime",
                     "target" : "lockoutTime"
                 },
                 {
-                    "source" : "oblogintrycount",
+                    "source" : "logintrycount",
                     "target" : "loginTryCount"
                 },
                 {
@@ -172,7 +167,7 @@
                 },
                 {
                     "target" : "uniqueId",
-                    "source" : "orclGUID"
+                    "source" : "uniqueId"
                 }
             ],
             "policies" : [
