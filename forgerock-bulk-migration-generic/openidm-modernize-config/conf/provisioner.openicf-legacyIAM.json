@@ -86,8 +86,7 @@
         "blockSize" : "100",
         "groupObjectClasses" : [
             "top",
-            "groupOfUniqueNames",
-            "orclGroup"
+            "groupOfUniqueNames"
         ],
         "accountUserNameAttributes" : [
             "uid",
@@ -114,13 +113,7 @@
             "top",
             "person",
             "organizationalPerson",
-            "inetOrgPerson",
-            "oblixOrgPerson",
-            "oblixPersonPwdPolicy",
-            "OIMPersonPwdPolicy",
-            "orclIDXPerson",
-            "orcluser",
-            "orcluserV2"
+            "inetOrgPerson"
         ],
         "alternateKeyStoreType" : null,
         "passwordHashAlgorithm" : null,
@@ -161,39 +154,27 @@
                     "nativeName" : "__NAME__",
                     "nativeType" : "string"
                 },
-                "oblastfailedlogin" : {
+                "lastfailedlogin" : {
                     "type" : "string",
-                    "nativeName" : "oblastfailedlogin",
+                    "nativeName" : "lastfailedlogin",
                     "nativeType" : "string",
                     "required" : false
                 },
-                "oblastsuccessfullogin" : {
+                "lastsuccessfullogin" : {
                     "type" : "string",
-                    "nativeName" : "oblastsuccessfullogin",
+                    "nativeName" : "lastsuccessfullogin",
                     "nativeType" : "string",
                     "required" : false
                 },
-                "oblockouttime" : {
+                "lockouttime" : {
                     "type" : "string",
-                    "nativeName" : "oblockouttime",
+                    "nativeName" : "lockouttime",
                     "nativeType" : "string",
                     "required" : false
                 },
-                "oblogintrycount" : {
+                "logintrycount" : {
                     "type" : "string",
-                    "nativeName" : "oblogintrycount",
-                    "nativeType" : "string",
-                    "required" : false
-                },
-                "orclIsEnabled" : {
-                    "type" : "string",
-                    "nativeName" : "orclIsEnabled",
-                    "nativeType" : "string",
-                    "required" : false
-                },
-                "orclSAMAccountName" : {
-                    "type" : "string",
-                    "nativeName" : "orclSAMAccountName",
+                    "nativeName" : "logintrycount",
                     "nativeType" : "string",
                     "required" : false
                 },
@@ -275,9 +256,9 @@
                     "nativeType" : "string",
                     "required" : false
                 },
-                "orclGUID" : {
+                "uniqueId" : {
                     "type" : "string",
-                    "nativeName" : "orclGUID",
+                    "nativeName" : "uniqueId",
                     "nativeType" : "string",
                     "required" : false									  
                 }
@@ -303,19 +284,9 @@
                     "nativeName" : "uniqueMember",
                     "nativeType" : "string"
                 },
-                "orclGlobalID" : {
-                    "type" : "string",
-                    "nativeName" : "orclGlobalID",
-                    "nativeType" : "string"
-                },
                 "__NAME__" : {
                     "type" : "string",
                     "nativeName" : "__NAME__",
-                    "nativeType" : "string"
-                },
-                "orclIsVisible" : {
-                    "type" : "string",
-                    "nativeName" : "orclIsVisible",
                     "nativeType" : "string"
                 },
                 "seeAlso" : {

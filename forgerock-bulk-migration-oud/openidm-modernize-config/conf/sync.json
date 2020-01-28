@@ -164,9 +164,6 @@
                     "target" : "loginTryCount"
                 },
                 {
-                    "target" : "groups"
-                },
-                {
                     "target" : "groups",
                     "source" : "isMemberOf"
                 },
