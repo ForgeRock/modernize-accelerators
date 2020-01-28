@@ -51,32 +51,32 @@ import com.sun.identity.sm.RequiredValueValidator;
  * </p>
  *
  */
-@Node.Metadata(configClass = CheckLegacyToken.Config.class, outcomeProvider = AbstractDecisionNode.OutcomeProvider.class)
-public class CheckLegacyToken extends AbstractDecisionNode {
+@Node.Metadata(configClass = LegacyFRValidateToken.Config.class, outcomeProvider = AbstractDecisionNode.OutcomeProvider.class)
+public class LegacyFRValidateToken extends AbstractDecisionNode {
 
 	private static final String DEFAULT_LEGACY_COOKIE_NAME = "legacyCookieName";
 	private static final String DEFAULT_CHECK_LEGACY_TOKEN_URI = "checkLegacyTokenUri";
 	private static final String SESSION_VALIDATION_ACTION = "_action=validate";
 
-	private Logger LOGGER = LoggerFactory.getLogger(CheckLegacyToken.class);
+	private Logger LOGGER = LoggerFactory.getLogger(LegacyFRValidateToken.class);
 	private final Config config;
 
 	public interface Config {
 
 		@Attribute(order = 1, validators = { RequiredValueValidator.class })
 		default String checkLegacyTokenUri() {
-			return DEFAULT_LEGACY_COOKIE_NAME;
+			return DEFAULT_CHECK_LEGACY_TOKEN_URI;
 		};
 
 		@Attribute(order = 2, validators = { RequiredValueValidator.class })
 		default String legacyCookieName() {
-			return DEFAULT_CHECK_LEGACY_TOKEN_URI;
+			return DEFAULT_LEGACY_COOKIE_NAME;
 		};
 
 	}
 
 	@Inject
-	public CheckLegacyToken(@Assisted CheckLegacyToken.Config config) {
+	public LegacyFRValidateToken(@Assisted LegacyFRValidateToken.Config config) {
 		this.config = config;
 	}
 

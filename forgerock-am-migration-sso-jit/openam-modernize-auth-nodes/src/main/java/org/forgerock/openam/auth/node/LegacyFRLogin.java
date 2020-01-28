@@ -54,11 +54,11 @@ import com.sun.identity.sm.RequiredValueValidator;
  * </p>
  *
  */
-@Node.Metadata(configClass = LegacyLogin.Config.class, outcomeProvider = AbstractDecisionNode.OutcomeProvider.class)
-public class LegacyLogin extends AbstractDecisionNode {
+@Node.Metadata(configClass = LegacyFRLogin.Config.class, outcomeProvider = AbstractDecisionNode.OutcomeProvider.class)
+public class LegacyFRLogin extends AbstractDecisionNode {
 
 	private static final String DEFAULT_LEGACY_COOKIE_NAME = "legacyCookieName";
-	private Logger LOGGER = LoggerFactory.getLogger(LegacyLogin.class);
+	private Logger LOGGER = LoggerFactory.getLogger(LegacyFRLogin.class);
 	private final Config config;
 	private final UUID nodeId;
 
@@ -75,7 +75,7 @@ public class LegacyLogin extends AbstractDecisionNode {
 	}
 
 	@Inject
-	public LegacyLogin(@Assisted LegacyLogin.Config config, @Assisted UUID nodeId) {
+	public LegacyFRLogin(@Assisted LegacyFRLogin.Config config, @Assisted UUID nodeId) {
 		this.config = config;
 		this.nodeId = nodeId;
 	}

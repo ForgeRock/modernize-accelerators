@@ -62,12 +62,13 @@ import com.sun.identity.sm.RequiredValueValidator;
  * </p>
  *
  */
-@Node.Metadata(configClass = CreateUser.Config.class, outcomeProvider = AbstractDecisionNode.OutcomeProvider.class)
-public class CreateUser extends AbstractDecisionNode {
+@Node.Metadata(configClass = LegacyFRCreateForgeRockUser.Config.class, outcomeProvider = AbstractDecisionNode.OutcomeProvider.class)
+public class LegacyFRCreateForgeRockUser extends AbstractDecisionNode {
 	private static final String DEFAULT_LEGACY_IAM_ENV_URL = "legacyEnvURL";
 
-	private Logger LOGGER = LoggerFactory.getLogger(CreateUser.class);
+	private Logger LOGGER = LoggerFactory.getLogger(LegacyFRCreateForgeRockUser.class);
 	private final Config config;
+	private String idmPassword;
 
 	public interface Config {
 
@@ -87,7 +88,7 @@ public class CreateUser extends AbstractDecisionNode {
 		};
 
 		@Attribute(order = 4, validators = { RequiredValueValidator.class })
-		default String idmAdminPassword() {
+		default String idmPasswordId() {
 			return DEFAULT_IDM_USER_PASSWORD;
 		};
 
@@ -99,7 +100,7 @@ public class CreateUser extends AbstractDecisionNode {
 	}
 
 	@Inject
-	public CreateUser(@Assisted CreateUser.Config config) {
+	public LegacyFRCreateForgeRockUser(@Assisted LegacyFRCreateForgeRockUser.Config config) {
 		this.config = config;
 	}
 
@@ -173,7 +174,7 @@ public class CreateUser extends AbstractDecisionNode {
 		String jsonBody = createProvisioningRequestEntity(userName, password, firstName, lastName, email);
 		MultiValueMap<String, String> headersMap = new LinkedMultiValueMap<>();
 		headersMap.add(OPEN_IDM_ADMIN_USERNAME_HEADER, config.idmAdminUser());
-		headersMap.add(OPEN_IDM_ADMIN_PASSWORD_HEADER, config.idmAdminPassword());
+		headersMap.add(OPEN_IDM_ADMIN_PASSWORD_HEADER, idmPassword);
 		ResponseEntity<String> responseStatusCode = RequestUtils.sendPostRequest(config.idmUserEndpoint(), jsonBody,
 				MediaType.APPLICATION_JSON, headersMap);
 		if (responseStatusCode != null) {

@@ -15,30 +15,40 @@
  ***************************************************************************/
 package org.forgerock.openam.auth.node.plugin;
 
-import static java.util.Collections.singleton;
-import static java.util.Collections.singletonMap;
+import static java.util.Arrays.asList;
 
 import java.util.Map;
 
-import org.forgerock.openam.auth.node.CheckUserMigrationStatus;
+import org.forgerock.openam.auth.node.LegacyFRCreateForgeRockUser;
+import org.forgerock.openam.auth.node.LegacyFRLogin;
+import org.forgerock.openam.auth.node.LegacyFRMigrationStatus;
+import org.forgerock.openam.auth.node.LegacyFRSetPassword;
+import org.forgerock.openam.auth.node.LegacyFRValidateToken;
 import org.forgerock.openam.auth.node.api.AbstractNodeAmPlugin;
 import org.forgerock.openam.auth.node.api.Node;
 import org.forgerock.openam.plugins.PluginException;
 
-public class CheckUserMigrationStatusPlugin extends AbstractNodeAmPlugin {
+import com.google.common.collect.ImmutableMap;
+
+public class LegacyFRPlugin extends AbstractNodeAmPlugin {
 
 	@Override
 	public String getPluginVersion() {
-		return "1.0.1";
+		return "0.0.0";
 	}
 
 	@Override
 	protected Map<String, Iterable<? extends Class<? extends Node>>> getNodesByVersion() {
-		return singletonMap(getPluginVersion(), singleton(CheckUserMigrationStatus.class));
+		return ImmutableMap.of(getPluginVersion(), asList(LegacyFRCreateForgeRockUser.class, LegacyFRLogin.class,
+				LegacyFRMigrationStatus.class, LegacyFRSetPassword.class, LegacyFRValidateToken.class));
 	}
 
 	@Override
 	public void upgrade(String fromVersion) throws PluginException {
-		pluginTools.upgradeAuthNode(CheckUserMigrationStatus.class);
+		pluginTools.installAuthNode(LegacyFRCreateForgeRockUser.class);
+		pluginTools.installAuthNode(LegacyFRLogin.class);
+		pluginTools.installAuthNode(LegacyFRMigrationStatus.class);
+		pluginTools.installAuthNode(LegacyFRSetPassword.class);
+		pluginTools.installAuthNode(LegacyFRValidateToken.class);
 	}
 }

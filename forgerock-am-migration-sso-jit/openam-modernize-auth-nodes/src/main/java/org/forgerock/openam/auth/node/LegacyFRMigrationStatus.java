@@ -15,14 +15,14 @@
  ***************************************************************************/
 package org.forgerock.openam.auth.node;
 
-import static org.forgerock.openam.auth.node.api.SharedStateConstants.PASSWORD;
 import static org.forgerock.openam.auth.node.api.SharedStateConstants.USERNAME;
 import static org.forgerock.openam.modernize.utils.NodeConstants.DEFAULT_IDM_USER;
 import static org.forgerock.openam.modernize.utils.NodeConstants.DEFAULT_IDM_USER_ENDPOINT;
 import static org.forgerock.openam.modernize.utils.NodeConstants.DEFAULT_IDM_USER_PASSWORD;
 import static org.forgerock.openam.modernize.utils.NodeConstants.OPEN_IDM_ADMIN_PASSWORD_HEADER;
 import static org.forgerock.openam.modernize.utils.NodeConstants.OPEN_IDM_ADMIN_USERNAME_HEADER;
-import static org.forgerock.openam.modernize.utils.NodeConstants.USER_FORCE_PASSWORD_RESET;
+
+import java.io.IOException;
 
 import javax.inject.Inject;
 
@@ -40,25 +40,25 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.assistedinject.Assisted;
 import com.sun.identity.sm.RequiredValueValidator;
 
 /**
  * 
  * <p>
- * This node updates a users password.
+ * This node validates if the user that accessed the tree is already migrated
+ * into ForgeRock IDM.
  * </p>
  *
  */
-@Node.Metadata(configClass = SetUserPassword.Config.class, outcomeProvider = AbstractDecisionNode.OutcomeProvider.class)
-public class SetUserPassword extends AbstractDecisionNode {
+@Node.Metadata(configClass = LegacyFRMigrationStatus.Config.class, outcomeProvider = AbstractDecisionNode.OutcomeProvider.class)
+public class LegacyFRMigrationStatus extends AbstractDecisionNode {
 
-	private Logger LOGGER = LoggerFactory.getLogger(SetUserPassword.class);
+	private Logger LOGGER = LoggerFactory.getLogger(LegacyFRMigrationStatus.class);
 	private final Config config;
+	private String idmPassword;
 
 	public interface Config {
 
@@ -73,13 +73,13 @@ public class SetUserPassword extends AbstractDecisionNode {
 		};
 
 		@Attribute(order = 3, validators = { RequiredValueValidator.class })
-		default String idmAdminPassword() {
+		default String idmPasswordId() {
 			return DEFAULT_IDM_USER_PASSWORD;
 		};
 	}
 
 	@Inject
-	public SetUserPassword(@Assisted SetUserPassword.Config config) {
+	public LegacyFRMigrationStatus(@Assisted LegacyFRMigrationStatus.Config config) {
 		this.config = config;
 	}
 
@@ -89,68 +89,44 @@ public class SetUserPassword extends AbstractDecisionNode {
 	@Override
 	public Action process(TreeContext context) throws NodeProcessException {
 		String username = context.sharedState.get(USERNAME).asString();
-		String password = context.transientState.get(PASSWORD).asString();
-		return goTo(setUserPassword(username, password)).build();
-
+		return goTo(getUserMigrationStatus(username)).build();
 	}
 
 	/**
 	 * 
-	 * Sets the user password id DS via the IDM API
+	 * Makes a call to the IDM user end point to check if the userName provided is
+	 * migrated.
 	 * 
 	 * @param userName
-	 * @param password
-	 * @return true if successful, false otherwise
+	 * @return true if the user is found, false otherwise
+	 * @throws NodeProcessException
 	 */
-	private boolean setUserPassword(String userName, String password) {
-		LOGGER.error("setUserPassword()::Start");
-		String jsonBody = createPasswordRequestEntity(password);
+	private boolean getUserMigrationStatus(String userName) throws NodeProcessException {
+		String getUserPathWithQuery = config.idmUserEndpoint() + "\"" + userName + "\"";
+		LOGGER.debug("getUserMigrationStatus()::getUserPathWithQuery: " + getUserPathWithQuery);
 		MultiValueMap<String, String> headersMap = new LinkedMultiValueMap<>();
 		headersMap.add(OPEN_IDM_ADMIN_USERNAME_HEADER, config.idmAdminUser());
-		headersMap.add(OPEN_IDM_ADMIN_PASSWORD_HEADER, config.idmAdminPassword());
-		ResponseEntity<String> responseStatusCode = RequestUtils.sendPostRequest(
-				config.idmUserEndpoint() + "\"" + userName + "\"", jsonBody, MediaType.APPLICATION_JSON, headersMap);
-		if (responseStatusCode != null) {
-			if (responseStatusCode.getStatusCodeValue() == 200) {
-				LOGGER.error("setUserPassword()::End - success - 200 OK");
-				return true;
-			}
+		headersMap.add(OPEN_IDM_ADMIN_PASSWORD_HEADER, idmPassword);
+		ResponseEntity<String> responseEntity = RequestUtils.sendGetRequest(getUserPathWithQuery,
+				MediaType.APPLICATION_JSON, headersMap);
+		return (getUserMigrationStatus(responseEntity));
+	}
+
+	private boolean getUserMigrationStatus(ResponseEntity<String> responseEntity) throws NodeProcessException {
+		LOGGER.debug("getUserMigrationStatus()::response.getBody(): " + responseEntity.getBody());
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode responseNode = null;
+		try {
+			responseNode = mapper.readTree(responseEntity.getBody());
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new NodeProcessException("Unable to check if user is migrated: " + e.getMessage());
 		}
-		LOGGER.error("setUserPassword()::End - fail");
+		if (responseNode != null && responseNode.get("resultCount") != null
+				&& responseNode.get("resultCount").asInt() > 0) {
+			return true;
+		}
 		return false;
 	}
 
-	/**
-	 * Creates the request body for password update, in the format accepted by IDM
-	 * 
-	 * @param password
-	 * @return JSON string
-	 */
-	private String createPasswordRequestEntity(String password) {
-		LOGGER.debug("createPasswordRequestEntity()::Start");
-		ObjectMapper mapper = new ObjectMapper();
-		ArrayNode updatesList = mapper.createArrayNode();
-
-		ObjectNode replacePasswordNode = mapper.createObjectNode();
-		replacePasswordNode.put("operation", "replace");
-		replacePasswordNode.put("field", PASSWORD);
-		replacePasswordNode.put("value", password);
-		updatesList.add(replacePasswordNode);
-
-		ObjectNode replacePasswordResetNode = mapper.createObjectNode();
-		replacePasswordResetNode.put("operation", "replace");
-		replacePasswordResetNode.put("field", USER_FORCE_PASSWORD_RESET);
-		replacePasswordResetNode.put("value", false);
-		updatesList.add(replacePasswordResetNode);
-
-		String jsonString = null;
-		try {
-			jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(updatesList);
-		} catch (JsonProcessingException e) {
-			LOGGER.error("createPasswordRequestEntity()::Error creating provisioning entity: " + e.getMessage());
-			e.printStackTrace();
-		}
-		LOGGER.debug("createPasswordRequestEntity()::entity: " + jsonString);
-		return jsonString;
-	}
 }
