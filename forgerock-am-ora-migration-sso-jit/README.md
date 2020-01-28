@@ -44,6 +44,8 @@ In order to build the project from the command line follow the instructions pres
 
 ### 2.1. Prerequisites - Prepare your Environment
 
+#### 2.1.1. Software and environment
+
 You will need the following software to build the code.
 
 ```
@@ -66,6 +68,8 @@ JAVA_HOME=/usr/jdk/jdk1.8.0_201
 MAVEN_HOME=/opt/apache-maven-3.6.3
 MAVEN_OPTS='-Xmx2g -Xms2g -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=512m'
 ```
+
+#### 2.1.2. External libraries
 
 + The source files use some Spring dependencies from the 5.2.1.RELEASE which you need to download. The following jars must be added to WEB-INF/lib
     + [spring-beans-5.2.1.RELEASE](https://mvnrepository.com/artifact/org.springframework/spring-beans)
@@ -108,6 +112,10 @@ Example usage of the jar file in the maven's project pom.xml:
 	<version>1.0.0</version>
 </dependency>
 ```
+
+#### 2.1.3. Reverse proxy
+
+Usually all components are deployed under the same domain, but if your legacy IAM is under another domain than the ForgeRock applications, you will need a reverse proxy in front of bothe legacy and ForgeRock. This will ensure all the cookies will be seen between aplications from the same domain, otherwise SSO can't be achieved.
 
 ### 2.2. Getting the Code
 
@@ -168,7 +176,7 @@ To generate an access client configuration file, follow the instructions below:
 + Go to Agents -> Webgates -> Search
 + From the list of available agents, select your SSO Webgate agent
 + From the agent's dedicated page, click the download button. Save the generated <b>OBAccessClient.xml</b> file
-+ Create the following folder structure on the ForgeRock AM instance:
++ Create the following folder structure on the ForgeRock AM filesystem:
 ```
 /path/to/config/oblix/lib
 ```
