@@ -115,7 +115,7 @@ Example usage of the jar file in the maven's project pom.xml:
 
 #### 2.1.3. Reverse proxy
 
-Usually all components are deployed under the same domain, but if your legacy IAM is under another domain than the ForgeRock applications, you will need a reverse proxy in front of bothe legacy and ForgeRock. This will ensure all the cookies will be seen between aplications from the same domain, otherwise SSO can't be achieved.
+Usually all components are deployed under the same domain, but if your legacy IAM is under another domain than the ForgeRock applications, you will need a reverse proxy in front of both legacy and ForgeRock. This will ensure all the cookies will be seen between aplications from the same domain, otherwise SSO can't be achieved.
 
 ### 2.2. Getting the Code
 
