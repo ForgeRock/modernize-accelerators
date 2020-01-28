@@ -5,7 +5,7 @@ ForgeRock does not warrant, guarantee or make any representations regarding the 
 <br><br>
 ForgeRock shall not be liable for any direct, indirect or consequential damages or costs of any type arising out of any action taken by you or others related to the sample code.
 
-# Modernize Accelerators - Bulk Migration OUD (Oracle Unified Directory) Toolkit 
+# Modernize Accelerators - Bulk User Migration Toolkit OUD (Oracle Unified Directory) 
 One-time and incremental import of user profiles and groups from Legacy OUD LDAP store to Forgerock DS is often a requirement in complex migration process.
 With custom schema being used by Legacy IAM systems (custom object classes, custom attributes, custom naming and organization units/suffix) the process of synchronizing information can be complex to design and implement. In addition, the particular mapping of the extended schema (attributes, object classes and group-membership used for core IAM transactions) can also be cumbersome and lengthy.
 
@@ -13,7 +13,7 @@ With custom schema being used by Legacy IAM systems (custom object classes, cust
 The following assets have been included in the Migration Accelerators for this purpose:
 	- Template for OUD LDAPv3 to LDAPv3 user reconciliation from Legacy IAM to Forgerock DS;
 	- Mapping for common group information: common name, description, displayName, uniqueMember;
-	- Mapping for common identity information: UID, common name, group membership, status, mail, telephone number, given name, last name, department details, description, employee details, last login, account locked features, number of wrong attempts.
+	- Mapping for common identity information: UID, password, common name, group membership, status, mail, telephone number, given name, last name, department details, description, employee details, last login, account locked features, number of wrong attempts.
 
 ### 1.1. Assets Included
 This toolkit implements one-way synchronization from an external Legacy OUD userstore to the Forgerock IDM repository and then synchronization to Forgerock Directory Server as the next generation userstore.

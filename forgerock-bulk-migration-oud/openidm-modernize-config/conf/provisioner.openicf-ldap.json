@@ -48,7 +48,6 @@
             "uid"
         ],
         "groupMemberAttribute" : "uniqueMember",
-        "passwordHashAlgorithm" : null,
         "usePagedResultControl" : true,
         "blockSize" : 100,
         "uidAttribute" : "entryUUID",
@@ -136,10 +135,10 @@
                     "nativeName" : "userPassword",
                     "nativeType" : "string",
                     "flags" : [
-                        "NOT_READABLE",
-                        "NOT_RETURNED_BY_DEFAULT"
+                        "PASSWORD"												 
                     ],
-                    "runAsUser" : true
+                    "runAsUser" : false,
+                    "required" : false
                 },
                 "ldapGroups" : {
                     "type" : "array",
