@@ -26,12 +26,12 @@ ForgeRock understands customers' needs to speed up migration design decisions an
 ```
 System  | Type                | Name                             | Description
 --------| --------------------|----------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------
-AM      | Node                | Legacy-ORA-Validate Token        | Retrieves a token from an existing cookie, validates the token against legacy IAM, and provides as output in the shared state the username and outcome
-AM      | Node                | Legacy-ORA-Migration Status      | Searches the user identity in ForgeRock IDM based on the username from the shared state
-AM      | Node                | Legacy-ORA-Create FR User        | Calls the ForgeRock IDM API to provision the managed user
-AM      | Node                | Legacy-ORA-Login                 | Based on the username and password from the shared state, executes the legacy IAM login API call
-AM      | Node                | Legacy-ORA-Set Password          | Updates the ForgeRock IDM managed user object with the password captured and stored in the shared state
-AM      | Tree Hook           | LegacyORASessionTreeHook         | Manages cookies if a successfull login is performed into legacy IAM by the tree
+AM      | Node                | Legacy-FR-Validate Token         | Retrieves a token from an existing cookie, validates the token against legacy IAM, and provides as output in the shared state the username and outcome
+AM      | Node                | Legacy-FR-Migration Status       | Searches the user identity in ForgeRock IDM based on the username from the shared state
+AM      | Node                | Legacy-FR-Create FR User         | Calls the ForgeRock IDM API to provision the managed user
+AM      | Node                | Legacy-FR-Login                  | Based on the username and password from the shared state, executes the legacy IAM login API call
+AM      | Node                | Legacy-FR-Set Password           | Updates the ForgeRock IDM managed user object with the password captured and stored in the shared state
+AM      | Tree Hook           | LegacySessionTreeHook            | Manages cookies if a successfull login is performed into legacy IAM by the tree
 AM      | Authentication Tree | migrationTree                    | Implements the migration login and bidirectional SSO
 AM      | Custom Nodes        | migration-am-custom-SNAPSHOT.jar | Custom AM nodes used in the migration authentication tree
 ```
