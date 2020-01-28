@@ -244,7 +244,8 @@ In this example the tree was created and exported in the root realm, but as a be
 
 A node is the core abstraction within an authentication tree. Trees are made up of nodes, which may modify the shared state and/or request input from the user via callbacks.
 
-- <b>Legacy-ORA-Validate Token</b> - Custom node provided in this SSO toolkit. Detects if an existing legacy Token exists in the browser in a specific cookie, and validates this as an active token against the legacy IAM system via an SDK/API call. The default node uses a GET API call with the cookie fetched from the incoming http request. The name of the cookie and the target URL is configurable. The node is vendor-specific and is flexible enough to be tailored for each vendor. The Oracle plugin provides a custom implementation for this Node using the Oracle Access Client SDK.
+#### 3.4.1. Legacy-ORA-Validate Token
+Custom node provided in this SSO toolkit. Detects if an existing legacy Token exists in the browser in a specific cookie, and validates this as an active token against the legacy IAM system via an SDK/API call. The default node uses a GET API call with the cookie fetched from the incoming http request. The name of the cookie and the target URL is configurable. The node is vendor-specific and is flexible enough to be tailored for each vendor. The Oracle plugin provides a custom implementation for this Node using the Oracle Access Client SDK.
 
 ```
 Node Class: /src/main/java/org/forgerock/openam/auth/node/LegacyORAValidateToken.java
@@ -259,7 +260,8 @@ Naming attribute               | cn                                             
 
 <br>
 
-- <b>Legacy-ORA-Migration Status</b> - Custom node provided in the SSO toolkit. Checks in Forgerock IDM if the user is allready migrated, by calling the default Forgerock IDM managed object API. This node is a generic one and does not need to be customized for specific legacy IAM vendor implementations.
+#### 3.4.2. Legacy-ORA-Migration Status
+Custom node provided in the SSO toolkit. Checks in Forgerock IDM if the user is allready migrated, by calling the default Forgerock IDM managed object API. This node is a generic one and does not need to be customized for specific legacy IAM vendor implementations.
 
 ```
 Node Class: /src/main/java/org/forgerock/openam/auth/node/LegacyORAMigrationStatus.java
@@ -274,11 +276,13 @@ IDM Password Secret ID | openidmadminpass                                       
 
 <br>
 
-- <b>Page Node</b> - This is the default page node in Forgerock IAM used to capture user credentials. This node is a generic one and does not need to be customized for specific legacy IAM vendor implementations.
+#### 3.4.3. Page Node
+This is the default page node in Forgerock IAM used to capture user credentials. This node is a generic one and does not need to be customized for specific legacy IAM vendor implementations.
 
 <br>
 
-- <b>Legacy-ORA-Create FR User</b> - Custom node provided in the SSO toolkit. Provisions the user in Forgerock IAM by calling the default Forgerock IDM managed object API. This node is a generic one and does not need to be customized for specific legacy IAM vendor implementations. The nodes uses the following shared state attributes: 
+#### 3.4.4. Legacy-ORA-Create FR User
+Custom node provided in the SSO toolkit. Provisions the user in Forgerock IAM by calling the default Forgerock IDM managed object API. This node is a generic one and does not need to be customized for specific legacy IAM vendor implementations. The nodes uses the following shared state attributes: 
 
 ```
 Node Class: /src/main/java/org/forgerock/openam/auth/node/LegacyORACreateForgeRockUser.java
@@ -295,11 +299,13 @@ Set Password Reset     | true/false - on/off                                    
 
 <br>
 
-- <b>Data Store Decision</b> - This is the default credentials validation node in Forgerock IAM. This node is a generic one and does not need to be customized for specific legacy IAM vendor implementations.
+#### 3.4.5. Data Store Decision
+This is the default credentials validation node in Forgerock IAM. This node is a generic one and does not need to be customized for specific legacy IAM vendor implementations.
 
 <br>
 
-- <b>Legacy-ORA-Login</b> - Custom node provided in the SSO toolkit. Validates the credentials (username and password) entered by the user against the legacy IAM system via an SDK/API call. The default node uses a POST API call with the username and password fetched from the shared state. The URL is configurable, the node expects a successfull response of 200 OK and a specific cookie to be present in the response (the cookie name is configurable). The node is vendor-specific and is flexible enough to be tailored for each vendor. The Oracle plugin will provide a custom implementation for this Node using the Oracle Access Client SDK.
+#### 3.4.6. Legacy-ORA-Login
+Custom node provided in the SSO toolkit. Validates the credentials (username and password) entered by the user against the legacy IAM system via an SDK/API call. The default node uses a POST API call with the username and password fetched from the shared state. The URL is configurable, the node expects a successfull response of 200 OK and a specific cookie to be present in the response (the cookie name is configurable). The node is vendor-specific and is flexible enough to be tailored for each vendor. The Oracle plugin will provide a custom implementation for this Node using the Oracle Access Client SDK.
 
 ```
 Node Class: /src/main/java/org/forgerock/openam/auth/node/LegacyORALogin.java
@@ -317,7 +323,8 @@ Oracle configuration location  | /path/to/config/oblix/lib/ObAccessClient.xml   
 
 <br>
 
-- <b>Legacy-ORA-Set Password</b> - Custom node provided in the SSO toolkit. Provisions the user password in Forgerock IAM by calling the default Forgerock IDM managed object API. This node is a generic one and does not need to be customized for specific legacy IAM vendor implementations.
+#### 3.4.7. Legacy-ORA-Set Password
+Custom node provided in the SSO toolkit. Provisions the user password in Forgerock IAM by calling the default Forgerock IDM managed object API. This node is a generic one and does not need to be customized for specific legacy IAM vendor implementations.
 
 ```
 Node Class: /src/main/java/org/forgerock/openam/auth/node/LegacyORASetPassword.java
