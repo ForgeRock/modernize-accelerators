@@ -26,11 +26,12 @@ ForgeRock understands customers' needs to speed up migration design decisions an
 ```
 System  | Type                | Name                             | Description
 --------| --------------------|----------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------
-AM      | Node                | Check Legacy Token               | Retrieves a token from an existing cookie, validates the token against legacy IAM, and provides as output in the shared state the username and outcome
-AM      | Node                | Is User Migrated                 | Searches the user identity in ForgeRock IDM based on the username from the shared state
-AM      | Node                | Create User In DS                | Calls the ForgeRock IDM API to provision the managed user
-AM      | Node                | Legacy Login                     | Based on the username and password from the shared state, executes the legacy IAM login API call
-AM      | Node                | Set Password in DS               | Updates the ForgeRock IDM managed user object with the password captured and stored in the shared state
+AM      | Node                | Legacy-ORA-Validate Token        | Retrieves a token from an existing cookie, validates the token against legacy IAM, and provides as output in the shared state the username and outcome
+AM      | Node                | Legacy-ORA-Migration Status      | Searches the user identity in ForgeRock IDM based on the username from the shared state
+AM      | Node                | Legacy-ORA-Create FR User        | Calls the ForgeRock IDM API to provision the managed user
+AM      | Node                | Legacy-ORA-Login                 | Based on the username and password from the shared state, executes the legacy IAM login API call
+AM      | Node                | Legacy-ORA-Set Password          | Updates the ForgeRock IDM managed user object with the password captured and stored in the shared state
+AM      | Tree Hook           | LegacyORASessionTreeHook         | Manages cookies if a successfull login is performed into legacy IAM by the tree
 AM      | Authentication Tree | migrationTree                    | Implements the migration login and bidirectional SSO
 AM      | Custom Nodes        | migration-am-custom-SNAPSHOT.jar | Custom AM nodes used in the migration authentication tree
 ```
@@ -43,7 +44,9 @@ In order to build the project from the command line, follow the steps presented 
 <br>
 + <b>Demo video</b> - [downloading and building the source code](https://github.com/ForgeRock/modernize-accelerators/blob/master/forgerock-am-migration-sso-jit/video/Part1-Building_The_Code.mp4) - All the steps below can be followed in this video recording.
 
-### 2.1. Prerequisites - Prepare Your Environment
+### 2.1. Prerequisites - Prepare your Environment
+
+#### 2.1.1. Software and environment
 
 You will need the following software to build the code:
 
@@ -68,12 +71,18 @@ MAVEN_HOME=/opt/apache-maven-3.6.3
 MAVEN_OPTS='-Xmx2g -Xms2g -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=512m'
 ```
 
+#### 2.1.2. External libraries
+
 + The source files use some Spring dependencies from the 5.2.1.RELEASE that you will need to download. The following JAR files must be added to the WEB-INF/lib directory of the OpenAM war, before building it as described in section 2.4. below:
 
 + [spring-beans-5.2.1.RELEASE](https://mvnrepository.com/artifact/org.springframework/spring-beans)
 + [spring-core-5.2.1.RELEASE](https://mvnrepository.com/artifact/org.springframework/spring-core)
 + [spring-jcl-5.2.1.RELEASE](https://mvnrepository.com/artifact/org.springframework/spring-jcl)
 + [spring-web-5.2.1.RELEASE](https://mvnrepository.com/artifact/org.springframework/spring-web)
+
+#### 2.1.3. Reverse proxy
+
+Usually all components are deployed under the same domain, but if your legacy IAM is under another domain than the ForgeRock applications, you will need a reverse proxy in front of both legacy and ForgeRock. This will ensure all the cookies will be seen between aplications from the same domain, otherwise SSO can't be achieved.
 
 ### 2.2. Getting the Code
 
@@ -157,12 +166,12 @@ In our example, the tree was created and exported in the root realm, but as a be
 
 A node is the core abstraction within an authentication tree. Trees consist of nodes, which can modify the shared state and request input from the user via callbacks.
 
-- <b>Check Legacy Token</b> - Custom node provided in this SSO toolkit. Detects if an existing legacy token exists in the browser in a specific cookie, and validates this as an active token against the legacy IAM system via an SDK/API call. The default node uses a GET API call with the cookie fetched from the incoming http request. The name of the cookie and the target URL is configurable. The node is vendor-specific and is flexible enough to be tailored for each vendor. The Oracle plugin provides a custom implementation for this node using the Oracle Access Client SDK.
+#### 3.2.1. Legacy-FR-Validate Token
+Custom node provided in this SSO toolkit. Detects if an existing legacy token exists in the browser in a specific cookie, and validates this as an active token against the legacy IAM system via an SDK/API call. The default node uses a GET API call with the cookie fetched from the incoming http request. The name of the cookie and the target URL is configurable. The node is vendor-specific and is flexible enough to be tailored for each vendor. The Oracle plugin provides a custom implementation for this node using the Oracle Access Client SDK.
 
 ```
-Node class: /src/main/java/org.forgerock.openam.auth.node.CheckLegacyToken.java
-Plugin class: /src/main/java/org.forgerock.openam.auth.node.plugin.CheckLegacyTokenPlugin.java
-Configuration file: /src/main/resources/org/forgerock/openam/auth/node/CheckLegacyToken.properties
+Node Class: /src/main/java/org/forgerock/openam/auth/node/LegacyFRValidateToken.java
+Configuration File: /src/main/resources/org/forgerock/openam/auth/node/LegacyFRValidateToken.properties
 
 Configuration          | Example                                                            | Description
 ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -172,54 +181,56 @@ Legacy Cookie Name     | iPlanetDirectoryPro                                    
 
 <br>
 
-- <b>Is User Migrated</b> - Custom node provided in the SSO toolkit. Calls the default ForgeRock IDM managed object API to determine whether the user is already migrated. This node is generic, and does not need to be customized for specific legacy IAM vendor implementations.
+#### 3.2.2. Legacy-FR-Migration Status
+Custom node provided in the SSO toolkit. Calls the default ForgeRock IDM managed object API to determine whether the user is already migrated. This node is generic, and does not need to be customized for specific legacy IAM vendor implementations.
 
 ```
-Node class: /src/main/java/org.forgerock.openam.auth.node.CheckUserMigrationStatus.java
-Plugin class: /src/main/java/org.forgerock.openam.auth.node.plugin.CheckUserMigrationStatusPlugin.java
-Configuration file: /src/main/resources/org/forgerock/openam/auth/node/CheckUserMigrationStatus.properties
+Node Class: /src/main/java/org/forgerock/openam/auth/node/LegacyFRMigrationStatus.java
+Configuration File: /src/main/resources/org/forgerock/openam/auth/node/LegacyFRMigrationStatus.properties
 
 Configuration          | Example                                                            | Description
 ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------
 IDM User Endpoint      | <<proto>://<<host>>/openidm/managed/user?_queryFilter=userName+eq+ | End point used to verify in ForgeRock IDM if the user is migrated
 IDM Admin User         | idmAdmin                                                           | IDM admin user used to query the IDM user endpoint
-IDM Admin Password     | idmPassword                                                        | IDM admin password used to query the IDM user endpoint
+IDM Password Secret ID | openidmadminpass                                                   | field for the IDM admin password secret id. The secret from the file system with this id. must contain the value of the password for the IDM administrator user
 ```
 
 <br>
 
-- <b>Page Node</b> - The default page node in ForgeRock IAM used to capture user credentials. This node is generic, and does not need to be customized for specific legacy IAM vendor implementations.
+#### 3.2.3. Page Node
+The default page node in ForgeRock IAM used to capture user credentials. This node is generic, and does not need to be customized for specific legacy IAM vendor implementations.
 
 <br>
 
-- <b>Create User in DS</b> - Custom node provided in the SSO toolkit. Calls the default ForgeRock IDM managed object API to provision the user in ForgeRock. This node is generic, and does not need to be customized for specific legacy IAM vendor implementations. The node uses the following shared state attributes: 
+#### 3.2.4. Legacy-FR-Create FR User
+Custom node provided in the SSO toolkit. Calls the default ForgeRock IDM managed object API to provision the user in ForgeRock. This node is generic, and does not need to be customized for specific legacy IAM vendor implementations. The node uses the following shared state attributes: 
 
 ```
-Node class: /src/main/java/org.forgerock.openam.auth.node.CreateUser.java
-Plugin class: /src/main/java/org.forgerock.openam.auth.node.plugin.CreateUserPlugin.java
-Configuration file: /src/main/resources/org/forgerock/openam/auth/node/CreateUser.properties
+Node Class: /src/main/java/org/forgerock/openam/auth/node/LegacyFRCreateForgeRockUser.java
+Configuration File: /src/main/resources/org/forgerock/openam/auth/node/LegacyfrCreateForgeRockUser.properties
 
 Configuration          | Example                                                            |Description
 ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Legacy URL             | <<proto>>://<<host>>/openam/json/realms/root/realms/legacy/users/  | End point used to get profile attributes from the legacy IAM
 IDM User Endpoint      | <<proto>>://<<host>>/openidm/managed/user?_action=create           | End point used to create a user in ForgeRock IDM
 IDM Admin User         | idmAdmin                                                           | IDM admin user used to query the IDM user endpoint
-IDM Admin Password     | idmPassword                                                        | IDM admin password used to query the IDM user endpoint
+IDM Password Secret ID | openidmadminpass                                                   | field for the IDM admin password secret id. The secret from the file system with this id. must contain the value of the password for the IDM administrator user
 Set Password Reset     | true/false - on/off                                                | Switch used to determine if the node is used on a scenario that cannot migrate the user password. Set to true if the password can't be migrated.
 ```
 
 <br>
 
-- <b>Data Store Decision</b> - This is the default node for credential validation in ForgeRock IAM. This node is generic, and does not need to be customized for specific legacy IAM vendor implementations.
+#### 3.2.5. Data Store Decision
+This is the default node for credential validation in ForgeRock IAM. This node is generic, and does not need to be customized for specific legacy IAM vendor implementations.
 
 <br>
 
-- <b>Legacy Log In</b> - Custom node provided in the SSO toolkit. Validates credentials (username and password) entered by the user against the legacy IAM system via an SDK/API call. The default node uses a POST API call with the username and password fetched from the shared state. The URL is configurable, the node expects a successful response of 200 OK and a specific cookie to be present in the response. The cookie name is configurable. The node is vendor-specific and is flexible enough to be tailored for each vendor. The Oracle plugin provides a custom implementation for this node using the Oracle Access Client SDK.
+#### 3.2.6. Legacy-FR-Login
+Custom node provided in the SSO toolkit. Validates credentials (username and password) entered by the user against the legacy IAM system via an SDK/API call. The default node uses a POST API call with the username and password fetched from the shared state. The URL is configurable, the node expects a successful response of 200 OK and a specific cookie to be present in the response. The cookie name is configurable. The node is vendor-specific and is flexible enough to be tailored for each vendor. The Oracle plugin provides a custom implementation for this node using the Oracle Access Client SDK.
 
 ```
-Node class: /src/main/java/org.forgerock.openam.auth.node.LegacyLogin.java
-Plugin class: /src/main/java/org.forgerock.openam.auth.node.plugin.LegacyLoginPlugin.java
-Configuration file: /src/main/resources/org/forgerock/openam/auth/node/LegacyLogin.properties
+Node Class: /src/main/java/org/forgerock/openam/auth/node/LegacyFRLogin.java
+Configuration File: /src/main/resources/org/forgerock/openam/auth/node/LegacyFRLogin.properties
 
 Configuration          | Example                                                            | Description
 ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -229,18 +240,18 @@ Legacy Cookie Name     | iPlanetDirectoryPro                                    
 
 <br>
 
-- <b>Set Password in DS</b> - Custom node provided in the SSO toolkit. Calls the default ForgeRock IDM managed object API to provision the user password in ForgeRock IAM. This node is generic one, and does not need to be customized for specific legacy IAM vendor implementations.
+#### 3.2.7. Legacy-FR-Set Password
+Custom node provided in the SSO toolkit. Calls the default ForgeRock IDM managed object API to provision the user password in ForgeRock IAM. This node is generic one, and does not need to be customized for specific legacy IAM vendor implementations.
 
 ```
-Node class: /src/main/java/org.forgerock.openam.auth.node.SetUserPassword.java
-Plugin class: /src/main/java/org.forgerock.openam.auth.node.plugin.SetUserPasswordPlugin.java
-Configuration file: /src/main/resources/org/forgerock/openam/auth/node/SetUserPassword.properties
+Node Class: /src/main/java/org/forgerock/openam/auth/node/LegacyFRSetPassword.java
+Configuration File: /src/main/resources/org/forgerock/openam/auth/node/LegacyFRSetPassword.properties
 
 Configuration          | Example                                                                           | Description
 ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------
 IDM User Endpoint      | <<proto>>://<<host>>/openidm/managed/user?_action=patch&_queryFilter=userName+eq+ | End point used to create a user in ForgeRock IDM
 IDM Admin User         | idmAdmin                                                                          | IDM admin user used to query the IDM user endpoint
-IDM Admin Password     | idmPassword                                                                       | IDM admin password used to query the IDM user endpoint
+IDM Password Secret ID | openidmadminpass                                                   | field for the IDM admin password secret id. The secret from the file system with this id. must contain the value of the password for the IDM administrator user
 ```
 
 ## 4. Scenarios
