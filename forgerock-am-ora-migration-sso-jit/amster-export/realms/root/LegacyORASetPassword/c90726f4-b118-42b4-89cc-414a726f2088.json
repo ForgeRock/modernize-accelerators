@@ -1,0 +1,20 @@
+{
+  "metadata" : {
+    "realm" : "/",
+    "amsterVersion" : "6.5.2",
+    "entityType" : "LegacyORASetPassword",
+    "entityId" : "c90726f4-b118-42b4-89cc-414a726f2088",
+    "pathParams" : { }
+  },
+  "data" : {
+    "_id" : "c90726f4-b118-42b4-89cc-414a726f2088",
+    "idmAdminUser" : "openidm-admin",
+    "idmPasswordId" : "openidmadminpass",
+    "idmUserEndpoint" : "<<proto>>://<<host>>/openidm/managed/user?_queryFilter=userName+eq+",
+    "_type" : {
+      "_id" : "LegacyORASetPassword",
+      "name" : "Legacy-ORA-Set Password",
+      "collection" : true
+    }
+  }
+}

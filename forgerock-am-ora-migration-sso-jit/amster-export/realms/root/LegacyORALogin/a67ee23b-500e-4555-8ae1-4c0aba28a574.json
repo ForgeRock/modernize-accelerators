@@ -1,0 +1,23 @@
+{
+  "metadata" : {
+    "realm" : "/",
+    "amsterVersion" : "6.5.2",
+    "entityType" : "LegacyORALogin",
+    "entityId" : "a67ee23b-500e-4555-8ae1-4c0aba28a574",
+    "pathParams" : { }
+  },
+  "data" : {
+    "_id" : "a67ee23b-500e-4555-8ae1-4c0aba28a574",
+    "msMethod" : "GET",
+    "legacyCookieName" : "OAMAuthnCookie",
+    "msConfigLocation" : "/path/to/config",
+    "msProtocol" : "http",
+    "legacyCookieDomain" : ".domain.example.com",
+    "msResource" : "//<<host>>:<<port>>/oam/server/obrareq.cgi",
+    "_type" : {
+      "_id" : "LegacyORALogin",
+      "name" : "Legacy-ORA-Login",
+      "collection" : true
+    }
+  }
+}

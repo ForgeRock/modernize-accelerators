@@ -1,0 +1,20 @@
+{
+  "metadata" : {
+    "realm" : "/",
+    "amsterVersion" : "6.5.2",
+    "entityType" : "LegacyORAMigrationStatus",
+    "entityId" : "4716bb70-6f40-4c40-b3f2-ad49c2963842",
+    "pathParams" : { }
+  },
+  "data" : {
+    "_id" : "4716bb70-6f40-4c40-b3f2-ad49c2963842",
+    "idmAdminUser" : "openidm-admin",
+    "idmPasswordId" : "openidmadminpass",
+    "idmUserEndpoint" : "<<proto>>://<<host>>/openidm/managed/user?_queryFilter=userName+eq+",
+    "_type" : {
+      "_id" : "LegacyORAMigrationStatus",
+      "name" : "Legacy-ORA-Migration Status",
+      "collection" : true
+    }
+  }
+}
