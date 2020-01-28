@@ -170,6 +170,10 @@
                 {
                     "target" : "uniqueId",
                     "source" : "orclGUID"
+                },
+                {
+                    "target" : "passwordSha512",
+                    "source" : "userPassword"
                 }
             ],
             "policies" : [
@@ -352,15 +356,15 @@
                     "target" : "mail"
                 },
                 {
-                    "condition" : {
-                        "type" : "text/javascript",
-                        "globals" : { },
-                        "source" : "object.password != null"
-                    },
-                    "target" : "userPassword",
-                    "default" : "Passw0rd123"
-                },
-                {
+								   
+												   
+										
+															
+					  
+											  
+											 
+				  
+				 
                     "source" : "telephoneNumber",
                     "target" : "telephoneNumber",
                     "condition" : {
@@ -386,6 +390,15 @@
                         "type" : "text/javascript",
                         "globals" : { },
                         "source" : "source.lockoutTime != null ?  '<InvalidPassword><InvalidCount>' + \n  source.loginTryCount + '</InvalidCount><LastInvalidAt>' +\n  '0' + '</LastInvalidAt><LockedoutAt>' +\n  '0' + '</LockedoutAt><ActualLockoutDuration>0</ActualLockoutDuration>' +\n  '<NoOfTimesLocked>1</NoOfTimesLocked></InvalidPassword>' : null"
+                    },
+                    "source" : ""
+                },
+                {
+                    "target" : "userPassword",
+                    "transform" : {
+                        "type" : "text/javascript",
+                        "globals" : { },
+                        "source" : "var base64 = Packages.org.forgerock.util.encode.Base64url;\nb64tO = new java.lang.String(base64.decode(source.passwordSha512));\nb64tO;"
                     },
                     "source" : ""
                 }

@@ -123,7 +123,7 @@
             "orcluserV2"
         ],
         "alternateKeyStoreType" : null,
-        "passwordHashAlgorithm" : null,
+        "passwordHashAlgorithm" : "SSHA",
         "alternateKeyStore" : null,
         "authType" : "simple",
         "connectionTimeout" : 30000,
@@ -133,6 +133,7 @@
         "useOldADGUIDFormat" : false,
         "sendCAUDTxId" : false,
         "gssapiLoginContext" : null,
+        "passwordAttributeToSynchronize" : "passwordSha512",											
         "baseContextsToSynchronize" : [
             "ou=users,&{ouduserstore.basecontext}",
             "ou=groups,&{ouduserstore.basecontext}"
@@ -279,7 +280,17 @@
                     "type" : "string",
                     "nativeName" : "orclGUID",
                     "nativeType" : "string",
-                    "required" : false									  
+                    "required" : false									   
+                },
+                "userPassword" : {
+                    "type" : "string",
+                    "nativeName" : "userPassword",
+                    "nativeType" : "string",
+                    "required" : false,
+                    "flags" : [
+                        "PASSWORD"
+                    ],
+                    "runAsUser" : false
                 }
             }
         },

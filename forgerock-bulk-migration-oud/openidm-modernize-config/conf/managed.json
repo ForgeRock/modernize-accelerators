@@ -72,8 +72,8 @@
                         "title" : "Password",
                         "description" : "Password",
                         "type" : "string",
-                        "viewable" : false,
-                        "searchable" : false,
+                        "viewable" : true,
+                        "searchable" : true,
                         "minLength" : null,
                         "userEditable" : true,
                         "encryption" : {
@@ -666,6 +666,23 @@
                         "searchable" : true,
                         "userEditable" : true
                     },
+                    "uniqueId" : {
+                        "title" : "Unique Id",
+                        "type" : "string",
+                        "viewable" : true,
+                        "searchable" : true,
+                        "userEditable" : true
+                    },
+                    "passwordSha512" : {
+                        "title" : "External Password",
+                        "type" : "string",
+                        "viewable" : true,
+                        "searchable" : true,
+                        "userEditable" : true,
+                        "description" : null,
+                        "minLength" : null,
+                        "isVirtual" : false
+                    },
                     "groups" : {
                         "title" : "Groups",
                         "type" : "array",
@@ -675,13 +692,13 @@
                         "items" : {
                             "type" : "string"
                         }
-                    },
-                    "uniqueId" : {
-                        "title" : "Unique Id",
-                        "type" : "string",
-                        "viewable" : true,
-                        "searchable" : true,
-                        "userEditable" : true
+					  
+								  
+											  
+										  
+										  
+											
+											 
                     }
                 },
                 "order" : [
@@ -722,8 +739,9 @@
                     "loginTryCount",
                     "cn",
                     "employeeNumber",
-                    "groups",
-                    "uniqueId"						  
+                    "uniqueId",
+                    "passwordSha512",
+                    "groups"
                 ],
                 "required" : [
                     "userName",

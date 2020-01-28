@@ -126,6 +126,7 @@
         "useOldADGUIDFormat" : false,
         "sendCAUDTxId" : false,
         "gssapiLoginContext" : null,
+        "passwordAttributeToSynchronize" : "passwordSha512",												
         "baseContextsToSynchronize" : [
             "ou=users,&{legacyiamuserstore.basecontext}",
             "ou=groups,&{legacyiamuserstore.basecontext}"
@@ -260,7 +261,17 @@
                     "type" : "string",
                     "nativeName" : "uniqueId",
                     "nativeType" : "string",
-                    "required" : false									  
+                    "required" : false		   
+                },
+                "userPassword" : {
+                    "type" : "string",
+                    "nativeName" : "userPassword",
+                    "nativeType" : "string",
+                    "required" : false,
+                    "flags" : [
+                        "PASSWORD"
+                    ],
+                    "runAsUser" : false
                 }
             }
         },
