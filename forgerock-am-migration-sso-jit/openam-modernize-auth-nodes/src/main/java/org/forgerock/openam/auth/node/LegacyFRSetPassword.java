@@ -32,7 +32,12 @@ import org.forgerock.openam.auth.node.api.Action;
 import org.forgerock.openam.auth.node.api.Node;
 import org.forgerock.openam.auth.node.api.NodeProcessException;
 import org.forgerock.openam.auth.node.api.TreeContext;
+import org.forgerock.openam.core.realms.Realm;
 import org.forgerock.openam.modernize.utils.RequestUtils;
+import org.forgerock.openam.secrets.Secrets;
+import org.forgerock.openam.secrets.SecretsProviderFacade;
+import org.forgerock.secrets.NoSuchSecretException;
+import org.forgerock.secrets.Purpose;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -80,8 +85,16 @@ public class LegacyFRSetPassword extends AbstractDecisionNode {
 	}
 
 	@Inject
-	public LegacyFRSetPassword(@Assisted LegacyFRSetPassword.Config config) {
+	public LegacyFRSetPassword(@Assisted LegacyFRSetPassword.Config config, @Assisted Realm realm, Secrets secrets)
+			throws NodeProcessException {
 		this.config = config;
+		SecretsProviderFacade secretsProvider = secrets.getRealmSecrets(realm);
+		try {
+			this.idmPassword = secretsProvider.getNamedSecret(Purpose.PASSWORD, config.idmPasswordId())
+					.getOrThrowUninterruptibly().revealAsUtf8(String::valueOf);
+		} catch (NoSuchSecretException e) {
+			throw new NodeProcessException("No secret " + config.idmPasswordId() + " found");
+		}
 	}
 
 	/**

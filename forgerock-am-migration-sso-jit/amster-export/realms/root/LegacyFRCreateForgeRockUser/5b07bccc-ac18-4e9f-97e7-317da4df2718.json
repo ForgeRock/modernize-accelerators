@@ -1,0 +1,22 @@
+{
+  "metadata" : {
+    "realm" : "/",
+    "amsterVersion" : "6.5.2",
+    "entityType" : "LegacyFRCreateForgeRockUser",
+    "entityId" : "5b07bccc-ac18-4e9f-97e7-317da4df2718",
+    "pathParams" : { }
+  },
+  "data" : {
+    "_id" : "5b07bccc-ac18-4e9f-97e7-317da4df2718",
+    "idmAdminUser" : "openidm-admin",
+    "setPasswordReset" : false,
+    "idmPasswordId" : "openidmadminpass",
+    "legacyEnvURL" : "<<proto>>://<<host>>/openam/json/realms/root/realms/legacy/users/",
+    "idmUserEndpoint" : "<<proto>>://<<host>>/openidm/managed/user?_action=create",
+    "_type" : {
+      "_id" : "LegacyFRCreateForgeRockUser",
+      "name" : "Legacy-FR-Create FR User",
+      "collection" : true
+    }
+  }
+}

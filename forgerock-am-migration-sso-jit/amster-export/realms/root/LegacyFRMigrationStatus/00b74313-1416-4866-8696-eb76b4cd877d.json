@@ -1,0 +1,20 @@
+{
+  "metadata" : {
+    "realm" : "/",
+    "amsterVersion" : "6.5.2",
+    "entityType" : "LegacyFRMigrationStatus",
+    "entityId" : "00b74313-1416-4866-8696-eb76b4cd877d",
+    "pathParams" : { }
+  },
+  "data" : {
+    "_id" : "00b74313-1416-4866-8696-eb76b4cd877d",
+    "idmAdminUser" : "openidm-admin",
+    "idmPasswordId" : "openidmadminpass",
+    "idmUserEndpoint" : "<<proto>>://<<host>>/openidm/managed/user?_queryFilter=userName+eq+",
+    "_type" : {
+      "_id" : "LegacyFRMigrationStatus",
+      "name" : "Legacy-FR-Migration Status",
+      "collection" : true
+    }
+  }
+}
