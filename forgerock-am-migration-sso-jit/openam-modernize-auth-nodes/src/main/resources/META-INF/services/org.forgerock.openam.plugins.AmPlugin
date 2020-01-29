@@ -1,5 +1,1 @@
-org.forgerock.openam.auth.node.plugin.LegacyLoginPlugin
-org.forgerock.openam.auth.node.plugin.CreateUserPlugin
-org.forgerock.openam.auth.node.plugin.CheckLegacyTokenPlugin
-org.forgerock.openam.auth.node.plugin.CheckUserMigrationStatusPlugin
-org.forgerock.openam.auth.node.plugin.SetUserPasswordPlugin
+org.forgerock.openam.auth.node.plugin.LegacyFRPlugin
