@@ -21,11 +21,11 @@ ForgeRock shall not be liable for any direct, indirect or consequential damages 
 + The Modernize IAM Accelerators do not currently cover migrations of policies, sessions, customizations, applications, or services​.
 
 ## Contents
-+ [SSO Toolkit (with AM)](forgerock-am-migration-sso-jit)
-+ [SSO Toolkit (with IG)](forgerock-ig-migration-sso-jit)
-+ [SSO Oracle Toolkit (with AM)](forgerock-am-ora-migration-sso-jit)
-+ [Bulk User Migration Toolkit (generic)](forgerock-bulk-migration-generic)
-+ [Bulk User Migration Toolkit (with OUD)](forgerock-bulk-migration-oud)
++ [ForgeRock AM based SSO Toolkit](forgerock-am-migration-sso-jit)
++ [ForgeRock IG based SSO Toolkit + ForgeRock JIT User Migration Toolkit](forgerock-ig-migration-sso-jit)
++ [ForgeRock AM based SSO Toolkit with Oracle 11G](forgerock-am-ora-migration-sso-jit)
++ [ForgeRock Bulk User Migration Toolkit](forgerock-bulk-migration-generic)
++ [ForgeRock Bulk User Migration Toolkit with Oracle Unified Directory (OUD)](forgerock-bulk-migration-oud)
 
 ## License
 
