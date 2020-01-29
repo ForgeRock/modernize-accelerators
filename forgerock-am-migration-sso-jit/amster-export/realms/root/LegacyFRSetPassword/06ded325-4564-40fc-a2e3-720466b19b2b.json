@@ -1,0 +1,20 @@
+{
+  "metadata" : {
+    "realm" : "/",
+    "amsterVersion" : "6.5.2",
+    "entityType" : "LegacyFRSetPassword",
+    "entityId" : "06ded325-4564-40fc-a2e3-720466b19b2b",
+    "pathParams" : { }
+  },
+  "data" : {
+    "_id" : "06ded325-4564-40fc-a2e3-720466b19b2b",
+    "idmAdminUser" : "openidm-admin",
+    "idmPasswordId" : "openidmadminpass",
+    "idmUserEndpoint" : "<<proto>>://<<host>>/openidm/managed/user?_action=patch&_queryFilter=userName+eq+",
+    "_type" : {
+      "_id" : "LegacyFRSetPassword",
+      "name" : "Legacy-FR-Set Password",
+      "collection" : true
+    }
+  }
+}
