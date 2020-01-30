@@ -24,10 +24,7 @@ System         | Type                | Name                               | Desc
 Framework      | jar library         | openig-modernize-library-x.y.z.jar | A library containing the main interfaces provided for implementing the migration components
 Client         | Java class          | LegacyOpenSSOProvider.java         | Example implementation of the openig-modernize-library-x.y.z.jar framework
 IG             | jar library         | openig-modernize-filters           | The IG library holding the migration filters which use the implementation of the openig-modernize-library-x.y.z.jar framework
-IG             | Route               | Legacy AM Authenticate Route       | A route that covers the authentication endpoint
-IG             | Route               | Legacy AM Generic Route            | A route that covers all the resource endpoints from the legacy IAM
-IG             | Route               | Agent Legacy Protected App         | 
-IG             | Route               | Web Legacy Protected App           | A route that covers all the resource endpoints for the legacy protected application
+IG             | Route               | migration-assets-authentication    | A route that covers the authentication endpoint
 ```
 
 ## 2. Building The Source Code
