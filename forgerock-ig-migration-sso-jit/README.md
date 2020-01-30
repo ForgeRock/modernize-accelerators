@@ -177,18 +177,18 @@ The route provided with this toolkit serves as an example of implementation. The
 <br>Route filters:
 
 - <b>MigrationSsoFilter</b> - Custom filter provided in this SSO toolkit. The filter does the following actions:
-    - Intercepts the user' creddentials from the authentication request by calling the framework method implementation <b>getUserCredentials</b> injected via java reflection API.
+    - Intercepts the user' credentials from the authentication request by calling the framework method implementation <b>getUserCredentials</b> injected via java reflection API.
 	- Verifies if the user is migrated in ForgeRock IDM
 		- If the user is migrated:
 			- he is authenticated in ForgeRock AM
 			- the request is passed through to the legacy IAM and the user is authenticated there also
-			- when legacy IAM responds, the use will have on the HTTP response a Set-Cookie header representing the legacy SSO token. The filter also adds a Set-Cookie header with the value of the SSO token resulted after authentication to ForgeRock AM.
+			- when legacy IAM responds, the user will have on the HTTP response a Set-Cookie header representing the legacy SSO token. The filter also adds a Set-Cookie header with the value of the SSO token resulted after authentication to ForgeRock AM.
 			- As a result, the user will have in his browser two tokens, on for the legacy IAM, and one for the ForgeRock AM.
 			
 		- If the user is not migrated:
 			- the filter allows the request to pass directly to legacy IAM to validate the credentials
 			- on the response from legacy IAM, the filter verifies if the authentication succeeded by calling the framework method implementation <b>validateLegacyAuthResponse</b> injected via java reflection API.
-			- on successfull authentication in legacy IAM, the filter attempts to retrieve the user profile details by calling the framework method implementation <b>getExtendedUserAttributes</b> injected via java reflection API.
+			- on successful authentication in legacy IAM, the filter attempts to retrieve the user profile details by calling the framework method implementation <b>getExtendedUserAttributes</b> injected via java reflection API.
 			- with the user profile attributes retrieved, the filter provisions the user in ForgeRock IDM.
 
 - Filter config example:
