@@ -22,8 +22,8 @@ ForgeRock shall not be liable for any direct, indirect or consequential damages 
 
 ## Contents
 + [ForgeRock AM based SSO Toolkit](forgerock-am-migration-sso-jit)
-+ [ForgeRock IG based SSO Toolkit + ForgeRock JIT User Migration Toolkit](forgerock-ig-migration-sso-jit)
-+ [ForgeRock AM based SSO Toolkit with Oracle 11G](forgerock-am-ora-migration-sso-jit)
++ [ForgeRock IG based SSO & JIT Toolkit](forgerock-ig-migration-sso-jit)
++ [ForgeRock AM Based SSO Toolkit for OAM11G](forgerock-am-ora-migration-sso-jit)
 + [ForgeRock Bulk User Migration Toolkit](forgerock-bulk-migration-generic)
 + [ForgeRock Bulk User Migration Toolkit with Oracle Unified Directory (OUD)](forgerock-bulk-migration-oud)
 
