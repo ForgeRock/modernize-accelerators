@@ -18,7 +18,7 @@ The framework can be easily extended to support migrations from any legacy IAM p
 ### 1.1. Assets Included
 Bidirectional SSO capability between legacy IAM and ForgeRock IAM helps minimize risk and time to market in complex migration projects.
 ForgeRock understands customers' needs to speed up migration design decisions and cut implementation time, and is thus delivering the following assets as part of the Migration Accelerators:
-- A collection of custom migration authentication nodes (ValidateLegacyToken, GenerateLegacyToken, RetrieveLegacyProfil)
+- A collection of custom migration authentication nodes (ValidateLegacyToken, GenerateLegacyToken, RetrieveLegacyProfile)
 - A prebuilt migration authentication tree with bidirectional SSO support that embeds custom nodes and migration know-how (including handling invalid authentication attempts)
 - Password synchronization capabilities inside the authentication tree
 - A flex option allowing the extension of the authentication tree and nodes for a specific vendor legacy IAM system
@@ -31,7 +31,7 @@ AM      | Node                | Legacy-FR-Migration Status       | Searches the 
 AM      | Node                | Legacy-FR-Create FR User         | Calls the ForgeRock IDM API to provision the managed user
 AM      | Node                | Legacy-FR-Login                  | Based on the username and password from the shared state, executes the legacy IAM login API call
 AM      | Node                | Legacy-FR-Set Password           | Updates the ForgeRock IDM managed user object with the password captured and stored in the shared state
-AM      | Tree Hook           | LegacySessionTreeHook            | Manages cookies if a successfull login is performed into legacy IAM by the tree
+AM      | Tree Hook           | LegacySessionTreeHook            | Manages cookies if a successful login is performed into legacy IAM by the tree
 AM      | Authentication Tree | migrationTree                    | Implements the migration login and bidirectional SSO
 AM      | Custom Nodes        | migration-am-custom-SNAPSHOT.jar | Custom AM nodes used in the migration authentication tree
 ```
@@ -82,7 +82,7 @@ MAVEN_OPTS='-Xmx2g -Xms2g -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=512m'
 
 #### 2.1.3. Reverse proxy
 
-Usually all components are deployed under the same domain, but if your legacy IAM is under another domain than the ForgeRock applications, you will need a reverse proxy in front of both legacy and ForgeRock. This will ensure all the cookies will be seen between aplications from the same domain, otherwise SSO can't be achieved.
+Usually all components are deployed under the same domain, but if your legacy IAM is under another domain than the ForgeRock applications, you will need a reverse proxy in front of both legacy and ForgeRock. This will ensure all the cookies will be seen between applications from the same domain, otherwise SSO can't be achieved.
 
 ### 2.2. Getting the Code
 
@@ -167,7 +167,7 @@ In our example, the tree was created and exported in the root realm, but as a be
 A node is the core abstraction within an authentication tree. Trees consist of nodes, which can modify the shared state and request input from the user via callbacks.
 
 #### 3.2.1. Legacy-FR-Validate Token
-Custom node provided in this SSO toolkit. Detects if an existing legacy token exists in the browser in a specific cookie, and validates this as an active token against the legacy IAM system via an SDK/API call. The default node uses a GET API call with the cookie fetched from the incoming http request. The name of the cookie and the target URL is configurable. The node is vendor-specific and is flexible enough to be tailored for each vendor. The Oracle plugin provides a custom implementation for this node using the Oracle Access Client SDK.
+Custom node provided in this SSO toolkit. Detects if an existing legacy token exists in the browser in a specific cookie, and validates this as an active token against the legacy IAM system via an SDK/API call. The default node uses a GET API call with the cookie fetched from the incoming http request. The name of the cookie and the target URL is configurable. The node is vendor-specific and is flexible enough to be tailored for each vendor. The Oracle plugin provides a custom implementation for this node using the OAM11G SDK.
 
 ```
 Node Class: /src/main/java/org/forgerock/openam/auth/node/LegacyFRValidateToken.java
