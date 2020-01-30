@@ -14,7 +14,7 @@ ForgeRock shall not be liable for any direct, indirect or consequential damages 
 
 <br>
 
-+ The Modernize IAM Accelerators provide a tool set designed to achieve a greater than 25% acceleration in the design and build activity around user migration (bulk migration & just-inttime) and single sign-on between legacy vendors and ForgeRock. ​
++ The Modernize IAM Accelerators provide a tool set designed to achieve a greater than 25% acceleration in the design and build activity around user migration (bulk migration & just-in-time) and single sign-on between legacy vendors and ForgeRock.
 
 <br>
 
