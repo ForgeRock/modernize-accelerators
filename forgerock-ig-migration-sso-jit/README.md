@@ -166,7 +166,28 @@ jar -cf ../ROOT.war *
 
 ## 3. Configuration
 
-### 3.1. Routes
+### 3.1. Secrets
+The password that is used in the toolkit, must be saved in a secret store for security reasons.
+
+The section below shows the FileSystemSecretStore configuration from [migration-assets-authentication-route.json](https://github.com/ForgeRock/modernize-accelerators/blob/develop/forgerock-ig-migration-sso-jit/openig-modernize-routes/migration-assets-authentication-route.json)
+
+```
+"secrets": {
+    "stores": [
+      {
+        "type": "FileSystemSecretStore",
+        "config": {
+          "format": "PLAIN",
+          "directory": "${openig.baseDirectory.path}/secrets"
+        }
+      }
+    ]
+  }
+```
+
+On the IG instance filesystem, create the directory path configured in the directory field. Put the file containing the IDM admin user password secret in the path configured in the directory field. In this example the file is named <b>openidmadminpass</b> and must be configured in the <b>openIdmPasswordSecretId</b> field in the MigrationSsoFilter filter config - See section 3.2.
+
+### 3.2. Routes
 
 The route provided with this toolkit serves as an example of implementation. The route requires specific adaptation to each user's case and should not be used as packaged here.
 
@@ -197,7 +218,7 @@ The route provided with this toolkit serves as an example of implementation. The
 	"migrationImplClassName": "org.forgerock.openig.modernize.impl.LegacyOpenSSOProvider",
 	"getUserMigrationStatusEndpoint": "<<proto>>://<<idmHost>>/openidm/managed/user?_queryFilter=userName+eq+\"{0}\"",
 	"provisionUserEndpoint": "<<proto>>://<<idmHost>>/openidm/managed/user?_action=create",
-	"openIdmPassword": "openidm-admin",
+	"openIdmPasswordSecretId": "openidmadminpass",
 	"openIdmUsername": "openidm-admin",
 	"openaAmAuthenticateURL": "<<proto>>://<<amHost>>/json/realms/root/authenticate",
 	"openAmCookieName": "iPlanetDirectoryPro",
@@ -205,7 +226,8 @@ The route provided with this toolkit serves as an example of implementation. The
 	"openIdmPasswordHeader": "X-OpenIDM-Password",
 	"acceptApiVersionHeader": "Accept-API-Version",
 	"acceptApiVersionHeaderValue": "resource=2.0, protocol=1.0",
-	"setCookieHeader": "Set-Cookie"
+	"setCookieHeader": "Set-Cookie",
+	"directory": "${openig.baseDirectory.path}/secrets"
   }
 }
 ```
