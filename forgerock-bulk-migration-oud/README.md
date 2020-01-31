@@ -100,6 +100,14 @@ Copy the content of the /conf folder to your IDM /conf location and restart the 
 + <b>Configure</b> -> <b>Mappings</b> (check if the two mappings are presents).
 
 
+### 3.3. Prerequisite in order to synchronize hashed passwords
+
+You can use passwords in DS/OpenDJ that are taken from Legacy OUD (SSHA512 algorithm) as follows:
++ Configure DS/OpenDJ to allow <b>pre-encoded passwords</b> for the relevant password policy. You can set this using dsconfig, for example:
+
+    $ ./dsconfig set-password-policy-prop --policy-name "Default Password Policy" --port 4444 --bindDN "cn=Directory Manager" --bindPassword password --advanced --set allow-pre-encoded-passwords:true --trustAll --no-prompt
+
+
 
 ## 4. Extending & Customizing
 

@@ -6,32 +6,32 @@ ForgeRock does not warrant, guarantee or make any representations regarding the 
 ForgeRock shall not be liable for any direct, indirect or consequential damages or costs of any type arising out of any action taken by you or others related to the sample code.
 
 # Modernize Accelerators - SSO Toolkit (with AM) - Migration from Oracle 11G OAM to ForgerRock
-With deployments of tens or hundreds of legacy applications, migration waves may be required to minimize the operational impact on production systems. With this type of use case, coexistence and SSO between legacy IAM and ForgeRock IAM is often needed.
+With deployments of tens or hundreds of legacy applications, migration waves may be required to minimize the operational impact on production systems. With this type of use case, coexistence and SSO between OAM and ForgeRock IAM is often needed.
 Sometimes putting IG in front of a legacy system is not an option for commercial reasons. 
 
 ## 1. Contents
-The toolkit provides a collection of custom Nodes and a oracleMigrationSsoTree that can handle very complex migration scenarios, including Bi-Directional SSO between Legacy IAM and Forgerock AM.
-The framework can be easily extended to support migrations from any Legacy IAM platform that is capable of exposing client SDKs/APIs for operations such as:
+The toolkit provides a collection of custom Nodes and a oracleMigrationSsoTree that can handle very complex migration scenarios, including Bi-Directional SSO between Legacy OAM11G and Forgerock AM.
+The framework can be easily extended to support migrations from any OAM11G platform that is capable of exposing client SDKs/APIs for operations such as:
     - Validate existing Legacy IAM tokens
     - Authentication API (with a username and password input)
 
 ### 1.1. Assets Included
-Bi-Directional SSO capability between Legacy IAM and ForgeRock IAM help minimize risk and time to market in complex migration projects.
+Bi-Directional SSO capability between OAM and ForgeRock IAM help minimize risk and time to market in complex migration projects.
 ForgeRock understands the customer needs to speed up migration design decisions and cut implementation time, and is thus delivering as part of the Migration Accelerators the following assets:
 - Collection of Custom Migration Authentication Nodes (ValidateLegacyToken, GenerateLegacyToken, RetrieveLegacyProfil)
 - Pre-built Migration Authentication Tree with Bi-Directional SSO support that embeds the custom nodes and migration know-how (including handle for invalid authentication attempts)
 - Password synchronization capabilities inside the Authentication Tree
-- Flex option allowing the extension of the Authentication Tree and Nodes for a specific vendor Legacy IAM system
+- Flex option allowing the extension of the Authentication Tree and Nodes for OAM Legacy system
 
 ```
 System  | Type                | Name                                                | Description
 --------| --------------------|-----------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------
-AM      | Node                | Legacy-ORA-Validate Token                           | Retrieves a token from an existing cookie, validates the token against legacy IAM and provides as output in the shared statethe username and outcome
+AM      | Node                | Legacy-ORA-Validate Token                           | Retrieves a token from an existing cookie, validates the token against OAM11G and provides as output in the shared state the username and outcome
 AM      | Node                | Legacy-ORA-Migration Status                         | Searches in Forgerock IDM the user identity based on the username from the shared state
 AM      | Node                | Legacy-ORA-Create FR User                           | Calls the Forgerock IDM API to provision the managed user
-AM      | Node                | Legacy-ORA-Login                                    | Based on the username and password from the shared state, executes the Legacy IAM login API call
+AM      | Node                | Legacy-ORA-Login                                    | Based on the username and password from the shared state, executes the OAM11G login method call
 AM      | Node                | Legacy-ORA-Set Password                             | Updates the Forgerock IDM managed user object with the password captured and stored in the shared state
-AM      | Tree Hook           | LegacyORASessionTreeHook                            | Manages cookies if a successfull login is performed into legacy IAM by the tree
+AM      | Tree Hook           | LegacyORASessionTreeHook                            | Manages cookies if a successful login is performed into OAM11G by the tree
 AM      | Authentication Tree | oracleMigrationSsoTree                              | Implements the migration login and bi-directional SSO
 AM      | Custom Nodes        | openam-modernize-oracle-auth-nodes-1.0-SNAPSHOT.jar | Custom AM nodes that are used in the migration authentication tree
 ```
@@ -339,38 +339,38 @@ IDM Password Secret ID | openidmadminpass                                       
 
 ## 4. Scenarios
 
-### 4.1. Scenario 1 - The user has a valid legacy SSO token in the browser, and accesses the authentication tree
-- The user (not previously migrated) authenticates first in the Legacy iAM.
+### 4.1. Scenario 1 - The user has a valid legacy OAM11G SSO token in the browser, and accesses the authentication tree
+- The user (not previously migrated) authenticates first in the Legacy OAM11G.
 - The user accesses the authentication tree
-- As soon as the user accesses the tree, he is automatically logged in because the Legacy sso token is present in the browser and it's valid. As a result a user profile is created in ForgeRock IDM and AM, with no password set.
+- As soon as the user accesses the tree, he is automatically logged in because the Legacy OAM11G SSO token is present in the browser and it's valid. As a result a user profile is created in ForgeRock IDM and AM, with no password set.
 <br><br>
 ![Scenario1](images/Scenario1.jpg)
 <br>
 
-### 4.2. Scenario 2 - The user accesses the authentication tree, with no legacy SSO token in the browser, after previously he accessed Scenario 1 - was created with no password
+### 4.2. Scenario 2 - The user accesses the authentication tree, with no legacy OAM11G SSO token in the browser, after previously he accessed Scenario 1 - was created with no password
 - The user accesses the authentication tree. The tree is prompting the user for the username and password.
-- After the user fills the credentials, he is successfully authenticated. This happens because the user was logged in successfully in the Legacy iAM. Since Data Store Decision has returned false but the user was already migrated, and the legacy login is successful, the password is also updated in DS.
+- After the user fills the credentials, he is successfully authenticated. This happens because the user was logged in successfully in the Legacy OAM11G. Since Data Store Decision has returned false but the user was already migrated, and the legacy login is successful, the password is also updated in DS.
 <br><br>
 ![Scenario2](images/Scenario2.jpg)
 <br>
 
-### 4.3. Scenario 3 - The user is not migrated, does not have a valid legacy SSO token, and accesses the authentication tree
+### 4.3. Scenario 3 - The user is not migrated, does not have a valid legacy OAM11G SSO token, and accesses the authentication tree
 - The user accesses the authentication tree. The tree is prompting the user for the username and password.
-- After the user fills the credentials, he is successfully authenticated. This happens because the user was logged in successfully in the Legacy iAM, and his profile was successfully provisioned in ForgeRock DS, including his password.
+- After the user fills the credentials, he is successfully authenticated. This happens because the user was logged in successfully in the Legacy OAM11G, and his profile was successfully provisioned in ForgeRock DS, including his password.
 <br><br>
 ![Scenario3](images/Scenario3.jpg)
 <br>
 
-### 4.4. Scenario 4 - This scenario is triggered when the user has a valid legacy SSO token in the browser and is already migrated
-- The user (previously migrated) authenticates first in the Legacy iAM.
+### 4.4. Scenario 4 - This scenario is triggered when the user has a valid legacy OAM11G SSO token in the browser and is already migrated
+- The user (previously migrated) authenticates first in the Legacy OAM11G.
 - The user accesses the authentication tree
-- The outcome of this scenario is that the user is authenticated automatically with both legacy iAM and ForgeRock token at the end of the tree.
+- The outcome of this scenario is that the user is authenticated automatically with both legacy OAM11G and ForgeRock token at the end of the tree.
 ![Scenario4](images/Scenario4.jpg)
 <br>
 
 ### 4.5. Scenario 5 - This is the standard scenario triggered when the user is already migrated, and Data Store decision node authenticates the user successfully
 - The user accesses the authentication tree. The tree is prompting the user for the username and password.
-- The outcome of this scenario is that the user is authenticated automatically with both legacy iAM and ForgeRock token at the end of the tree.
+- The outcome of this scenario is that the user is authenticated automatically with both legacy OAM11G and ForgeRock token at the end of the tree.
 ![Scenario5](images/Scenario5.jpg)
 <br>
 
