@@ -43,6 +43,17 @@
       ]
     }
   ],
+    "secrets": {
+    "stores": [
+      {
+        "type": "FileSystemSecretStore",
+        "config": {
+          "format": "PLAIN",
+          "directory": "${openig.baseDirectory.path}/secrets"
+        }
+      }
+    ]
+  },
   "handler": {
     "type": "Chain",
     "config": {
@@ -73,7 +84,7 @@
             "migrationImplClassName": "org.forgerock.openig.modernize.impl.LegacyOpenSSOProvider",
             "getUserMigrationStatusEndpoint": "<<proto>>://<<idmHost>>/openidm/managed/user?_queryFilter=userName+eq+\"{0}\"",
             "provisionUserEndpoint": "<<proto>>://<<idmHost>>/openidm/managed/user?_action=create",
-            "openIdmPassword": "openidm-admin",
+            "openIdmPasswordSecretId": "openidmadminpass",
             "openIdmUsername": "openidm-admin",
             "openaAmAuthenticateURL": "<<proto>>://<<amHost>>/json/realms/root/authenticate",
             "openAmCookieName": "iPlanetDirectoryPro",
@@ -81,7 +92,8 @@
             "openIdmPasswordHeader": "X-OpenIDM-Password",
             "acceptApiVersionHeader": "Accept-API-Version",
             "acceptApiVersionHeaderValue": "resource=2.0, protocol=1.0",
-            "setCookieHeader": "Set-Cookie"
+            "setCookieHeader": "Set-Cookie",
+			"directory": "${openig.baseDirectory.path}/secrets"
           }
         }
       ],

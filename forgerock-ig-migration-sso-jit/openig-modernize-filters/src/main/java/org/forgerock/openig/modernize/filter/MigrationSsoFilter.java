@@ -22,12 +22,19 @@ import org.forgerock.http.Handler;
 import org.forgerock.http.protocol.Request;
 import org.forgerock.http.protocol.Response;
 import org.forgerock.http.protocol.Status;
+import org.forgerock.json.JsonValue;
 import org.forgerock.json.JsonValueException;
 import org.forgerock.openig.el.Bindings;
 import org.forgerock.openig.heap.GenericHeaplet;
 import org.forgerock.openig.heap.HeapException;
+import org.forgerock.openig.heap.Name;
 import org.forgerock.openig.modernize.common.User;
 import org.forgerock.openig.modernize.provider.ForgeRockProvider;
+import org.forgerock.openig.secrets.FileSystemSecretStoreHeaplet;
+import org.forgerock.openig.secrets.SecretsUtils;
+import org.forgerock.secrets.GenericSecret;
+import org.forgerock.secrets.NoSuchSecretException;
+import org.forgerock.secrets.SecretStore;
 import org.forgerock.services.context.Context;
 import org.forgerock.util.promise.NeverThrowsException;
 import org.forgerock.util.promise.Promise;
@@ -47,7 +54,6 @@ public class MigrationSsoFilter implements Filter {
 
 	private String getUserMigrationStatusEndpoint;
 	private String provisionUserEndpoint;
-	private String openIdmPassword;
 	private String openIdmUsername;
 	private String openaAmAuthenticateURL;
 	private String openAmCookieName;
@@ -57,6 +63,8 @@ public class MigrationSsoFilter implements Filter {
 	private String acceptApiVersionHeader;
 	private String acceptApiVersionHeaderValue;
 	private String setCookieHeader;
+
+	private String password;
 
 	/**
 	 * Main method that processes the IG filter chain
@@ -73,7 +81,7 @@ public class MigrationSsoFilter implements Filter {
 				try {
 					// Verify if user is already migrated in IDM
 					if (ForgeRockProvider.userMigrated(getUserMigrationStatusEndpoint, user.getUserName(),
-							openIdmUsernameHeader, openIdmUsername, openIdmPasswordHeader, openIdmPassword)) {
+							openIdmUsernameHeader, openIdmUsername, openIdmPasswordHeader, password)) {
 						LOGGER.error("User is migrated.");
 
 						// User is migrated already -> we're logging it in AM and saving the cookie to
@@ -139,7 +147,7 @@ public class MigrationSsoFilter implements Filter {
 
 				// Provision use in IDM
 				ForgeRockProvider.provisionUser(extendedUserProfile, openIdmUsernameHeader, openIdmUsername,
-						openIdmPasswordHeader, openIdmPassword, provisionUserEndpoint);
+						openIdmPasswordHeader, password, provisionUserEndpoint);
 			}
 		}
 	}
@@ -174,6 +182,7 @@ public class MigrationSsoFilter implements Filter {
 		 * @return The filter object.
 		 * @throws HeapException Failed to create the object.
 		 */
+		@SuppressWarnings("unchecked")
 		@Override
 		public Object create() throws HeapException {
 			MigrationSsoFilter filter = new MigrationSsoFilter();
@@ -181,7 +190,6 @@ public class MigrationSsoFilter implements Filter {
 					.as(evaluatedWithHeapProperties()).asString();
 			filter.provisionUserEndpoint = config.get("provisionUserEndpoint").as(evaluatedWithHeapProperties())
 					.asString();
-			filter.openIdmPassword = config.get("openIdmPassword").as(evaluatedWithHeapProperties()).asString();
 			filter.openIdmUsername = config.get("openIdmUsername").as(evaluatedWithHeapProperties()).asString();
 			filter.openaAmAuthenticateURL = config.get("openaAmAuthenticateURL").as(evaluatedWithHeapProperties())
 					.asString();
@@ -196,6 +204,7 @@ public class MigrationSsoFilter implements Filter {
 					.as(evaluatedWithHeapProperties()).asString();
 			filter.setCookieHeader = config.get("setCookieHeader").as(evaluatedWithHeapProperties()).asString();
 
+			// Load framework impl
 			try {
 				filter.legacyIAMProvider = Class
 						.forName(config.get("migrationImplClassName").as(evaluatedWithHeapProperties()).asString());
@@ -207,6 +216,24 @@ public class MigrationSsoFilter implements Filter {
 				LOGGER.error("Class configured in migrationImplClassName was not found: " + e.getMessage());
 				e.printStackTrace();
 			}
+
+			// Secrets
+			final FileSystemSecretStoreHeaplet heaplet = new FileSystemSecretStoreHeaplet();
+			final JsonValue evaluated = config.as(evaluatedWithHeapProperties());
+			String passwordSecretId = evaluated.get("openIdmPasswordSecretId").asString();
+			try {
+				final SecretStore<GenericSecret> store = (SecretStore<GenericSecret>) heaplet
+						.create(Name.of("MigrationSsoFilter"), config, heap);
+				if (store != null) {
+					String password = SecretsUtils.getPasswordSecretIdOrPassword(heaplet.getSecretService(),
+							JsonValue.json(passwordSecretId), JsonValue.json(passwordSecretId), LOGGER);
+					filter.password = password;
+				}
+			} catch (NoSuchSecretException e) {
+				LOGGER.error("Error reading secret with id " + passwordSecretId + ": " + e.getMessage());
+				e.printStackTrace();
+			}
+
 			return filter;
 		}
 	}
