@@ -79,7 +79,7 @@ MAVEN_OPTS='-Xmx2g -Xms2g -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=512m'
 
 + The source files also use the Oracle Access Manager Access SDK. The SDK must be be downloaded from the Oracle [downloads](https://www.oracle.com/middleware/technologies/identity-management/downloads.html) page, and the <b>oamasdk-api.jar</b> must be  added to WEB-INF/lib.
 	
-In addition to copying the dependencies inside the AM-x.y.z.war file, you must also add them to your classpath so that your IDE can see all the dependencies correctly. To use the library as a dependency, you can add it to your lib directory for a simple java project, or import it to your maven or gradle project as an artifact.
+In addition to copying the external dependencies inside the AM-x.y.z.war file, you must also add them to your classpath so that your IDE can see all the dependencies correctly. To use the library as a dependency, you can add it to your lib directory for a simple java project, or import it to your maven or gradle project as an artifact.
 
 Example for installing the jar as a maven artifact on a local maven repository:
 
@@ -98,7 +98,7 @@ Example usage of the jar file in the maven's project pom.xml:
 ```
 <dependency>
 	<groupId>com.oracle</groupId>
-	<artifactId>identitystore</artifactId>
+	<artifactId>oamasdk-api</artifactId>
 	<version>1.0.0</version>
 </dependency>
 ```
