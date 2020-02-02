@@ -36,7 +36,7 @@
 		</dependency>
 
 		<!-- Oracle dependencies -->
-		<!--<dependency>
+		<dependency>
 			<groupId>com.oracle</groupId>
 			<artifactId>identitystore</artifactId>
 			<version>1.0.0</version>
@@ -85,7 +85,7 @@
 			<groupId>com.oracle</groupId>
 			<artifactId>osdt_xmlsec</artifactId>
 			<version>1.0.0</version>
-		</dependency>-->
+		</dependency>
 	</dependencies>
 
 	<repositories>
