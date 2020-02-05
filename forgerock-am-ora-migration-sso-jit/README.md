@@ -38,17 +38,17 @@ AM      | Custom Nodes        | openam-modernize-oracle-auth-nodes-1.0-SNAPSHOT.
 
 ## 2. Building The Source Code
 
-+ <b>Important note:</b> The assets presented below are built based on OpenAM version 6.5.2.
++ <b>Important note:</b> The assets presented below are built based on AM version 6.5.2.
 
-In order to build the project from the command line follow the instructions presented below. Make sure that you have all the prerequisites installed correctly before starting.
+Follow these instructions to build the project from the command line. Make sure that you have all the prerequisites installed correctly before starting.
 
-+ Demo video - [downloading and building the source code](https://github.com/ForgeRock/modernize-accelerators/blob/develop/forgerock-am-ora-migration-sso-jit/video/Oracle%20-%20Building%20The%20Tree.mp4) - All the steps below can be followed in this video recording.
++ Demo video - [downloading and building the source code](https://github.com/ForgeRock/modernize-accelerators/blob/develop/forgerock-am-ora-migration-sso-jit/video/Oracle%20-%20Building%20The%20Tree.mp4) 
 
-### 2.1. Prerequisites - Prepare your Environment
+### 2.1. Prerequisites - Prepare Your Environment
 
-#### 2.1.1. Software and environment
+#### 2.1.1. Software and Environment
 
-You will need the following software to build the code.
+You will need the following software to build the code:
 
 ```
 Software               | Required Version
@@ -57,13 +57,13 @@ Java Development Kit   | 1.8 and above
 Maven                  | 3.1.0 and above
 Git                    | 1.7.6 and above
 ```
-The following environment variables should be set:
+Set the following environment variables:
 
 - `JAVA_HOME` - points to the location of the version of Java that Maven will use.
-- `M2_HOME` - points to the location of the Maven installation and settings
+- `M2_HOME` - points to the location of the Maven installation and settings.
 - `MAVEN_OPTS` - sets some options for the jvm when running Maven.
 
-For example your environment variables should look similar to this:
+For example your environment variables should look like this:
 
 ```
 JAVA_HOME=/usr/jdk/jdk1.8.0_201
@@ -73,13 +73,13 @@ MAVEN_OPTS='-Xmx2g -Xms2g -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=512m'
 
 #### 2.1.2. External libraries
 
-+ The source files use some Spring dependencies from the 5.2.1.RELEASE which you need to download. The following jars must be added to WEB-INF/lib
++ The source files use some Spring dependencies from the 5.2.1.RELEASE, which you need to download. Add the following JAR files to the WEB-INF/lib directory: 
     + [spring-beans-5.2.1.RELEASE](https://mvnrepository.com/artifact/org.springframework/spring-beans)
     + [spring-core-5.2.1.RELEASE](https://mvnrepository.com/artifact/org.springframework/spring-core)
     + [spring-jcl-5.2.1.RELEASE](https://mvnrepository.com/artifact/org.springframework/spring-jcl)
     + [spring-web-5.2.1.RELEASE](https://mvnrepository.com/artifact/org.springframework/spring-web)
 
-+ The source files also use the Oracle Access Manager Access SDK. The SDK must be be downloaded from the Oracle [downloads](https://www.oracle.com/middleware/technologies/identity-management/downloads.html) page, and the <b>oamasdk-api.jar</b> must be  added to WEB-INF/lib. other jars that are needed as dependencies:
++ The source files also use the Oracle Access Manager Access SDK. Download the SDK from the Oracle [downloads](https://www.oracle.com/middleware/technologies/identity-management/downloads.html) page. Then add the <b>oamasdk-api.jar</b> file to the WEB-INF/lib directory. Other jars that are needed as dependencies are:
     + identitystore.jar
     + jps-api.jar
     + jps-common.jar
@@ -90,9 +90,9 @@ MAVEN_OPTS='-Xmx2g -Xms2g -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=512m'
     + osdt_core.jar
     + osdt_xmlsec.jar
 	
-In addition to copying the external dependencies inside the AM-x.y.z.war file, you must also add them to your classpath so that your IDE can see all the dependencies correctly. To use the library as a dependency, you can add it to your lib directory for a simple java project, or import it to your maven or gradle project as an artifact.
+In addition to copying the external dependencies inside the AM-x.y.z.war file, add them to your classpath, so that your IDE can resolve all the dependencies correctly. To use the library as a dependency, add it to your lib directory for a simple Java project, or import it to your Maven or Gradle project as an artifact.
 
-Example for installing the jar as a maven artifact on a local maven repository:
+Example for installing the JAR file as a Maven artifact in a local Maven repository:
 
 ```
 mvn install:install-file \
@@ -104,7 +104,7 @@ mvn install:install-file \
    -DgeneratePom=true
 ```
 
-Example usage of the jar file in the maven's project pom.xml:
+Example usage of the JAR file in the Maven's project pom.xml file:
 
 ```
 <dependency>
@@ -114,13 +114,13 @@ Example usage of the jar file in the maven's project pom.xml:
 </dependency>
 ```
 
-#### 2.1.3. Reverse proxy
+#### 2.1.3. Reverse Proxy
 
-Usually all components are deployed under the same domain, but if your legacy IAM is under another domain than the ForgeRock applications, you will need a reverse proxy in front of both legacy and ForgeRock. This will ensure all the cookies will be seen between aplications from the same domain, otherwise SSO can't be achieved.
+Usually all components are deployed to the same domain, but if your legacy IAM system is in a different domain than the ForgeRock applications, you will need a reverse proxy in front of both the legacy system and ForgeRock. Using a reverse proxy ensures that all the cookies can be accessed by applications in the same domain, enabling SSO. 
 
 ### 2.2. Getting the Code
 
-If you want to run the code unmodified you can simply clone the ForgeRock repository:
+If you want to run the code unmodified, clone the ForgeRock repository:
 
 ```
 mkdir demo
@@ -130,42 +130,40 @@ git clone https://github.com/ForgeRock/modernize-accelerators.git
 
 ### 2.3. Building the Code
 
-The build process and dependencies are managed by Maven. The first time you build the project, Maven will pull 
-down all the dependencies and Maven plugins required by the build, which can take a longer time. 
-Subsequent builds will be much faster!
+The build process and dependencies are managed by Maven. The first time you build the project, Maven pulls 
+down all the dependencies and Maven plugins required by the build, which can take a while. Subsequent builds are much faster!
 
 ```
 cd modernize-accelerators/forgerock-am-ora-migration-sso-jit/openam-modernize-oracle-auth-nodes
 mvn package
 ```
 
-Maven builds the binary in `openam-modernize-oracle-auth-nodes/target/`. The file name format is `openam-modernize-oracle-auth-nodes-<nextversion>-SNAPSHOT.jar` , 
-for example "openam-modernize-oracle-auth-nodes-1.0.0-SNAPSHOT.jar".
+Maven builds the binary in the `openam-modernize-oracle-auth-nodes/target/` directory. The file name format is `openam-modernize-oracle-auth-nodes-<nextversion>-SNAPSHOT.jar`.
+For example, "openam-modernize-oracle-auth-nodes-1.0.0-SNAPSHOT.jar".
 
 
-### 2.4. Adding the library to OpenAM war
+### 2.4. Adding the Library to the AM WAR File
 
-+ Download and unzip your OpenAM.war version from ForgeRock backstage:
++ Download and unzip the AM WAR file from ForgeRock Backstage:
 
 ```
 https://backstage.forgerock.com/downloads/browse/am/latest
 mkdir ROOT && cd ROOT
-jar -xf ~/Downloads/OpenAM-6.5.2.war
+jar -xf ~/Downloads/AM-6.5.2.war
 ```
 
-+ Copy the newly generated jar file to /ROOT/WEB-INF/lib folder
-
++ Copy the newly generated JAR file to the /ROOT/WEB-INF/lib directory:
 ```
 cp ~/openam-modernize-oracle-auth-nodes-<nextversion>-SNAPSHOT.jar WEB-INF/lib
 ```
 
-+ Rebuild the war file: 
++ Rebuild the WAR file: 
 
 ```
 jar -cf ../ROOT.war *
 ```
 
-+ In order for you to see the nodes included in the jar we previously built, on your AM instance, you must copy and deploy the ROOT.war on the container AM is deployed.
++ To see the nodes included in the JAR file, you must copy and deploy the ROOT.war file in the container in which AM is deployed.
 
 ## 3. Configuration
 
