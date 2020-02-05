@@ -42,6 +42,8 @@ AM      | Custom Nodes        | openam-modernize-oracle-auth-nodes-1.0-SNAPSHOT.
 
 In order to build the project from the command line follow the instructions presented below. Make sure that you have all the prerequisites installed correctly before starting.
 
++ Demo video - [downloading and building the source code](https://github.com/ForgeRock/modernize-accelerators/blob/develop/forgerock-am-ora-migration-sso-jit/video/Oracle%20-%20Building%20The%20Tree.mp4) - All the steps below can be followed in this video recording.
+
 ### 2.1. Prerequisites - Prepare your Environment
 
 #### 2.1.1. Software and environment
@@ -216,6 +218,8 @@ To set your custom authentication tree as the default inside a realm, navigate t
 
 #### 3.3.1. Building the tree
 
+Demo video - [building the tree](https://github.com/ForgeRock/modernize-accelerators/blob/develop/forgerock-am-ora-migration-sso-jit/video/Oracle%20-%20Building%20The%20Tree.mp4) - In this recording you can watch how the tree is built step by step.
+
 ![oracleMigrationSsoTree](images/oracleMigrationSsoTree.PNG)
 
 #### 3.3.2. Alternative - Importing the tree with Amster
@@ -329,6 +333,11 @@ IDM Password Secret ID | openidmadminpass                                       
 ```
 
 ## 4. Scenarios
+
+
++ Demo video - [testing the main tree scenarios](https://github.com/ForgeRock/modernize-accelerators/blob/develop/forgerock-am-ora-migration-sso-jit/video/Oracle%20-%20Testing%20The%20Tree.mp4) - This video demonstrates how the scenarios detailed below are triggered by using the authentication tree.
+
+
 
 ### 4.1. Scenario 1 - The user has a valid legacy OAM11G SSO token in the browser, and accesses the authentication tree
 - The user (not previously migrated) authenticates first to the legacy OAM11G instance.
