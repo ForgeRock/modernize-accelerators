@@ -79,7 +79,16 @@ MAVEN_OPTS='-Xmx2g -Xms2g -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=512m'
     + [spring-jcl-5.2.1.RELEASE](https://mvnrepository.com/artifact/org.springframework/spring-jcl)
     + [spring-web-5.2.1.RELEASE](https://mvnrepository.com/artifact/org.springframework/spring-web)
 
-+ The source files also use the Oracle Access Manager Access SDK. The SDK must be be downloaded from the Oracle [downloads](https://www.oracle.com/middleware/technologies/identity-management/downloads.html) page, and the <b>oamasdk-api.jar</b> must be  added to WEB-INF/lib.
++ The source files also use the Oracle Access Manager Access SDK. The SDK must be be downloaded from the Oracle [downloads](https://www.oracle.com/middleware/technologies/identity-management/downloads.html) page, and the <b>oamasdk-api.jar</b> must be  added to WEB-INF/lib. other jars that are needed as dependencies:
+    + identitystore.jar
+    + jps-api.jar
+    + jps-common.jar
+    + jps-internal.jar
+    + jps-unsupported-api.jar
+    + oraclepki.jar
+    + osdt_crt.jar
+    + osdt_core.jar
+    + osdt_xmlsec.jar
 	
 In addition to copying the external dependencies inside the AM-x.y.z.war file, you must also add them to your classpath so that your IDE can see all the dependencies correctly. To use the library as a dependency, you can add it to your lib directory for a simple java project, or import it to your maven or gradle project as an artifact.
 
