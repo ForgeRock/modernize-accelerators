@@ -5,35 +5,35 @@ ForgeRock does not warrant, guarantee or make any representations regarding the 
 <br><br>
 ForgeRock shall not be liable for any direct, indirect or consequential damages or costs of any type arising out of any action taken by you or others related to the sample code.
 
-# Modernize Accelerators - SSO Toolkit (with AM) - Migration from Oracle 11G OAM to ForgerRock
-With deployments of tens or hundreds of legacy applications, migration waves may be required to minimize the operational impact on production systems. With this type of use case, coexistence and SSO between OAM and ForgeRock IAM is often needed.
+# Modernize Accelerators - SSO Toolkit (with AM) - Migration from Oracle OAM11G to ForgeRock Access Management
+With deployments of tens or hundreds of legacy applications, migration waves may be required to minimize the operational impact on production systems. With this type of use case, coexistence and SSO between OAM and ForgeRock AM is often needed.
 Sometimes putting IG in front of a legacy system is not an option for commercial reasons. 
 
 ## 1. Contents
-The toolkit provides a collection of custom Nodes and a oracleMigrationSsoTree that can handle very complex migration scenarios, including Bi-Directional SSO between Legacy OAM11G and Forgerock AM.
+The toolkit provides a collection of custom nodes and a oracleMigrationSsoTree that can handle very complex migration scenarios, including bidirectional SSO between a legacy OAM11G deployment and ForgeRock AM.
 The framework can be easily extended to support migrations from any OAM11G platform that is capable of exposing client SDKs/APIs for operations such as:
-    - Validate existing Legacy IAM tokens
+    - Validating existing legacy IAM tokens
     - Authentication API (with a username and password input)
 
 ### 1.1. Assets Included
-Bi-Directional SSO capability between OAM and ForgeRock IAM help minimize risk and time to market in complex migration projects.
-ForgeRock understands the customer needs to speed up migration design decisions and cut implementation time, and is thus delivering as part of the Migration Accelerators the following assets:
-- Collection of Custom Migration Authentication Nodes (ValidateLegacyToken, GenerateLegacyToken, RetrieveLegacyProfil)
-- Pre-built Migration Authentication Tree with Bi-Directional SSO support that embeds the custom nodes and migration know-how (including handle for invalid authentication attempts)
-- Password synchronization capabilities inside the Authentication Tree
-- Flex option allowing the extension of the Authentication Tree and Nodes for OAM Legacy system
+Bidirectional SSO capability between OAM and ForgeRock AM help minimize risk and time to market in complex migration projects.
+ForgeRock understands that customers need to speed up migration design decisions and cut implementation time, and is thus delivering the following assets as part of the Migration Accelerators:
+- A collection of custom migration authentication nodes (ValidateLegacyToken, GenerateLegacyToken, RetrieveLegacyProfil)
+- A pre-built migration authentication tree with bidirectional SSO support that embeds the custom nodes and migration know-how (including handling invalid authentication attempts)
+- Password synchronization capabilities inside the authentication tree
+- A flex option that enables extension of the authentication tree and nodes for the legacy OAM system
 
 ```
 System  | Type                | Name                                                | Description
 --------| --------------------|-----------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------
-AM      | Node                | Legacy-ORA-Validate Token                           | Retrieves a token from an existing cookie, validates the token against OAM11G and provides as output in the shared state the username and outcome
-AM      | Node                | Legacy-ORA-Migration Status                         | Searches in Forgerock IDM the user identity based on the username from the shared state
-AM      | Node                | Legacy-ORA-Create FR User                           | Calls the Forgerock IDM API to provision the managed user
-AM      | Node                | Legacy-ORA-Login                                    | Based on the username and password from the shared state, executes the OAM11G login method call
-AM      | Node                | Legacy-ORA-Set Password                             | Updates the Forgerock IDM managed user object with the password captured and stored in the shared state
-AM      | Tree Hook           | LegacyORASessionTreeHook                            | Manages cookies if a successful login is performed into OAM11G by the tree
+AM      | Node                | Legacy-ORA-Validate Token                           | Retrieves a token from an existing cookie, validates the token against OAM11G, and provides the username and outcome as output in the shared state 
+AM      | Node                | Legacy-ORA-Migration Status                         | Searches ForgeRock IDM for the user identity based on the username from the shared state
+AM      | Node                | Legacy-ORA-Create FR User                           | Calls the ForgeRock IDM API to provision the managed user
+AM      | Node                | Legacy-ORA-Login                                    | Executes the OAM11G login method call based on the username and password from the shared state
+AM      | Node                | Legacy-ORA-Set Password                             | Updates the IDM managed user object with the password captured and stored in the shared state
+AM      | Tree Hook           | LegacyORASessionTreeHook                            | Manages cookies if a successful login to OAM11G is performed by the tree
 AM      | Authentication Tree | oracleMigrationSsoTree                              | Implements the migration login and bi-directional SSO
-AM      | Custom Nodes        | openam-modernize-oracle-auth-nodes-1.0-SNAPSHOT.jar | Custom AM nodes that are used in the migration authentication tree
+AM      | Custom Nodes        | openam-modernize-oracle-auth-nodes-1.0-SNAPSHOT.jar | Custom AM nodes used in the migration authentication tree
 ```
 
 ## 2. Building The Source Code
