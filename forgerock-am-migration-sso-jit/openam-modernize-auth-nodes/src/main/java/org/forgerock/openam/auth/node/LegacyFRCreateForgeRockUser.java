@@ -17,34 +17,25 @@ package org.forgerock.openam.auth.node;
 
 import static org.forgerock.openam.auth.node.api.SharedStateConstants.PASSWORD;
 import static org.forgerock.openam.auth.node.api.SharedStateConstants.USERNAME;
-import static org.forgerock.openam.modernize.utils.NodeConstants.DEFAULT_IDM_USER;
-import static org.forgerock.openam.modernize.utils.NodeConstants.DEFAULT_IDM_USER_ENDPOINT;
-import static org.forgerock.openam.modernize.utils.NodeConstants.DEFAULT_IDM_USER_PASSWORD;
 import static org.forgerock.openam.modernize.utils.NodeConstants.LEGACY_COOKIE_SHARED_STATE_PARAM;
-import static org.forgerock.openam.modernize.utils.NodeConstants.OPEN_IDM_ADMIN_PASSWORD_HEADER;
-import static org.forgerock.openam.modernize.utils.NodeConstants.OPEN_IDM_ADMIN_USERNAME_HEADER;
 import static org.forgerock.openam.modernize.utils.NodeConstants.USER_EMAIL;
-import static org.forgerock.openam.modernize.utils.NodeConstants.USER_FORCE_PASSWORD_RESET;
 import static org.forgerock.openam.modernize.utils.NodeConstants.USER_GIVEN_NAME;
-import static org.forgerock.openam.modernize.utils.NodeConstants.USER_NAME;
 import static org.forgerock.openam.modernize.utils.NodeConstants.USER_SN;
 
 import java.io.IOException;
 
 import javax.inject.Inject;
 
-import org.forgerock.openam.annotations.sm.Attribute;
 import org.forgerock.openam.auth.node.api.AbstractDecisionNode;
 import org.forgerock.openam.auth.node.api.Action;
 import org.forgerock.openam.auth.node.api.Node;
 import org.forgerock.openam.auth.node.api.NodeProcessException;
 import org.forgerock.openam.auth.node.api.TreeContext;
+import org.forgerock.openam.auth.node.base.AbstractLegacyCreateForgeRockUserNode;
+import org.forgerock.openam.auth.node.template.ForgeRockUserAttributesTemplate;
 import org.forgerock.openam.core.realms.Realm;
 import org.forgerock.openam.modernize.utils.RequestUtils;
 import org.forgerock.openam.secrets.Secrets;
-import org.forgerock.openam.secrets.SecretsProviderFacade;
-import org.forgerock.secrets.NoSuchSecretException;
-import org.forgerock.secrets.Purpose;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -52,13 +43,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.assistedinject.Assisted;
-import com.sun.identity.sm.RequiredValueValidator;
 
 /**
  * 
@@ -67,54 +55,18 @@ import com.sun.identity.sm.RequiredValueValidator;
  * </p>
  *
  */
-@Node.Metadata(configClass = LegacyFRCreateForgeRockUser.Config.class, outcomeProvider = AbstractDecisionNode.OutcomeProvider.class)
-public class LegacyFRCreateForgeRockUser extends AbstractDecisionNode {
-	private static final String DEFAULT_LEGACY_IAM_ENV_URL = "legacyEnvURL";
+@Node.Metadata(configClass = LegacyFRCreateForgeRockUser.LegacyFRCreateForgeRockUserConfig.class, outcomeProvider = AbstractDecisionNode.OutcomeProvider.class)
+public class LegacyFRCreateForgeRockUser extends AbstractLegacyCreateForgeRockUserNode {
 
 	private Logger LOGGER = LoggerFactory.getLogger(LegacyFRCreateForgeRockUser.class);
-	private final Config config;
-	private String idmPassword;
 
-	public interface Config {
-
-		@Attribute(order = 1, validators = { RequiredValueValidator.class })
-		default String legacyEnvURL() {
-			return DEFAULT_LEGACY_IAM_ENV_URL;
-		};
-
-		@Attribute(order = 2, validators = { RequiredValueValidator.class })
-		default String idmUserEndpoint() {
-			return DEFAULT_IDM_USER_ENDPOINT;
-		};
-
-		@Attribute(order = 3, validators = { RequiredValueValidator.class })
-		default String idmAdminUser() {
-			return DEFAULT_IDM_USER;
-		};
-
-		@Attribute(order = 4, validators = { RequiredValueValidator.class })
-		default String idmPasswordId() {
-			return DEFAULT_IDM_USER_PASSWORD;
-		};
-
-		@Attribute(order = 5, validators = { RequiredValueValidator.class })
-		default boolean setPasswordReset() {
-			return false;
-		};
-
+	public interface LegacyFRCreateForgeRockUserConfig extends AbstractLegacyCreateForgeRockUserNode.Config {
 	}
 
 	@Inject
 	public LegacyFRCreateForgeRockUser(@Assisted LegacyFRCreateForgeRockUser.Config config, @Assisted Realm realm,
 			Secrets secrets) throws NodeProcessException {
-		this.config = config;
-		SecretsProviderFacade secretsProvider = secrets.getRealmSecrets(realm);
-		try {
-			this.idmPassword = secretsProvider.getNamedSecret(Purpose.PASSWORD, config.idmPasswordId())
-					.getOrThrowUninterruptibly().revealAsUtf8(String::valueOf);
-		} catch (NoSuchSecretException e) {
-			throw new NodeProcessException("No secret " + config.idmPasswordId() + " found");
-		}
+		super(config, realm, secrets);
 	}
 
 	/**
@@ -129,114 +81,79 @@ public class LegacyFRCreateForgeRockUser extends AbstractDecisionNode {
 			password = context.transientState.get(PASSWORD).asString();
 		}
 		if (legacyCookie != null) {
-			MultiValueMap<String, String> headersMap = new LinkedMultiValueMap<>();
-			headersMap.add("Cookie", legacyCookie);
-			ResponseEntity<String> responseEntity = RequestUtils.sendGetRequest(config.legacyEnvURL() + userName,
-					MediaType.APPLICATION_JSON, headersMap);
-
-			// Read the user attributes from the respnose here. If any other attributes are
-			// required, read here and use in createProvisioningRequestEntity()
-			String firstName = null;
-			String lastName = null;
-			String email = null;
-			if (responseEntity != null) {
-				JsonNode response = null;
-				try {
-					ObjectMapper mapper = new ObjectMapper();
-					response = mapper.readTree(responseEntity.getBody());
-				} catch (IOException e) {
-					LOGGER.error("process()::IOException: " + e.getMessage());
-					e.printStackTrace();
-				}
-				if (response != null) {
-
-					ArrayNode firstNameArrayNode = (ArrayNode) response.get(USER_GIVEN_NAME);
-					if (firstNameArrayNode != null) {
-						firstName = firstNameArrayNode.get(0).asText();
-					}
-
-					ArrayNode lastNameArrayNode = (ArrayNode) response.get(USER_SN);
-					if (lastNameArrayNode != null) {
-						lastName = lastNameArrayNode.get(0).asText();
-					}
-
-					ArrayNode mailArrayNode = (ArrayNode) response.get(USER_EMAIL);
-					if (mailArrayNode != null) {
-						email = mailArrayNode.get(0).asText();
-					}
-				}
+			ForgeRockUserAttributesTemplate userAttributes = getUserAttributes(userName, password, legacyCookie);
+			if (userAttributes != null) {
+				return goTo(provisionUser(userAttributes)).build();
 			}
-			return goTo(provisionUser(userName, password, firstName, lastName, email)).build();
+			return goTo(provisionUser(userAttributes)).build();
 		}
 		return goTo(false).build();
 	}
 
 	/**
 	 * 
-	 * Create a user in ForgeRock DS via IDM user API
+	 * Requests the OAM user details endpoint and reads the user attributes, which
+	 * then adds on {@link ForgeRockUserAttributesTemplate}
 	 * 
 	 * @param userName
 	 * @param password
-	 * @param firstName
-	 * @param lastName
-	 * @param email
-	 * @return true if user was created successfully, false otherwise
+	 * @param legacyCookie
+	 * @return
 	 */
-	private boolean provisionUser(String userName, String password, String firstName, String lastName, String email) {
-		LOGGER.error("provisionUser()::Start");
-		String jsonBody = createProvisioningRequestEntity(userName, password, firstName, lastName, email);
+	private ForgeRockUserAttributesTemplate getUserAttributes(String userName, String password, String legacyCookie) {
+		LOGGER.debug("getUserAttributes()::Start");
 		MultiValueMap<String, String> headersMap = new LinkedMultiValueMap<>();
-		headersMap.add(OPEN_IDM_ADMIN_USERNAME_HEADER, config.idmAdminUser());
-		headersMap.add(OPEN_IDM_ADMIN_PASSWORD_HEADER, idmPassword);
-		ResponseEntity<String> responseStatusCode = RequestUtils.sendPostRequest(config.idmUserEndpoint(), jsonBody,
+		headersMap.add("Cookie", legacyCookie);
+
+		// Call OAM user details API
+		ResponseEntity<String> responseEntity = RequestUtils.sendGetRequest(config.legacyEnvURL() + userName,
 				MediaType.APPLICATION_JSON, headersMap);
-		if (responseStatusCode != null) {
-			if (responseStatusCode.getStatusCodeValue() == 201) {
-				LOGGER.error("provisionUser()::End - success - 201 created");
-				return true;
+
+		// Read the user attributes from the response here. If any other attributes are
+		// required, read here and extend the ForgeRockUserAttributesTemplate
+		String firstName = null;
+		String lastName = null;
+		String email = null;
+
+		if (responseEntity != null) {
+			JsonNode response = null;
+			try {
+				ObjectMapper mapper = new ObjectMapper();
+				response = mapper.readTree(responseEntity.getBody());
+			} catch (IOException e) {
+				LOGGER.error("getUserAttributes()::IOException: " + e.getMessage());
+				e.printStackTrace();
+			}
+
+			if (response != null) {
+
+				ArrayNode firstNameArrayNode = (ArrayNode) response.get(USER_GIVEN_NAME);
+				if (firstNameArrayNode != null) {
+					firstName = firstNameArrayNode.get(0).asText();
+				}
+
+				ArrayNode lastNameArrayNode = (ArrayNode) response.get(USER_SN);
+				if (lastNameArrayNode != null) {
+					lastName = lastNameArrayNode.get(0).asText();
+				}
+
+				ArrayNode mailArrayNode = (ArrayNode) response.get(USER_EMAIL);
+				if (mailArrayNode != null) {
+					email = mailArrayNode.get(0).asText();
+				}
 			}
 		}
-		LOGGER.error("provisionUser()::End - fail");
-		return false;
-	}
 
-	/**
-	 * 
-	 * Creates the request body in the format required by the IDM API in order to
-	 * create a user in DS.
-	 * 
-	 * @param userName
-	 * @param password
-	 * @param firstName
-	 * @param lastName
-	 * @param email
-	 * @return JSON string
-	 */
-	private String createProvisioningRequestEntity(String userName, String password, String firstName, String lastName,
-			String email) {
-		LOGGER.error("createProvisioningRequestEntity()::userName: " + userName);
-		ObjectMapper mapper = new ObjectMapper();
-		ObjectNode node = mapper.createObjectNode();
-		node.put(USER_GIVEN_NAME, firstName);
-		node.put(USER_SN, lastName);
-		node.put(USER_EMAIL, email);
-		node.put(USER_NAME, userName);
-		// For the case user is migrated without password
-		if (password != null && password.length() > 0) {
-			node.put(PASSWORD, password);
+		if (userName != null && firstName != null && lastName != null && email != null) {
+			ForgeRockUserAttributesTemplate userAttributes = new ForgeRockUserAttributesTemplate();
+			userAttributes.setUserName(userName);
+			userAttributes.setPassword(password);
+			userAttributes.setFirstName(firstName);
+			userAttributes.setLastName(lastName);
+			userAttributes.setEmail(email);
+			return userAttributes;
 		}
-		if (config.setPasswordReset()) {
-			node.put(USER_FORCE_PASSWORD_RESET, true);
-		}
-		String jsonString = null;
-		try {
-			jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(node);
-		} catch (JsonProcessingException e) {
-			LOGGER.error("createProvisioningRequestEntity()::Error creating provisioning entity: " + e.getMessage());
-			e.printStackTrace();
-		}
-		LOGGER.debug("createProvisioningRequestEntity()::entity: " + jsonString);
-		return jsonString;
+		return null;
 	}
 
 }

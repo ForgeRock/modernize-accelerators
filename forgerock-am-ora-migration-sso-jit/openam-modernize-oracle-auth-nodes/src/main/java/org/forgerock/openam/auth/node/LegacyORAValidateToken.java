@@ -26,6 +26,7 @@ import org.forgerock.openam.auth.node.api.Action;
 import org.forgerock.openam.auth.node.api.Node;
 import org.forgerock.openam.auth.node.api.NodeProcessException;
 import org.forgerock.openam.auth.node.api.TreeContext;
+import org.forgerock.openam.auth.node.base.AbstractValidateTokenNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,44 +40,30 @@ import oracle.security.am.asdk.UserSession;
 /**
  * 
  * <p>
- * This node validates if the user accessed the tree holding a legacy iAM SSO
+ * This node validates if the user accessed the tree holding a legacy IAM SSO
  * Token. If the session is valid, the node also saves on the shared state the
  * legacy cookie identified, and the username associated to that cookie in the
  * legacy iAM.
  * </p>
  *
  */
-@Node.Metadata(configClass = LegacyORAValidateToken.Config.class, outcomeProvider = AbstractDecisionNode.OutcomeProvider.class)
+@Node.Metadata(configClass = LegacyORAValidateToken.LegacyORAConfig.class, outcomeProvider = AbstractValidateTokenNode.OutcomeProvider.class)
 public class LegacyORAValidateToken extends AbstractDecisionNode {
 
-	private static final String DEFAULT_LEGACY_COOKIE_NAME = "legacyCookieName";
-	private static final String NAMING_ATTRIBUTE = "cn";
-	public static final String m_configLocation = "/config";
-
 	private Logger LOGGER = LoggerFactory.getLogger(LegacyORAValidateToken.class);
-	private final Config config;
+	private final LegacyORAConfig config;
 
-	public interface Config {
+	public interface LegacyORAConfig extends AbstractValidateTokenNode.Config {
 
-		@Attribute(order = 1, validators = { RequiredValueValidator.class })
-		default String legacyCookieName() {
-			return DEFAULT_LEGACY_COOKIE_NAME;
-		};
+		@Attribute(order = 10, validators = { RequiredValueValidator.class })
+		String msConfigLocation();
 
-		@Attribute(order = 2, validators = { RequiredValueValidator.class })
-		default String msConfigLocation() {
-			return m_configLocation;
-		};
-
-		@Attribute(order = 3, validators = { RequiredValueValidator.class })
-		default String namingAttribute() {
-			return NAMING_ATTRIBUTE;
-		};
-
+		@Attribute(order = 20, validators = { RequiredValueValidator.class })
+		String namingAttribute();
 	}
 
 	@Inject
-	public LegacyORAValidateToken(@Assisted LegacyORAValidateToken.Config config) {
+	public LegacyORAValidateToken(@Assisted LegacyORAConfig config) {
 		this.config = config;
 	}
 

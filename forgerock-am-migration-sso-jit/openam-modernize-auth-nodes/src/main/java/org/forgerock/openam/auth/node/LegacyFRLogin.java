@@ -26,11 +26,11 @@ import java.util.UUID;
 import javax.inject.Inject;
 
 import org.forgerock.openam.annotations.sm.Attribute;
-import org.forgerock.openam.auth.node.api.AbstractDecisionNode;
 import org.forgerock.openam.auth.node.api.Action;
 import org.forgerock.openam.auth.node.api.Node;
 import org.forgerock.openam.auth.node.api.NodeProcessException;
 import org.forgerock.openam.auth.node.api.TreeContext;
+import org.forgerock.openam.auth.node.base.AbstractLegacyLoginNode;
 import org.forgerock.openam.auth.node.treehook.LegacySessionTreeHook;
 import org.forgerock.openam.modernize.utils.RequestUtils;
 import org.slf4j.Logger;
@@ -54,28 +54,22 @@ import com.sun.identity.sm.RequiredValueValidator;
  * </p>
  *
  */
-@Node.Metadata(configClass = LegacyFRLogin.Config.class, outcomeProvider = AbstractDecisionNode.OutcomeProvider.class)
-public class LegacyFRLogin extends AbstractDecisionNode {
+@Node.Metadata(configClass = LegacyFRLogin.LegacyFRConfig.class, outcomeProvider = AbstractLegacyLoginNode.OutcomeProvider.class)
+public class LegacyFRLogin extends AbstractLegacyLoginNode {
 
-	private static final String DEFAULT_LEGACY_COOKIE_NAME = "legacyCookieName";
 	private Logger LOGGER = LoggerFactory.getLogger(LegacyFRLogin.class);
-	private final Config config;
+	private final LegacyFRConfig config;
 	private final UUID nodeId;
 
-	public interface Config {
+	public interface LegacyFRConfig extends AbstractLegacyLoginNode.Config {
 
-		@Attribute(order = 1, validators = { RequiredValueValidator.class })
+		@Attribute(order = 10, validators = { RequiredValueValidator.class })
 		String legacyLoginUri();
-
-		@Attribute(order = 2, validators = { RequiredValueValidator.class })
-		default String legacyCookieName() {
-			return DEFAULT_LEGACY_COOKIE_NAME;
-		};
 
 	}
 
 	@Inject
-	public LegacyFRLogin(@Assisted LegacyFRLogin.Config config, @Assisted UUID nodeId) {
+	public LegacyFRLogin(@Assisted LegacyFRConfig config, @Assisted UUID nodeId) {
 		this.config = config;
 		this.nodeId = nodeId;
 	}
@@ -93,7 +87,7 @@ public class LegacyFRLogin extends AbstractDecisionNode {
 		try {
 			if (callback != null && !callback.isEmpty()) {
 				String callbackBody = createAuthenticationCallbacks(callback, username, password);
-				responseCookie = getCookie(config.legacyLoginUri(), callbackBody);
+				responseCookie = getLegacyCookie(config.legacyLoginUri(), callbackBody);
 			}
 		} catch (IOException e) {
 			LOGGER.error("process()::IOException: " + e.getMessage());
@@ -156,7 +150,7 @@ public class LegacyFRLogin extends AbstractDecisionNode {
 	 * @param jsonBody
 	 * @return
 	 */
-	private String getCookie(String url, String jsonBody) {
+	private String getLegacyCookie(String url, String jsonBody) {
 		MultiValueMap<String, String> headersMap = new LinkedMultiValueMap<>();
 		headersMap.add("Accept-API-Version", "resource=2.0, protocol=1.0");
 		ResponseEntity<String> responseEntity = RequestUtils.sendPostRequest(url, jsonBody, MediaType.APPLICATION_JSON,

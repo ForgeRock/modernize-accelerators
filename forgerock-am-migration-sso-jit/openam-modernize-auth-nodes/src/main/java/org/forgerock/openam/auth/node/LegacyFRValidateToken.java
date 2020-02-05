@@ -17,17 +17,18 @@ package org.forgerock.openam.auth.node;
 
 import static org.forgerock.openam.auth.node.api.SharedStateConstants.USERNAME;
 import static org.forgerock.openam.modernize.utils.NodeConstants.LEGACY_COOKIE_SHARED_STATE_PARAM;
+import static org.forgerock.openam.modernize.utils.NodeConstants.SESSION_VALIDATION_ACTION;
 
 import java.io.IOException;
 
 import javax.inject.Inject;
 
 import org.forgerock.openam.annotations.sm.Attribute;
-import org.forgerock.openam.auth.node.api.AbstractDecisionNode;
 import org.forgerock.openam.auth.node.api.Action;
 import org.forgerock.openam.auth.node.api.Node;
 import org.forgerock.openam.auth.node.api.NodeProcessException;
 import org.forgerock.openam.auth.node.api.TreeContext;
+import org.forgerock.openam.auth.node.base.AbstractValidateTokenNode;
 import org.forgerock.openam.modernize.utils.RequestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,32 +52,21 @@ import com.sun.identity.sm.RequiredValueValidator;
  * </p>
  *
  */
-@Node.Metadata(configClass = LegacyFRValidateToken.Config.class, outcomeProvider = AbstractDecisionNode.OutcomeProvider.class)
-public class LegacyFRValidateToken extends AbstractDecisionNode {
-
-	private static final String DEFAULT_LEGACY_COOKIE_NAME = "legacyCookieName";
-	private static final String DEFAULT_CHECK_LEGACY_TOKEN_URI = "checkLegacyTokenUri";
-	private static final String SESSION_VALIDATION_ACTION = "_action=validate";
+@Node.Metadata(configClass = LegacyFRValidateToken.LegacyFRConfig.class, outcomeProvider = AbstractValidateTokenNode.OutcomeProvider.class)
+public class LegacyFRValidateToken extends AbstractValidateTokenNode {
 
 	private Logger LOGGER = LoggerFactory.getLogger(LegacyFRValidateToken.class);
-	private final Config config;
+	private final LegacyFRConfig config;
 
-	public interface Config {
+	public interface LegacyFRConfig extends AbstractValidateTokenNode.Config {
 
-		@Attribute(order = 1, validators = { RequiredValueValidator.class })
-		default String checkLegacyTokenUri() {
-			return DEFAULT_CHECK_LEGACY_TOKEN_URI;
-		};
-
-		@Attribute(order = 2, validators = { RequiredValueValidator.class })
-		default String legacyCookieName() {
-			return DEFAULT_LEGACY_COOKIE_NAME;
-		};
+		@Attribute(order = 10, validators = { RequiredValueValidator.class })
+		String checkLegacyTokenUri();
 
 	}
 
 	@Inject
-	public LegacyFRValidateToken(@Assisted LegacyFRValidateToken.Config config) {
+	public LegacyFRValidateToken(@Assisted LegacyFRConfig config) {
 		this.config = config;
 	}
 
@@ -88,7 +78,7 @@ public class LegacyFRValidateToken extends AbstractDecisionNode {
 		String legacyCookie = context.request.cookies.get(config.legacyCookieName());
 		LOGGER.debug("process()::legacyCookie: " + legacyCookie);
 		String uid = validateLegacySession(legacyCookie);
-		LOGGER.debug("process()::User id from legaacy cookie: " + uid);
+		LOGGER.debug("process()::User id from legacy cookie: " + uid);
 		if (uid != null && legacyCookie != null) {
 			if (!legacyCookie.contains(config.legacyCookieName())) {
 				legacyCookie = config.legacyCookieName() + "=" + legacyCookie;

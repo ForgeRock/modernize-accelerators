@@ -98,4 +98,5 @@ public final class RequestUtils {
 		LOGGER.error("sendGetRequest()::responseEntity.getStatusCodeValue(): " + responseEntity.getStatusCodeValue());
 		return responseEntity;
 	}
+	
 }

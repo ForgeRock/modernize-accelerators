@@ -27,11 +27,11 @@ import java.util.UUID;
 import javax.inject.Inject;
 
 import org.forgerock.openam.annotations.sm.Attribute;
-import org.forgerock.openam.auth.node.api.AbstractDecisionNode;
 import org.forgerock.openam.auth.node.api.Action;
 import org.forgerock.openam.auth.node.api.Node;
 import org.forgerock.openam.auth.node.api.NodeProcessException;
 import org.forgerock.openam.auth.node.api.TreeContext;
+import org.forgerock.openam.auth.node.base.AbstractLegacyLoginNode;
 import org.forgerock.openam.auth.node.treehook.LegacyORASessionTreeHook;
 import org.forgerock.openam.modernize.legacy.ORAAccessClient;
 import org.slf4j.Logger;
@@ -42,56 +42,34 @@ import com.sun.identity.sm.RequiredValueValidator;
 
 import oracle.security.am.asdk.AccessException;
 
-@Node.Metadata(configClass = LegacyORALogin.Config.class, outcomeProvider = AbstractDecisionNode.OutcomeProvider.class)
-public class LegacyORALogin extends AbstractDecisionNode {
+@Node.Metadata(configClass = LegacyORALogin.LegacyORAConfig.class, outcomeProvider = AbstractLegacyLoginNode.OutcomeProvider.class)
+public class LegacyORALogin extends AbstractLegacyLoginNode {
 
-	private static final String LEGACY_COOKIE_NAME = "OAMAuthnCookie";
 	private Logger LOGGER = LoggerFactory.getLogger(LegacyORALogin.class);
-	private final Config config;
+	private final LegacyORAConfig config;
 	private final UUID nodeId;
 
-	public static final String ms_resource = "msResource";
-	public static final String ms_protocol = "http";
-	public static final String ms_method = "GET";
-	public static final String ms_domain = "msDomain";
-	public static final String m_configLocation = "/config";
+	public interface LegacyORAConfig extends AbstractLegacyLoginNode.Config {
 
-	public interface Config {
+		@Attribute(order = 10, validators = { RequiredValueValidator.class })
+		String msResource();
 
-		@Attribute(order = 1, validators = { RequiredValueValidator.class })
-		default String msResource() {
-			return ms_resource;
-		};
+		@Attribute(order = 20, validators = { RequiredValueValidator.class })
+		String msProtocol();
 
-		@Attribute(order = 2, validators = { RequiredValueValidator.class })
-		default String msProtocol() {
-			return ms_protocol;
-		};
+		@Attribute(order = 30, validators = { RequiredValueValidator.class })
+		String msMethod();
 
-		@Attribute(order = 3, validators = { RequiredValueValidator.class })
-		default String msMethod() {
-			return ms_method;
-		};
+		@Attribute(order = 40, validators = { RequiredValueValidator.class })
+		String legacyCookieDomain();
 
-		@Attribute(order = 4, validators = { RequiredValueValidator.class })
-		default String legacyCookieDomain() {
-			return ms_domain;
-		};
-
-		@Attribute(order = 5, validators = { RequiredValueValidator.class })
-		default String legacyCookieName() {
-			return LEGACY_COOKIE_NAME;
-		};
-
-		@Attribute(order = 6, validators = { RequiredValueValidator.class })
-		default String msConfigLocation() {
-			return m_configLocation;
-		};
+		@Attribute(order = 50, validators = { RequiredValueValidator.class })
+		String msConfigLocation();
 
 	}
 
 	@Inject
-	public LegacyORALogin(@Assisted LegacyORALogin.Config config, @Assisted UUID nodeId) {
+	public LegacyORALogin(@Assisted LegacyORAConfig config, @Assisted UUID nodeId) {
 		this.config = config;
 		this.nodeId = nodeId;
 	}

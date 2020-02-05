@@ -45,6 +45,10 @@ public class LegacyORAPlugin extends AbstractNodeAmPlugin {
 
 	@Override
 	public void upgrade(String fromVersion) throws PluginException {
-		super.upgrade(fromVersion);
+		pluginTools.upgradeAuthNode(LegacyORACreateForgeRockUser.class);
+		pluginTools.upgradeAuthNode(LegacyORALogin.class);
+		pluginTools.upgradeAuthNode(LegacyORAMigrationStatus.class);
+		pluginTools.upgradeAuthNode(LegacyORASetPassword.class);
+		pluginTools.upgradeAuthNode(LegacyORAValidateToken.class);
 	}
 }

@@ -16,39 +16,23 @@
 package org.forgerock.openam.auth.node;
 
 import static org.forgerock.openam.auth.node.api.SharedStateConstants.USERNAME;
-import static org.forgerock.openam.modernize.utils.NodeConstants.DEFAULT_IDM_USER;
-import static org.forgerock.openam.modernize.utils.NodeConstants.DEFAULT_IDM_USER_ENDPOINT;
-import static org.forgerock.openam.modernize.utils.NodeConstants.DEFAULT_IDM_USER_PASSWORD;
-import static org.forgerock.openam.modernize.utils.NodeConstants.OPEN_IDM_ADMIN_PASSWORD_HEADER;
-import static org.forgerock.openam.modernize.utils.NodeConstants.OPEN_IDM_ADMIN_USERNAME_HEADER;
-
-import java.io.IOException;
 
 import javax.inject.Inject;
 
-import org.forgerock.openam.annotations.sm.Attribute;
-import org.forgerock.openam.auth.node.api.AbstractDecisionNode;
 import org.forgerock.openam.auth.node.api.Action;
 import org.forgerock.openam.auth.node.api.Node;
 import org.forgerock.openam.auth.node.api.NodeProcessException;
 import org.forgerock.openam.auth.node.api.TreeContext;
+import org.forgerock.openam.auth.node.base.AbstractLegacyMigrationStatusNode;
 import org.forgerock.openam.core.realms.Realm;
-import org.forgerock.openam.modernize.utils.RequestUtils;
 import org.forgerock.openam.secrets.Secrets;
 import org.forgerock.openam.secrets.SecretsProviderFacade;
 import org.forgerock.secrets.NoSuchSecretException;
 import org.forgerock.secrets.Purpose;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.assistedinject.Assisted;
-import com.sun.identity.sm.RequiredValueValidator;
 
 /**
  * 
@@ -58,41 +42,25 @@ import com.sun.identity.sm.RequiredValueValidator;
  * </p>
  *
  */
-@Node.Metadata(configClass = LegacyFRMigrationStatus.Config.class, outcomeProvider = AbstractDecisionNode.OutcomeProvider.class)
-public class LegacyFRMigrationStatus extends AbstractDecisionNode {
+@Node.Metadata(configClass = AbstractLegacyMigrationStatusNode.Config.class, outcomeProvider = AbstractLegacyMigrationStatusNode.OutcomeProvider.class)
+public class LegacyFRMigrationStatus extends AbstractLegacyMigrationStatusNode {
 
 	private Logger LOGGER = LoggerFactory.getLogger(LegacyFRMigrationStatus.class);
-	private final Config config;
+	private final AbstractLegacyMigrationStatusNode.Config config;
 	private String idmPassword;
-
-	public interface Config {
-
-		@Attribute(order = 1, validators = { RequiredValueValidator.class })
-		default String idmUserEndpoint() {
-			return DEFAULT_IDM_USER_ENDPOINT;
-		};
-
-		@Attribute(order = 2, validators = { RequiredValueValidator.class })
-		default String idmAdminUser() {
-			return DEFAULT_IDM_USER;
-		};
-
-		@Attribute(order = 3, validators = { RequiredValueValidator.class })
-		default String idmPasswordId() {
-			return DEFAULT_IDM_USER_PASSWORD;
-		};
-	}
 
 	@Inject
 	public LegacyFRMigrationStatus(@Assisted LegacyFRMigrationStatus.Config config, @Assisted Realm realm,
 			Secrets secrets) throws NodeProcessException {
 		this.config = config;
 		SecretsProviderFacade secretsProvider = secrets.getRealmSecrets(realm);
-		try {
-			this.idmPassword = secretsProvider.getNamedSecret(Purpose.PASSWORD, config.idmPasswordId())
-					.getOrThrowUninterruptibly().revealAsUtf8(String::valueOf);
-		} catch (NoSuchSecretException e) {
-			throw new NodeProcessException("No secret " + config.idmPasswordId() + " found");
+		if (secretsProvider != null) {
+			try {
+				this.idmPassword = secretsProvider.getNamedSecret(Purpose.PASSWORD, config.idmPasswordId())
+						.getOrThrowUninterruptibly().revealAsUtf8(String::valueOf);
+			} catch (NoSuchSecretException e) {
+				throw new NodeProcessException("No secret " + config.idmPasswordId() + " found");
+			}
 		}
 	}
 
@@ -101,45 +69,11 @@ public class LegacyFRMigrationStatus extends AbstractDecisionNode {
 	 */
 	@Override
 	public Action process(TreeContext context) throws NodeProcessException {
+		LOGGER.debug("process()::Start");
 		String username = context.sharedState.get(USERNAME).asString();
-		return goTo(getUserMigrationStatus(username)).build();
-	}
-
-	/**
-	 * 
-	 * Makes a call to the IDM user end point to check if the userName provided is
-	 * migrated.
-	 * 
-	 * @param userName
-	 * @return true if the user is found, false otherwise
-	 * @throws NodeProcessException
-	 */
-	private boolean getUserMigrationStatus(String userName) throws NodeProcessException {
-		String getUserPathWithQuery = config.idmUserEndpoint() + "\"" + userName + "\"";
-		LOGGER.debug("getUserMigrationStatus()::getUserPathWithQuery: " + getUserPathWithQuery);
-		MultiValueMap<String, String> headersMap = new LinkedMultiValueMap<>();
-		headersMap.add(OPEN_IDM_ADMIN_USERNAME_HEADER, config.idmAdminUser());
-		headersMap.add(OPEN_IDM_ADMIN_PASSWORD_HEADER, idmPassword);
-		ResponseEntity<String> responseEntity = RequestUtils.sendGetRequest(getUserPathWithQuery,
-				MediaType.APPLICATION_JSON, headersMap);
-		return (getUserMigrationStatus(responseEntity));
-	}
-
-	private boolean getUserMigrationStatus(ResponseEntity<String> responseEntity) throws NodeProcessException {
-		LOGGER.debug("getUserMigrationStatus()::response.getBody(): " + responseEntity.getBody());
-		ObjectMapper mapper = new ObjectMapper();
-		JsonNode responseNode = null;
-		try {
-			responseNode = mapper.readTree(responseEntity.getBody());
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw new NodeProcessException("Unable to check if user is migrated: " + e.getMessage());
-		}
-		if (responseNode != null && responseNode.get("resultCount") != null
-				&& responseNode.get("resultCount").asInt() > 0) {
-			return true;
-		}
-		return false;
+		LOGGER.debug("process()::Username: " + username);
+		return goTo(getUserMigrationStatus(username, config.idmUserEndpoint(), config.idmAdminUser(), idmPassword))
+				.build();
 	}
 
 }

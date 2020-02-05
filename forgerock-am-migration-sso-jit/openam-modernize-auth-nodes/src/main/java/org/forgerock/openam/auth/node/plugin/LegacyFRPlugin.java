@@ -45,10 +45,10 @@ public class LegacyFRPlugin extends AbstractNodeAmPlugin {
 
 	@Override
 	public void upgrade(String fromVersion) throws PluginException {
-		pluginTools.installAuthNode(LegacyFRCreateForgeRockUser.class);
-		pluginTools.installAuthNode(LegacyFRLogin.class);
-		pluginTools.installAuthNode(LegacyFRMigrationStatus.class);
-		pluginTools.installAuthNode(LegacyFRSetPassword.class);
-		pluginTools.installAuthNode(LegacyFRValidateToken.class);
+		pluginTools.upgradeAuthNode(LegacyFRCreateForgeRockUser.class);
+		pluginTools.upgradeAuthNode(LegacyFRLogin.class);
+		pluginTools.upgradeAuthNode(LegacyFRMigrationStatus.class);
+		pluginTools.upgradeAuthNode(LegacyFRSetPassword.class);
+		pluginTools.upgradeAuthNode(LegacyFRValidateToken.class);
 	}
 }
