@@ -135,21 +135,26 @@ jar -cf ../ROOT.war *
 
 ## 3. Configuration
 
-### 3.1. Authentication Tree
+### 3.1. Configuring Secret Stores
+
+The passwords used in the toolkit authentication tree nodes must be saved in secret stores for security reasons. 
+The toolkit uses AM secret stores as described in the ForgeRock [documentation](https://backstage.forgerock.com/docs/am/6.5/maintenance-guide/#configure-secret-stores).
+
+### 3.2. Authentication Tree
 
 Please see the ForgeRock [documentation](https://backstage.forgerock.com/docs/am/6.5/authentication-guide/index.html#sec-configure-authentication-trees) for information about how to create authentication trees.
 
 To set your custom authentication tree as the default tree inside a realm, navigate to 'Authentication' -> 'Settings' -> 'Core'. Then select your custom authentication tree in the 'Organization Authentication Configuration' field. 
 
 
-#### 3.1.1. Building the tree
+#### 3.2.1. Building the tree
 
 + <b>Demo video</b> - [building the tree](https://github.com/ForgeRock/modernize-accelerators/blob/master/forgerock-am-migration-sso-jit/video/Part2-Building_The_Tree.mp4) - In this recording you can watch how the tree is built step by step.
 <br>
 
 ![migrationTree](images/migrationTree.png)
 
-#### 3.1.2. Alternative - Importing the Tree with Amster
+#### 3.2.2. Alternative - Importing the Tree with Amster
 
 The SSO toolkit also comes with a built tree that has been exported with Amster. This tree can be imported to other AM servers. Please refer to the [documentation](https://backstage.forgerock.com/docs/amster/6.5/user-guide/#sec-usage-import) for information about how to use Amster to import resources.
 
@@ -162,11 +167,11 @@ The tree export and its nodes can be found in the folder:
 In our example, the tree was created and exported in the root realm, but as a best practice you should never use the root realm. If you choose to import the migration tree with Amster, make sure to replace the realm property with your own value in the amster-export resources provided.
 
 
-### 3.2. Tree Nodes
+### 3.3. Tree Nodes
 
 A node is the core abstraction within an authentication tree. Trees consist of nodes, which can modify the shared state and request input from the user via callbacks.
 
-#### 3.2.1. Legacy-FR-Validate Token
+#### 3.3.1. Legacy-FR-Validate Token
 Custom node provided in this SSO toolkit. Detects if an existing legacy token exists in the browser in a specific cookie, and validates this as an active token against the legacy IAM system via an SDK/API call. The default node uses a GET API call with the cookie fetched from the incoming http request. The name of the cookie and the target URL is configurable. The node is vendor-specific and is flexible enough to be tailored for each vendor. The Oracle plugin provides a custom implementation for this node using the OAM11G SDK.
 
 ```
@@ -181,7 +186,7 @@ Legacy Cookie Name     | iPlanetDirectoryPro                                    
 
 <br>
 
-#### 3.2.2. Legacy-FR-Migration Status
+#### 3.3.2. Legacy-FR-Migration Status
 Custom node provided in the SSO toolkit. Calls the default ForgeRock IDM managed object API to determine whether the user is already migrated. This node is generic, and does not need to be customized for specific legacy IAM vendor implementations.
 
 ```
@@ -197,12 +202,12 @@ IDM Password Secret ID | openidmadminpass                                       
 
 <br>
 
-#### 3.2.3. Page Node
+#### 3.3.3. Page Node
 The default page node in ForgeRock IAM used to capture user credentials. This node is generic, and does not need to be customized for specific legacy IAM vendor implementations.
 
 <br>
 
-#### 3.2.4. Legacy-FR-Create FR User
+#### 3.3.4. Legacy-FR-Create FR User
 Custom node provided in the SSO toolkit. Calls the default ForgeRock IDM managed object API to provision the user in ForgeRock. This node is generic, and does not need to be customized for specific legacy IAM vendor implementations. The node uses the following shared state attributes: 
 
 ```
@@ -220,12 +225,12 @@ Set Password Reset     | true/false - on/off                                    
 
 <br>
 
-#### 3.2.5. Data Store Decision
+#### 3.3.5. Data Store Decision
 This is the default node for credential validation in ForgeRock IAM. This node is generic, and does not need to be customized for specific legacy IAM vendor implementations.
 
 <br>
 
-#### 3.2.6. Legacy-FR-Login
+#### 3.3.6. Legacy-FR-Login
 Custom node provided in the SSO toolkit. Validates credentials (username and password) entered by the user against the legacy IAM system via an SDK/API call. The default node uses a POST API call with the username and password fetched from the shared state. The URL is configurable, the node expects a successful response of 200 OK and a specific cookie to be present in the response. The cookie name is configurable. The node is vendor-specific and is flexible enough to be tailored for each vendor. The Oracle plugin provides a custom implementation for this node using the Oracle Access Client SDK.
 
 ```
@@ -240,7 +245,7 @@ Legacy Cookie Name     | iPlanetDirectoryPro                                    
 
 <br>
 
-#### 3.2.7. Legacy-FR-Set Password
+#### 3.3.7. Legacy-FR-Set Password
 Custom node provided in the SSO toolkit. Calls the default ForgeRock IDM managed object API to provision the user password in ForgeRock IAM. This node is generic one, and does not need to be customized for specific legacy IAM vendor implementations.
 
 ```
