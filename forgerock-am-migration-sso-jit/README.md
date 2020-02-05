@@ -261,30 +261,30 @@ IDM Password Secret ID | openidmadminpass                                       
 
 
 ### 4.1. Scenario 1 - The user has a valid legacy SSO token in the browser, and accesses the authentication tree
-- The user (not previously migrated) authenticates first in the legacy IAM.
+- The user (not previously migrated) authenticates first to the legacy IAM instance.
 - The user accesses the authentication tree.
-- Upon accessing the tree, the user is automatically logged in, because the legacy SSO token is present in the browser and is valid. As a result, a user profile is created in ForgeRock IDM and AM, with no password set.
+- Upon accessing the tree, the user is automatically logged in because a valid legacy SSO token is present in the browser. As a result, a user profile is created in ForgeRock IDM and AM, with no password set.
 <br><br>
 ![Scenario1](images/Scenario1.png)
 <br>
 
 ### 4.2. Scenario 2 - The user accesses the authentication tree, with no legacy SSO token in the browser, after previously accessing Scenario 1 - was created with no password
-- The user accesses the authentication tree. The tree prompts the user for the username and password.
-- After providing credentials, the user is successfully authenticated. This happens because the user was logged in successfully in the legacy IAM system. Since a Data Store Decision node returned false but the user was already migrated, and the legacy login is successful, the password is also updated in DS.
+- The user accesses the authentication tree. The tree is prompting the user for the username and password.
+- After providing credentials, the user is successfully authenticated. This happens because the user was successfully logged in to the legacy IAM system. Since the Data Store Decision node returned false but the user was already migrated, and the legacy login was successful, the password is also updated in DS.
 <br><br>
 ![Scenario2](images/Scenario2.png)
 <br>
 
 ### 4.3. Scenario 3 - The user is not migrated, does not have a valid legacy SSO token, and accesses the authentication tree
 - The user accesses the authentication tree. The tree prompts the user for the username and password.
-- After providing credentials, the user is successfully authenticated. This happens because the user was logged in successfully in the legacy IAM, and the user's profile was successfully provisioned in ForgeRock DS, including the password.
+- After providing credentials, the user is successfully authenticated. This happens because the user was successfully logged in to the legacy IAM instance, and the user's profile was successfully provisioned in ForgeRock DS, including the password.
 <br><br>
 ![Scenario3](images/Scenario3.png)
 <br>
 
 ### 4.4. Scenario 4 - The user is already migrated, and the Data Store Decision node authenticates the user successfully
 - The user accesses the authentication tree. The tree prompts the user for the username and password.
-- The user is authenticated automatically with both legacy IAM and a ForgeRock token at the end of tree processing.
+- The outcome of this scenario is that the user is authenticated automatically to both the legacy IAM instance and to ForgeRock AM after execution of the tree has completed.
 
 
 ## 5. Extending & Customizing
