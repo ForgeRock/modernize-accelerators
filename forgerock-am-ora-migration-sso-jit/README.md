@@ -175,7 +175,8 @@ To generate an access client configuration file, follow the instructions below:
 
 ### 3.2. Configuring Secret Stores
 
-The passwords that are used in the toolkit nodes, must be saved in secret stores for security reasons. Before proceeding with the secret store configuration described below, please also see the ForgeRock [documentation](https://backstage.forgerock.com/docs/am/6.5/maintenance-guide/#configure-secret-stores) regarding secret store.
+The passwords used in the toolkit authentication tree nodes must be saved in secret stores for security reasons. 
+The toolkit uses AM secret stores as described in the ForgeRock [documentation](https://backstage.forgerock.com/docs/am/6.5/maintenance-guide/#configure-secret-stores).
 
 #### 3.2.1. To Configure a File System Secret Volume Store
 
@@ -330,37 +331,37 @@ IDM Password Secret ID | openidmadminpass                                       
 ## 4. Scenarios
 
 ### 4.1. Scenario 1 - The user has a valid legacy OAM11G SSO token in the browser, and accesses the authentication tree
-- The user (not previously migrated) authenticates first in the Legacy OAM11G.
-- The user accesses the authentication tree
-- As soon as the user accesses the tree, he is automatically logged in because the Legacy OAM11G SSO token is present in the browser and it's valid. As a result a user profile is created in ForgeRock IDM and AM, with no password set.
+- The user (not previously migrated) authenticates first to the legacy OAM11G instance.
+- The user accesses the authentication tree.
+- Upon accessing the tree, the user is automatically logged in because a valid legacy OAM11G SSO token is present in the browser. As a result, a user profile is created in ForgeRock IDM and AM, with no password set.
 <br><br>
 ![Scenario1](images/Scenario1.jpg)
 <br>
 
 ### 4.2. Scenario 2 - The user accesses the authentication tree, with no legacy OAM11G SSO token in the browser, after previously he accessed Scenario 1 - was created with no password
 - The user accesses the authentication tree. The tree is prompting the user for the username and password.
-- After the user fills the credentials, he is successfully authenticated. This happens because the user was logged in successfully in the Legacy OAM11G. Since Data Store Decision has returned false but the user was already migrated, and the legacy login is successful, the password is also updated in DS.
+- After providing credentials, the user is successfully authenticated. This happens because the user was successfully logged in to  the legacy OAM11G. Since the Data Store Decision node returned false but the user was already migrated, and the legacy login was successful, the password is also updated in DS.
 <br><br>
 ![Scenario2](images/Scenario2.jpg)
 <br>
 
 ### 4.3. Scenario 3 - The user is not migrated, does not have a valid legacy OAM11G SSO token, and accesses the authentication tree
-- The user accesses the authentication tree. The tree is prompting the user for the username and password.
-- After the user fills the credentials, he is successfully authenticated. This happens because the user was logged in successfully in the Legacy OAM11G, and his profile was successfully provisioned in ForgeRock DS, including his password.
+- The user accesses the authentication tree. The tree prompts the user for the username and password.
+- After providing credentials, the user is successfully authenticated. This happens because the user was successfully logged in to the legacy OAM11G instance, and the user's profile was successfully provisioned in ForgeRock DS, including the password.
 <br><br>
 ![Scenario3](images/Scenario3.jpg)
 <br>
 
 ### 4.4. Scenario 4 - This scenario is triggered when the user has a valid legacy OAM11G SSO token in the browser and is already migrated
-- The user (previously migrated) authenticates first in the Legacy OAM11G.
-- The user accesses the authentication tree
-- The outcome of this scenario is that the user is authenticated automatically with both legacy OAM11G and ForgeRock token at the end of the tree.
+- The user (previously migrated) authenticates first to the legacy OAM11G instance.
+- The user accesses the authentication tree.
+- The outcome of this scenario is that the user is authenticated automatically to both the legacy OAM11G instance and to ForgeRock AM after execution of the tree has completed.
 ![Scenario4](images/Scenario4.jpg)
 <br>
 
 ### 4.5. Scenario 5 - This is the standard scenario triggered when the user is already migrated, and Data Store decision node authenticates the user successfully
-- The user accesses the authentication tree. The tree is prompting the user for the username and password.
-- The outcome of this scenario is that the user is authenticated automatically with both legacy OAM11G and ForgeRock token at the end of the tree.
+- The user accesses the authentication tree. The tree prompts the user for the username and password.
+- The outcome of this scenario is that the user is authenticated automatically to both the legacy OAM11G instance and to ForgeRock AM after execution of the tree has completed.
 ![Scenario5](images/Scenario5.jpg)
 <br>
 
