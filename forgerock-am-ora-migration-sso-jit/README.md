@@ -218,7 +218,7 @@ To set your custom authentication tree as the default inside a realm, navigate t
 
 #### 3.3.1. Building the tree
 
-Demo video - [building the tree](https://github.com/ForgeRock/modernize-accelerators/blob/develop/forgerock-am-ora-migration-sso-jit/video/Oracle%20-%20Building%20The%20Tree.mp4) - In this recording you can watch how the tree is built step by step.
++ Demo video - [building the tree](https://github.com/ForgeRock/modernize-accelerators/blob/develop/forgerock-am-ora-migration-sso-jit/video/Oracle%20-%20Building%20The%20Tree.mp4) - In this recording you can watch how the tree is built step by step.
 
 ![oracleMigrationSsoTree](images/oracleMigrationSsoTree.PNG)
 
