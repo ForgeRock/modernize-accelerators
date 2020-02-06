@@ -169,15 +169,15 @@ jar -cf ../ROOT.war *
 
 ## 3. Configuration
 
-### 3.1. Configuring the OAM access client
+### 3.1. Configuring the OAM Access Client
 
 To generate an access client configuration file, follow the instructions below:
 
-+ Login to OAM console with am administrator user
-+ Go to Agents -> Webgates -> Search
-+ From the list of available agents, select your SSO Webgate agent
-+ From the agent's dedicated page, click the download button. Save the generated <b>OBAccessClient.xml</b> file
-+ Create the following folder structure on the ForgeRock AM filesystem:
++ Login to the OAM console as the am administrator user.
++ Go to Agents > Webgates > Search.
++ Select your SSO Webgate agent from the list of available agents.
++ From the agent's dedicated page, click the download button. Save the generated <b>OBAccessClient.xml</b> file.
++ Create the following folder structure on the ForgeRock AM file system:
 ```
 /path/to/config/oblix/lib
 ```
@@ -196,17 +196,17 @@ The toolkit uses AM secret stores as described in the ForgeRock [documentation](
 + To configure a realm file system secret volume store:
     + Navigate to Realms > Realm Name > Secret Stores.
 + Select the store you want to modify.
-+ Enter the directory file name in the Directory field. This directory must be available to all AM instances, for example, by converting it to a shared filesystem, or by creating and maintaining it and its files across instances.
++ Enter the directory file name in the Directory field. This directory must be available to all AM instances; for example, by converting it to a shared filesystem, or by creating and maintaining it and its files across instances.
 + (Optional) Enter a suffix to add to the name of each secret in the File suffix field. For example, .txt.
-+ From the Value format drop-down list, select one of the following:
-    + Plain Text: the secret is provided in UTF-8 encoded text. <b>This type of secret is used in this toolkit example</b>
++ Select one of the following from the Value format drop-down list:
+    + Plain Text: the secret is provided in UTF-8 encoded text. <b>This type of secret is used in this toolkit example</b>.
     + Base64 encoded: the secret is provided in Base64 encoded binary values.
     + Encrypted text: the plain text secrets are encrypted using AM's encryption key, found at Deployment > Servers > Security > Encryption.
     + Encrypted Base64 encoded: the Base64 encoded binary values are encrypted using AM's encryption key.
     + Encrypted HMAC key: the Base64 encoded binary representation of the HMAC key is encrypted using AM's encryption key.
     + BASE64_HMAC_KEY: the Base64 encoded binary representation of the HMAC key. 
 + Save your changes.
-+ On the AM instance filesystem, create the directory path configured in the Directory field when the secret store was created.
++ On the AM instance's file system, create the directory path configured in the Directory field when the secret store was created.
 + Add all the files containing the secrets into the directory.
 
 + <b>Example:</b>
@@ -220,36 +220,36 @@ The toolkit uses AM secret stores as described in the ForgeRock [documentation](
 
 ### 3.3. Authentication Tree
 
-Please see the ForgeRock [documentation](https://backstage.forgerock.com/docs/am/6.5/authentication-guide/index.html#sec-configure-authentication-trees) on how to create authentication trees.
+For information about how to create authentication trees, refer to the ForgeRock [documentation](https://backstage.forgerock.com/docs/am/6.5/authentication-guide/index.html#sec-configure-authentication-trees).
 
-To set your custom authentication tree as the default inside a realm, navigate to 'Authentication' -> 'Settings' and on the 'Core' tab select your custom authentication tree in the field for 'Organization Authentication Configuration'. 
+To set your custom authentication tree as the default authentication tree inside a realm, navigate to 'Authentication' > 'Settings'. Then, in the 'Core' tab, select your custom authentication tree in the 'Organization Authentication Configuration' field. 
 
 
-#### 3.3.1. Building the tree
+#### 3.3.1. Building the Tree
 
-+ Demo video - [building the tree](https://github.com/ForgeRock/modernize-accelerators/blob/develop/forgerock-am-ora-migration-sso-jit/video/Oracle%20-%20Building%20The%20Tree.mp4) - In this recording you can watch how the tree is built step by step.
++ Demo video - [building the tree](https://github.com/ForgeRock/modernize-accelerators/blob/develop/forgerock-am-ora-migration-sso-jit/video/Oracle%20-%20Building%20The%20Tree.mp4) 
 
 ![oracleMigrationSsoTree](images/oracleMigrationSsoTree.PNG)
 
-#### 3.3.2. Alternative - Importing the tree with Amster
+#### 3.3.2. Alternative - Importing the Tree With Amster
 
-The SSO toolkit, also comes with built tree exported with Amster, that can be imported on other AM servers. Please refer to the [documentation](https://backstage.forgerock.com/docs/amster/6.5/user-guide/#sec-usage-import) for how to use Amster for importing resources.
+The SSO toolkit also comes with a tree in Amster-export format. You can import this tree into other AM servers. For information about how to import Amster resources, refer to the [documentation](https://backstage.forgerock.com/docs/amster/6.5/user-guide/#sec-usage-import).
 
-The tree export and it's nodes can be found in the folder: 
+The tree export and its nodes can be found in the folder: 
 
 ```
 /modernize-accelerators/forgerock-am-ora-migration-sso-jit/amster-export
 ```
 
-In this example the tree was created and exported in the root realm, but as a best practice you should never use the root realm. If you choose to import the oracleMigrationSsoTree with Amster, please make sure to replace the realm property with your own value in the amster-export resources provided.
+In this example the tree was created and exported in the root realm, but as a best practice, you should never use the root realm. If you choose to import the oracleMigrationSsoTree using Amster, please make sure to replace the realm property with your own value in the amster-export resources provided.
 
 
 ### 3.4. Tree Nodes
 
-A node is the core abstraction within an authentication tree. Trees are made up of nodes, which may modify the shared state and/or request input from the user via callbacks.
+A node is the core abstraction within an authentication tree. Trees are made up of nodes, which can modify the shared state and request input from the user via callbacks.
 
 #### 3.4.1. Legacy-ORA-Validate Token
-Custom node provided in this SSO toolkit. Detects if an existing legacy Token exists in the browser in a specific cookie, and validates this as an active token against the legacy IAM system via an SDK/API call. The default node uses a GET API call with the cookie fetched from the incoming http request. The name of the cookie and the target URL is configurable. The node is vendor-specific and is flexible enough to be tailored for each vendor. The Oracle plugin provides a custom implementation for this Node using the Oracle Access Client SDK.
+Custom node provided in the SSO toolkit. Detects if an existing legacy token exists in the browser in a specific cookie, and validates this as an active token against the legacy IAM system via an SDK/API call. The default node uses a GET API call with the cookie fetched from the incoming http request. The name of the cookie and the target URL is configurable. The node is vendor-specific and is flexible enough to be tailored for each vendor. The Oracle plugin provides a custom implementation for this node using the Oracle Access Client SDK.
 
 ```
 Node Class: /src/main/java/org/forgerock/openam/auth/node/LegacyORAValidateToken.java
@@ -257,15 +257,15 @@ Configuration File: /src/main/resources/org/forgerock/openam/auth/node/LegacyORA
 
 Configuration                  | Example                                                            | Description
 -------------------------------|--------------------------------------------------------------------|-----------------------------------------------------------------------------------------
-Legacy cookie name             | iPlanetDirectoryPro                                                | field for the name of the SSO token expected by Oracle OAM
-Oracle configuration location  | /path/to/config/oblix/lib/ObAccessClient.xml                       | field for the end point used by the Legacy iAM to verify if an SSO token is valid
-Naming attribute               | cn                                                                 | field that holds the attribute name from the OAM user identity, that hold the username value
+Legacy cookie name             | iPlanetDirectoryPro                                                | The name of the SSO token expected by Oracle OAM
+Oracle configuration location  | /path/to/config/oblix/lib/ObAccessClient.xml                       | The endpoint used by the legacy iAM system to verify if an SSO token is valid
+Naming attribute               | cn                                                                 | The attribute name from the OAM user identity that contains the username value
 ```
 
 <br>
 
 #### 3.4.2. Legacy-ORA-Migration Status
-Custom node provided in the SSO toolkit. Checks in Forgerock IDM if the user is allready migrated, by calling the default Forgerock IDM managed object API. This node is a generic one and does not need to be customized for specific legacy IAM vendor implementations.
+Custom node provided in the SSO toolkit. Checks ForgeRock IDM to determine whether a user is already migrated by calling the default ForgeRock IDM managed object API. This node is generic, and does not need to be customized for specific legacy IAM vendor implementations.
 
 ```
 Node Class: /src/main/java/org/forgerock/openam/auth/node/LegacyORAMigrationStatus.java
@@ -273,20 +273,20 @@ Configuration File: /src/main/resources/org/forgerock/openam/auth/node/LegacyORA
 
 Configuration          | Example                                                            | Description
 ---------------------- | -------------------------------------------------------------------|--------------------------------------------------------------------------------
-IDM user endpoint      | <<proto>://<<host>>/openidm/managed/user?_queryFilter=userName+eq+ | field for the end point used to verify in ForgeRock IDM if the user is migrated
-IDM administrator user | idmAdmin                                                           | field for the IDM admin user used to query the IDM User Endpoint
-IDM Password Secret ID | openidmadminpass                                                   | field for the IDM admin password secret id. The secret from the file system with this id. must contain the value of the password for the IDM administrator user
+IDM user endpoint      | <<proto>://<<host>>/openidm/managed/user?_queryFilter=userName+eq+ | The ForgeRock IDM endpoint that is called to determine whether the user is migrated
+IDM administrator user | idmAdmin                                                           | The IDM admin user used to query the IDM user endpoint
+IDM Password Secret ID | openidmadminpass                                                   | The IDM admin password secret ID. The secret from the file system with this ID must contain the value of the password for the IDM administrator.
 ```
 
 <br>
 
 #### 3.4.3. Page Node
-This is the default page node in Forgerock IAM used to capture user credentials. This node is a generic one and does not need to be customized for specific legacy IAM vendor implementations.
+Default page node in ForgeRock IAM used to capture user credentials. This node is generic, and does not need to be customized for specific legacy IAM vendor implementations.
 
 <br>
 
 #### 3.4.4. Legacy-ORA-Create FR User
-Custom node provided in the SSO toolkit. Provisions the user in Forgerock IAM by calling the default Forgerock IDM managed object API. This node is a generic one and does not need to be customized for specific legacy IAM vendor implementations. The nodes uses the following shared state attributes: 
+Custom node provided in the SSO toolkit. Provisions the user in ForgeRock IAM by calling the default ForgeRock IDM-managed object API. This node is generic one, and does not need to be customized for specific legacy IAM vendor implementations. The nodes uses the following shared state attributes: 
 
 ```
 Node Class: /src/main/java/org/forgerock/openam/auth/node/LegacyORACreateForgeRockUser.java
@@ -294,22 +294,22 @@ Configuration File: /src/main/resources/org/forgerock/openam/auth/node/LegacyORA
 
 Configuration          | Example                                                            |Description
 ---------------------- | -------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------
-Profile details URL    | <<proto>>://<<host>>/oic_rest/rest/userprofile/people/             | field for the end point used to get the profile attributes from the legacy iAM
-IDM User Endpoint      | <<proto>>://<<host>>/openidm/managed/user?_action=create           | field for the end point used to create a user in ForgeRock IDM
-IDM Admin User         | idmAdmin                                                           | field for the IDM admin user used to query the IDM User Endpoint
-IDM Password Secret ID | openidmadminpass                                                   | field for the IDM admin password secret id. The secret from the file system with this id. must contain the value of the password for the IDM administrator user
-Set Password Reset     | true/false - on/off                                                | switch used to determine if the node is used on a scenario that cannot migrate the user password. Set to true if the password can't be migrated.
+Profile details URL    | <<proto>>://<<host>>/oic_rest/rest/userprofile/people/             | The endpoint used to get the profile attributes from the legacy IAM
+IDM User Endpoint      | <<proto>>://<<host>>/openidm/managed/user?_action=create           | The endpoint used to create a user in ForgeRock IDM
+IDM Admin User         | idmAdmin                                                           | The IDM admin user used to query the IDM user endpoint
+IDM Password Secret ID | openidmadminpass                                                   | The IDM admin password secret ID. The secret from the file system with this ID must contain the value of the password for the IDM administrator user
+Set Password Reset     | true/false - on/off                                                | Switch used to determine if the node is used in a scenario that cannot migrate the user password. Set to true if the password can't be migrated.
 ```
 
 <br>
 
 #### 3.4.5. Data Store Decision
-This is the default credentials validation node in Forgerock IAM. This node is a generic one and does not need to be customized for specific legacy IAM vendor implementations.
+Default credentials validation node in ForgeRock IAM. This node is generic, and does not need to be customized for specific legacy IAM vendor implementations.
 
 <br>
 
 #### 3.4.6. Legacy-ORA-Login
-Custom node provided in the SSO toolkit. Validates the credentials (username and password) entered by the user against the legacy IAM system via an SDK/API call. The default node uses a POST API call with the username and password fetched from the shared state. The URL is configurable, the node expects a successfull response of 200 OK and a specific cookie to be present in the response (the cookie name is configurable). The node is vendor-specific and is flexible enough to be tailored for each vendor. The Oracle plugin will provide a custom implementation for this Node using the Oracle Access Client SDK.
+Custom node provided in the SSO toolkit. Validates the credentials (username and password) entered by the user against the legacy IAM system via an SDK/API call. The default node uses a POST API call with the username and password fetched from the shared state. The URL is configurable. The node expects a successful response of 200 OK and a specific cookie to be present in the response; the cookie name is configurable. The node is vendor-specific and is flexible enough to be tailored for each vendor. The Oracle plugin will provide a custom implementation for this Node using the Oracle Access Client SDK.
 
 ```
 Node Class: /src/main/java/org/forgerock/openam/auth/node/LegacyORALogin.java
@@ -317,18 +317,18 @@ Configuration File: /src/main/resources/org/forgerock/openam/auth/node/LegacyORA
 
 Configuration                  | Example                                                            | Description
 -------------------------------|--------------------------------------------------------------------|-----------------------------------------------------------------------------------------------
-Login endpoint                 | //<<host>>:<<port>>/oam/server/obrareq.cgi                         | the requested, protected HTTP resource for login, in the format required by the Oracle SDK
-Login endpoint protocol        | http                                                               | the protocol accepted on the requested resource
-Login endpoint method          | GET                                                                | the specific HTTP operation that will be performed against the requested resource
-Legacy cookie domain           | .domain.example.com                                                | the domain on which the legacy cookie must be set so it will be visible by OAM SSO
-Legacy cookie name             | iPlanetDirectoryPro                                                | field for the name of the SSO token expected by Oracle OAM
-Oracle configuration location  | /path/to/config/oblix/lib/ObAccessClient.xml                       | field for the end point used by the Legacy iAM to verify if an SSO token is valid
+Login endpoint                 | //<<host>>:<<port>>/oam/server/obrareq.cgi                         | The requested, protected HTTP resource for login, in the format required by the Oracle SDK
+Login endpoint protocol        | http                                                               | The protocol accepted by the requested resource
+Login endpoint method          | GET                                                                | The HTTP operation that will be performed against the requested resource
+Legacy cookie domain           | .domain.example.com                                                | The domain on which the legacy cookie must be set so it will be visible by OAM SSO
+Legacy cookie name             | iPlanetDirectoryPro                                                | The name of the SSO token expected by Oracle OAM
+Oracle configuration location  | /path/to/config/oblix/lib/ObAccessClient.xml                       | The endpoint used by the Legacy IAM to determine whether an SSO token is valid
 ```
 
 <br>
 
 #### 3.4.7. Legacy-ORA-Set Password
-Custom node provided in the SSO toolkit. Provisions the user password in Forgerock IAM by calling the default Forgerock IDM managed object API. This node is a generic one and does not need to be customized for specific legacy IAM vendor implementations.
+Custom node provided in the SSO toolkit. Provisions the user password in ForgeRock IAM by calling the default ForgeRock IDM managed object API. This node is generic, and does not need to be customized for specific legacy IAM vendor implementations.
 
 ```
 Node Class: /src/main/java/org/forgerock/openam/auth/node/LegacyORASetPassword.java
@@ -336,9 +336,9 @@ Configuration File: /src/main/resources/org/forgerock/openam/auth/node/LegacyORA
 
 Configuration          | Example                                                                           | Description
 ---------------------- | ----------------------------------------------------------------------------------|---------------------------------------------------------------------
-IDM User Endpoint      | <<proto>>://<<host>>/openidm/managed/user?_action=patch&_queryFilter=userName+eq+ | field for the end point used to create a user in ForgeRock IDM
-IDM Admin User         | idmAdmin                                                                          | field for the IDM admin user used to query the IDM User Endpoint
-IDM Password Secret ID | openidmadminpass                                                                  | field for the IDM admin password secret id. The secret from the file system with this id. must contain the value of the password for the IDM administrator user
+IDM User Endpoint      | <<proto>>://<<host>>/openidm/managed/user?_action=patch&_queryFilter=userName+eq+ | The endpoint used to create a user in ForgeRock IDM
+IDM Admin User         | idmAdmin                                                                          | The IDM admin user used to query the IDM user endpoint
+IDM Password Secret ID | openidmadminpass                                                                  | The IDM admin password secret ID. The secret from the file system with this ID must contain the value of the password for the IDM administrator user.
 ```
 
 ## 4. Scenarios
