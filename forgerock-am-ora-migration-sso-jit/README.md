@@ -344,7 +344,7 @@ IDM Password Secret ID | openidmadminpass                                       
 ## 4. Scenarios
 
 
-+ Demo video - [testing the main tree scenarios](https://github.com/ForgeRock/modernize-accelerators/blob/develop/forgerock-am-ora-migration-sso-jit/video/Oracle%20-%20Testing%20The%20Tree.mp4) - This video demonstrates how the scenarios detailed below are triggered by using the authentication tree.
++ Demo video - [testing the main tree scenarios](https://github.com/ForgeRock/modernize-accelerators/blob/develop/forgerock-am-ora-migration-sso-jit/video/Oracle%20-%20Testing%20The%20Tree.mp4)
 
 
 
@@ -356,9 +356,9 @@ IDM Password Secret ID | openidmadminpass                                       
 ![Scenario1](images/Scenario1.jpg)
 <br>
 
-### 4.2. Scenario 2 - The user accesses the authentication tree, with no legacy OAM11G SSO token in the browser, after previously he accessed Scenario 1 - was created with no password
-- The user accesses the authentication tree. The tree is prompting the user for the username and password.
-- After providing credentials, the user is successfully authenticated. This happens because the user was successfully logged in to  the legacy OAM11G. Since the Data Store Decision node returned false but the user was already migrated, and the legacy login was successful, the password is also updated in DS.
+### 4.2. Scenario 2 - The user accesses the authentication tree, with no legacy OAM11G SSO token in the browser, after previously accessing Scenario 1 - was created with no password
+- The user accesses the authentication tree. The tree prompts the user for the username and password.
+- After providing credentials, the user is successfully authenticated. This happens because the user was successfully logged in to the legacy OAM11G. Since the Data Store Decision node returned false but the user was already migrated, and the legacy login was successful, the password is also updated in DS.
 <br><br>
 ![Scenario2](images/Scenario2.jpg)
 <br>
@@ -383,16 +383,16 @@ IDM Password Secret ID | openidmadminpass                                       
 ![Scenario5](images/Scenario5.jpg)
 <br>
 
-## 5. Extending & Customizing
-Any changes you need to make to adapt to a specific legacy system can be done in the provided sample nodes. To do so you first need to import the project you downloaded - /forgerock-am-ora-migration-sso-jit/openam-modernize-oracle-auth-nodes from GitHub in your preferred IDE. The node classes and additional files are described in <b>Chapter 3.3 - Tree Nodes</b>.
-+ <b>Example</b>: To add or remove additional profile attributes, the node <b>Legacy-ORA-Create FR User</b> can be updated. In the method <b>process</b> you can retrieve additional attributes from the legacy profile details call. You can then map them on the request body from the <b>createProvisioningRequestEntity()</b> method.
+## 5. Extending and Customizing
+Any changes you need to make to adapt to a specific legacy system can be done in the provided sample nodes. To make changes, start by importing the project you downloaded from GitHub (/forgerock-am-ora-migration-sso-jit/openam-modernize-oracle-auth-nodes) in your preferred IDE. The node classes and additional files are described in <b>Chapter 3.3 - Tree Nodes</b>.
++ <b>Example</b>: To add or remove additional profile attributes, the node <b>Legacy-ORA-Create FR User</b> can be updated. In the method <b>process</b>, you can retrieve additional attributes from the legacy profile details call. Then you can map them on the request body from the <b>createProvisioningRequestEntity()</b> method.
 
-## 6. Troubleshooting common problems
-+ <b>Problem:</b> Changes in configuration don't show up in the OpenAM console after deploy.<br>
-<b>Solution:</b> Make sure to imcrement the plugin version from the method getPluginVersion() associated to the modified Node if any changes are made in the Config of a node in the java class or the properties file.
+## 6. Troubleshooting Common Problems
++ <b>Problem:</b> Changes in configuration don't show up in the AM console after deployment.<br>
+<b>Solution:</b> Make sure to increment the plugin version from the method getPluginVersion() associated with the modified node if any changes are made in the configuration of a node in the Java class or the properties file.
 <br><br>
 + <b>Problem:</b> No nodes, not even the out of the box ones, are displayed in the tree creation screen.<br>
-<b>Solution:</b> Check the nodes <b>@Attribute(order = number)</b> annotations. This can happen if two or more properties in the same node, have the same <b>order = number</b>.
+<b>Solution:</b> Check the node's <b>@Attribute(order = number)</b> annotations. This can happen if two or more properties in the same node have the same <b>order = number</b>.
 
 ## 7. Known issues
 + N/A
