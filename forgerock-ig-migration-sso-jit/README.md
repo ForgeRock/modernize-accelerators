@@ -201,7 +201,7 @@ The route provided with this toolkit serves as an example of implementation. The
 			- he is authenticated in ForgeRock AM
 			- the request is passed through to the legacy IAM and the user is authenticated there also
 			- when legacy IAM responds, the user will have on the HTTP response a Set-Cookie header representing the legacy SSO token. The filter also adds a Set-Cookie header with the value of the SSO token resulted after authentication to ForgeRock AM.
-			- As a result, the user will have in his browser two tokens, on for the legacy IAM, and one for the ForgeRock AM.
+			- As a result, the user will have in his browser two tokens, one for the legacy IAM, and one for the ForgeRock AM.
 			
 		- If the user is not migrated:
 			- the filter allows the request to pass directly to legacy IAM to validate the credentials
@@ -253,7 +253,7 @@ setCookieHeader                    | Set-Cookie                                 
 
 <br>
 
-- <b>HeaderFilter-ChangeHostFilter</b> - Out of the box filter that comes with the IG application. This filter is used to remove and new headers on the HTTP request or response.
+- <b>HeaderFilter-ChangeHostFilter</b> - Out of the box filter that comes with the IG application. This filter is used to remove and add new headers on the HTTP request or response.
 
 
 ## 4. Extending & Customizing
