@@ -1,0 +1,20 @@
+{
+  "metadata" : {
+    "realm" : "/",
+    "amsterVersion" : "6.5.2",
+    "entityType" : "LegacyORAValidateToken",
+    "entityId" : "32d311fa-b942-4436-bf59-c4709e3db339",
+    "pathParams" : { }
+  },
+  "data" : {
+    "_id" : "32d311fa-b942-4436-bf59-c4709e3db339",
+    "legacyCookieName" : "OAMAuthnCookie",
+    "msConfigLocation" : "/path/to/config",
+    "namingAttribute" : "cn",
+    "_type" : {
+      "_id" : "LegacyORAValidateToken",
+      "name" : "Legacy-ORA-Validate Token",
+      "collection" : true
+    }
+  }
+}

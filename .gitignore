@@ -1,0 +1,9 @@
+
+*.class
+forgerock-am-migration-sso-jit/openam-modernize-auth-nodes/target/classes/org/forgerock/openam/auth/node/SetUserPassword.properties
+forgerock-am-migration-sso-jit/openam-modernize-auth-nodes/target/classes/org/forgerock/openam/auth/node/OracleLegacyLogin.properties
+forgerock-am-migration-sso-jit/openam-modernize-auth-nodes/target/classes/org/forgerock/openam/auth/node/LegacyLogin.properties
+forgerock-am-migration-sso-jit/openam-modernize-auth-nodes/target/classes/org/forgerock/openam/auth/node/CreateUser.properties
+forgerock-am-migration-sso-jit/openam-modernize-auth-nodes/target/classes/org/forgerock/openam/auth/node/CheckUserMigrationStatus.properties
+forgerock-am-migration-sso-jit/openam-modernize-auth-nodes/target/classes/org/forgerock/openam/auth/node/CheckLegacyToken.properties
+forgerock-am-migration-sso-jit/openam-modernize-auth-nodes/target/classes/META-INF/services/org.forgerock.openam.plugins.AmPlugin

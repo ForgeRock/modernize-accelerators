@@ -1,0 +1,22 @@
+{
+  "metadata" : {
+    "realm" : "/",
+    "amsterVersion" : "6.5.2",
+    "entityType" : "LegacyORACreateForgeRockUser",
+    "entityId" : "d893317d-103b-43ae-ad93-b03fecc86caf",
+    "pathParams" : { }
+  },
+  "data" : {
+    "_id" : "d893317d-103b-43ae-ad93-b03fecc86caf",
+    "idmAdminUser" : "openidm-admin",
+    "setPasswordReset" : false,
+    "idmPasswordId" : "openidmadminpass",
+    "legacyEnvURL" : "<<proto>>://<<host>>:<<port>>/oic_rest/rest/userprofile/people/",
+    "idmUserEndpoint" : "<<proto>>://<<host>>/openidm/managed/user?_action=create",
+    "_type" : {
+      "_id" : "LegacyORACreateForgeRockUser",
+      "name" : "Legacy-ORA-Create FR User",
+      "collection" : true
+    }
+  }
+}

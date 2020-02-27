@@ -1,0 +1,19 @@
+{
+  "metadata" : {
+    "realm" : "/",
+    "amsterVersion" : "6.5.2",
+    "entityType" : "LegacyFRLogin",
+    "entityId" : "c0769b27-4ec1-4e4f-bfa5-0f2501979bc2",
+    "pathParams" : { }
+  },
+  "data" : {
+    "_id" : "c0769b27-4ec1-4e4f-bfa5-0f2501979bc2",
+    "legacyCookieName" : "legacyCookieName",
+    "legacyLoginUri" : "<<proto>>://<<host>>/json/realms/root/realms/legacy/authenticate",
+    "_type" : {
+      "_id" : "LegacyFRLogin",
+      "name" : "Legacy-FR-Login",
+      "collection" : true
+    }
+  }
+}

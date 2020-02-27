@@ -33,7 +33,7 @@ import com.iplanet.dpro.session.SessionException;
 
 /**
  * A TreeHook for setting in the user agent the legacy cookie obtained after a
- * successfull API login in a legacy system.
+ * successful login in a legacy system.
  */
 @TreeHook.Metadata(configClass = SetPersistentCookieNode.Config.class)
 public class LegacySessionTreeHook implements TreeHook {
@@ -57,6 +57,12 @@ public class LegacySessionTreeHook implements TreeHook {
 		this.request = request;
 	}
 
+	/**
+	 * Main method that contains the logic that needs to be executed when the
+	 * session hook is called.
+	 *
+	 * @throws TreeHookException if an exception occurs.
+	 */
 	@Override
 	public void accept() throws TreeHookException {
 		LOGGER.debug("Creating legacy cookie tree hook");
@@ -65,7 +71,7 @@ public class LegacySessionTreeHook implements TreeHook {
 			legacyCookie = session.getProperty(LEGACY_COOKIE_SHARED_STATE_PARAM);
 			LOGGER.info("accept():: " + legacyCookie);
 		} catch (SessionException e) {
-			e.printStackTrace();
+			LOGGER.error("accept()::Error reading session property " + LEGACY_COOKIE_SHARED_STATE_PARAM + ": " + e);
 		}
 		response.getHeaders().add("set-cookie", legacyCookie);
 	}

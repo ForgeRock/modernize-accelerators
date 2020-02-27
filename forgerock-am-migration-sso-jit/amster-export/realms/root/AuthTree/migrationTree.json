@@ -9,94 +9,94 @@
   "data" : {
     "_id" : "migrationTree",
     "nodes" : {
-      "70898d2e-9b2d-4cbd-91bc-67d0ef07eab7" : {
-        "displayName" : "Check Legacy Token",
-        "nodeType" : "CheckLegacyToken",
+      "6536d513-371c-4e5f-b804-1178e144786e" : {
+        "displayName" : "Legacy-FR-Validate Token",
+        "nodeType" : "LegacyFRValidateToken",
         "connections" : {
-          "false" : "d487359c-c1ba-4d67-a8f5-2100216b5a3b",
-          "true" : "c22c3860-614e-4204-be77-1736e0ec4935"
+          "true" : "00b74313-1416-4866-8696-eb76b4cd877d",
+          "false" : "206de7b6-1da2-441a-8a99-9cd8d0a0abee"
         }
       },
-      "d487359c-c1ba-4d67-a8f5-2100216b5a3b" : {
+      "00b74313-1416-4866-8696-eb76b4cd877d" : {
+        "displayName" : "Legacy-FR-Migration Status",
+        "nodeType" : "LegacyFRMigrationStatus",
+        "connections" : {
+          "true" : "70e691a5-1e33-4ac3-a356-e7b6d60d92e0",
+          "false" : "05b4cc5d-4145-4a1e-b56d-b8506d003dd9"
+        }
+      },
+      "05b4cc5d-4145-4a1e-b56d-b8506d003dd9" : {
+        "displayName" : "Legacy-FR-Create FR User",
+        "nodeType" : "LegacyFRCreateForgeRockUser",
+        "connections" : {
+          "true" : "70e691a5-1e33-4ac3-a356-e7b6d60d92e0",
+          "false" : "e301438c-0bd0-429c-ab0c-66126501069a"
+        }
+      },
+      "206de7b6-1da2-441a-8a99-9cd8d0a0abee" : {
         "displayName" : "Page Node",
         "nodeType" : "PageNode",
         "connections" : {
-          "outcome" : "4c832822-2176-4e94-bba3-12df224185db"
+          "outcome" : "993e0549-b343-41e8-8c74-f09440ec08b3"
         }
       },
-      "4c832822-2176-4e94-bba3-12df224185db" : {
+      "993e0549-b343-41e8-8c74-f09440ec08b3" : {
         "displayName" : "Data Store Decision",
         "nodeType" : "DataStoreDecisionNode",
         "connections" : {
-          "true" : "aea5ad63-51d8-49a2-8270-7b12e7f19174",
-          "false" : "2ccbc2f3-9c5d-4059-8f62-2598a4103846"
+          "true" : "563d013f-1bd5-41a3-8906-5f98c21636cf",
+          "false" : "8007a946-38b4-4278-9edd-2bf9e77e6e99"
         }
       },
-      "747c5b32-00fa-4f34-b6bc-407c60101f1c" : {
-        "displayName" : "Legacy Login",
-        "nodeType" : "LegacyLogin",
+      "8007a946-38b4-4278-9edd-2bf9e77e6e99" : {
+        "displayName" : "Legacy-FR-Migration Status",
+        "nodeType" : "LegacyFRMigrationStatus",
         "connections" : {
-          "true" : "901b0081-abb6-4cf1-bce8-1df36146fbba",
-          "false" : "e301438c-0bd0-429c-ab0c-66126501069a"
+          "true" : "e87164b3-c9bd-4fae-a7e4-36932d2e86ae",
+          "false" : "c0769b27-4ec1-4e4f-bfa5-0f2501979bc2"
         }
       },
-      "d8416a1c-1710-420d-8763-b0a8809de6b8" : {
-        "displayName" : "Create User In DS",
-        "nodeType" : "CreateUser",
+      "e87164b3-c9bd-4fae-a7e4-36932d2e86ae" : {
+        "displayName" : "Legacy-FR-Login",
+        "nodeType" : "LegacyFRLogin",
         "connections" : {
           "false" : "e301438c-0bd0-429c-ab0c-66126501069a",
-          "true" : "70e691a5-1e33-4ac3-a356-e7b6d60d92e0"
+          "true" : "06ded325-4564-40fc-a2e3-720466b19b2b"
         }
       },
-      "901b0081-abb6-4cf1-bce8-1df36146fbba" : {
-        "displayName" : "Set password in DS",
-        "nodeType" : "SetUserPassword",
+      "06ded325-4564-40fc-a2e3-720466b19b2b" : {
+        "displayName" : "Legacy-FR-Set Password",
+        "nodeType" : "LegacyFRSetPassword",
         "connections" : {
           "true" : "70e691a5-1e33-4ac3-a356-e7b6d60d92e0",
           "false" : "e301438c-0bd0-429c-ab0c-66126501069a"
         }
       },
-      "2ccbc2f3-9c5d-4059-8f62-2598a4103846" : {
-        "displayName" : "Is User Migrated",
-        "nodeType" : "CheckUserMigrationStatus",
+      "c0769b27-4ec1-4e4f-bfa5-0f2501979bc2" : {
+        "displayName" : "Legacy-FR-Login",
+        "nodeType" : "LegacyFRLogin",
         "connections" : {
-          "true" : "747c5b32-00fa-4f34-b6bc-407c60101f1c",
-          "false" : "94ca1135-2b37-43e9-9857-9cfd671b05a9"
+          "false" : "e301438c-0bd0-429c-ab0c-66126501069a",
+          "true" : "5b07bccc-ac18-4e9f-97e7-317da4df2718"
         }
       },
-      "94ca1135-2b37-43e9-9857-9cfd671b05a9" : {
-        "displayName" : "Legacy Login",
-        "nodeType" : "LegacyLogin",
-        "connections" : {
-          "true" : "d8416a1c-1710-420d-8763-b0a8809de6b8",
-          "false" : "e301438c-0bd0-429c-ab0c-66126501069a"
-        }
-      },
-      "c22c3860-614e-4204-be77-1736e0ec4935" : {
-        "displayName" : "Is User Migrated",
-        "nodeType" : "CheckUserMigrationStatus",
-        "connections" : {
-          "true" : "70e691a5-1e33-4ac3-a356-e7b6d60d92e0",
-          "false" : "c1fb42b8-4030-49b5-a447-2773ffc1e1f1"
-        }
-      },
-      "c1fb42b8-4030-49b5-a447-2773ffc1e1f1" : {
-        "displayName" : "Create User In DS",
-        "nodeType" : "CreateUser",
+      "5b07bccc-ac18-4e9f-97e7-317da4df2718" : {
+        "displayName" : "Legacy-FR-Create FR User",
+        "nodeType" : "LegacyFRCreateForgeRockUser",
         "connections" : {
           "true" : "70e691a5-1e33-4ac3-a356-e7b6d60d92e0",
           "false" : "e301438c-0bd0-429c-ab0c-66126501069a"
         }
       },
-      "aea5ad63-51d8-49a2-8270-7b12e7f19174" : {
-        "displayName" : "Legacy Login",
-        "nodeType" : "LegacyLogin",
+      "563d013f-1bd5-41a3-8906-5f98c21636cf" : {
+        "displayName" : "Legacy-FR-Login",
+        "nodeType" : "LegacyFRLogin",
         "connections" : {
           "true" : "70e691a5-1e33-4ac3-a356-e7b6d60d92e0",
           "false" : "e301438c-0bd0-429c-ab0c-66126501069a"
         }
       }
     },
-    "entryNodeId" : "70898d2e-9b2d-4cbd-91bc-67d0ef07eab7"
+    "entryNodeId" : "6536d513-371c-4e5f-b804-1178e144786e"
   }
 }

@@ -1,0 +1,19 @@
+{
+  "metadata" : {
+    "realm" : "/",
+    "amsterVersion" : "6.5.2",
+    "entityType" : "LegacyFRValidateToken",
+    "entityId" : "6536d513-371c-4e5f-b804-1178e144786e",
+    "pathParams" : { }
+  },
+  "data" : {
+    "_id" : "6536d513-371c-4e5f-b804-1178e144786e",
+    "legacyCookieName" : "legacyCookieName",
+    "checkLegacyTokenUri" : "<<proto>>://<<host>>/openam/json/sessions?tokenId=",
+    "_type" : {
+      "_id" : "LegacyFRValidateToken",
+      "name" : "Legacy-FR-Validate Token",
+      "collection" : true
+    }
+  }
+}

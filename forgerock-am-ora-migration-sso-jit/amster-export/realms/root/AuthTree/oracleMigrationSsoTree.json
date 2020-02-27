@@ -1,0 +1,102 @@
+{
+  "metadata" : {
+    "realm" : "/",
+    "amsterVersion" : "6.5.2",
+    "entityType" : "AuthTree",
+    "entityId" : "oracleMigrationSsoTree",
+    "pathParams" : { }
+  },
+  "data" : {
+    "_id" : "oracleMigrationSsoTree",
+    "nodes" : {
+      "d4bd941d-ff0b-4652-8c9d-453358ae4511" : {
+        "displayName" : "Legacy-ORA-Create FR User",
+        "nodeType" : "LegacyORACreateForgeRockUser",
+        "connections" : {
+          "true" : "70e691a5-1e33-4ac3-a356-e7b6d60d92e0",
+          "false" : "e301438c-0bd0-429c-ab0c-66126501069a"
+        }
+      },
+      "32d311fa-b942-4436-bf59-c4709e3db339" : {
+        "displayName" : "Legacy-ORA-Validate Token",
+        "nodeType" : "LegacyORAValidateToken",
+        "connections" : {
+          "true" : "4716bb70-6f40-4c40-b3f2-ad49c2963842",
+          "false" : "b10d2887-8eab-4d03-b900-0e94b7984c08"
+        }
+      },
+      "b10d2887-8eab-4d03-b900-0e94b7984c08" : {
+        "displayName" : "Page Node",
+        "nodeType" : "PageNode",
+        "connections" : {
+          "outcome" : "2979e01c-6efd-4528-8394-0033947355a7"
+        }
+      },
+      "4716bb70-6f40-4c40-b3f2-ad49c2963842" : {
+        "displayName" : "Legacy-ORA-Migration Status",
+        "nodeType" : "LegacyORAMigrationStatus",
+        "connections" : {
+          "true" : "70e691a5-1e33-4ac3-a356-e7b6d60d92e0",
+          "false" : "d4bd941d-ff0b-4652-8c9d-453358ae4511"
+        }
+      },
+      "2979e01c-6efd-4528-8394-0033947355a7" : {
+        "displayName" : "Data Store Decision",
+        "nodeType" : "DataStoreDecisionNode",
+        "connections" : {
+          "true" : "a67ee23b-500e-4555-8ae1-4c0aba28a574",
+          "false" : "6d17fb14-f937-4c05-92d2-62ff39a59823"
+        }
+      },
+      "a67ee23b-500e-4555-8ae1-4c0aba28a574" : {
+        "displayName" : "Legacy-ORA-Login",
+        "nodeType" : "LegacyORALogin",
+        "connections" : {
+          "true" : "70e691a5-1e33-4ac3-a356-e7b6d60d92e0",
+          "false" : "e301438c-0bd0-429c-ab0c-66126501069a"
+        }
+      },
+      "6d17fb14-f937-4c05-92d2-62ff39a59823" : {
+        "displayName" : "Legacy-ORA-Migration Status",
+        "nodeType" : "LegacyORAMigrationStatus",
+        "connections" : {
+          "true" : "8928bafb-d0c2-430a-bbe5-a5c50033722c",
+          "false" : "27134c2d-5d02-45e6-af56-683a565d90e6"
+        }
+      },
+      "8928bafb-d0c2-430a-bbe5-a5c50033722c" : {
+        "displayName" : "Legacy-ORA-Login",
+        "nodeType" : "LegacyORALogin",
+        "connections" : {
+          "true" : "c90726f4-b118-42b4-89cc-414a726f2088",
+          "false" : "e301438c-0bd0-429c-ab0c-66126501069a"
+        }
+      },
+      "27134c2d-5d02-45e6-af56-683a565d90e6" : {
+        "displayName" : "Legacy-ORA-Login",
+        "nodeType" : "LegacyORALogin",
+        "connections" : {
+          "true" : "d893317d-103b-43ae-ad93-b03fecc86caf",
+          "false" : "e301438c-0bd0-429c-ab0c-66126501069a"
+        }
+      },
+      "d893317d-103b-43ae-ad93-b03fecc86caf" : {
+        "displayName" : "Legacy-ORA-Create FR User",
+        "nodeType" : "LegacyORACreateForgeRockUser",
+        "connections" : {
+          "true" : "70e691a5-1e33-4ac3-a356-e7b6d60d92e0",
+          "false" : "e301438c-0bd0-429c-ab0c-66126501069a"
+        }
+      },
+      "c90726f4-b118-42b4-89cc-414a726f2088" : {
+        "displayName" : "Legacy-ORA-Set Password",
+        "nodeType" : "LegacyORASetPassword",
+        "connections" : {
+          "true" : "70e691a5-1e33-4ac3-a356-e7b6d60d92e0",
+          "false" : "e301438c-0bd0-429c-ab0c-66126501069a"
+        }
+      }
+    },
+    "entryNodeId" : "32d311fa-b942-4436-bf59-c4709e3db339"
+  }
+}
