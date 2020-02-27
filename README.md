@@ -8,6 +8,7 @@ ForgeRock shall not be liable for any direct, indirect or consequential damages 
 # Modernize IAM Accelerators
 
 * The Modernize IAM Accelerators are applicable in the following high level typical migration scenarios:
+
     * Complex legacy access management deployment
     * Coexistence strategy between ForgeRock and legacy platforms
     * Migration desired to the latest ForgeRock platform
