@@ -71,16 +71,7 @@ MAVEN_HOME=/opt/apache-maven-3.6.3
 MAVEN_OPTS='-Xmx2g -Xms2g -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=512m'
 ```
 
-#### 2.1.2. External libraries
-
-+ The source files use some Spring dependencies from the 5.2.1.RELEASE that you will need to download. The following JAR files must be added to the WEB-INF/lib directory of the OpenAM war, before building it as described in section 2.4. below:
-
-+ [spring-beans-5.2.1.RELEASE](https://mvnrepository.com/artifact/org.springframework/spring-beans)
-+ [spring-core-5.2.1.RELEASE](https://mvnrepository.com/artifact/org.springframework/spring-core)
-+ [spring-jcl-5.2.1.RELEASE](https://mvnrepository.com/artifact/org.springframework/spring-jcl)
-+ [spring-web-5.2.1.RELEASE](https://mvnrepository.com/artifact/org.springframework/spring-web)
-
-#### 2.1.3. Reverse proxy
+#### 2.1.2. Reverse proxy
 
 Usually all components are deployed under the same domain, but if your legacy IAM is under another domain than the ForgeRock applications, you will need a reverse proxy in front of both legacy and ForgeRock. This will ensure all the cookies will be seen between applications from the same domain, otherwise SSO can't be achieved.
 
