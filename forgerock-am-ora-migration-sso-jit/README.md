@@ -73,12 +73,6 @@ MAVEN_OPTS='-Xmx2g -Xms2g -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=512m'
 
 #### 2.1.2. External libraries
 
-+ The source files use some Spring dependencies from the 5.2.1.RELEASE, which you need to download. Add the following JAR files to the WEB-INF/lib directory: 
-    + [spring-beans-5.2.1.RELEASE](https://mvnrepository.com/artifact/org.springframework/spring-beans)
-    + [spring-core-5.2.1.RELEASE](https://mvnrepository.com/artifact/org.springframework/spring-core)
-    + [spring-jcl-5.2.1.RELEASE](https://mvnrepository.com/artifact/org.springframework/spring-jcl)
-    + [spring-web-5.2.1.RELEASE](https://mvnrepository.com/artifact/org.springframework/spring-web)
-
 + The source files also use the Oracle Access Manager Access SDK. Download the SDK from the Oracle [downloads](https://www.oracle.com/middleware/technologies/identity-management/downloads.html) page. Then add the <b>oamasdk-api.jar</b> file to the WEB-INF/lib directory. Other jars that are needed as dependencies are:
     + identitystore.jar
     + jps-api.jar
