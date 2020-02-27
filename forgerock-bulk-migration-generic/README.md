@@ -5,7 +5,7 @@ ForgeRock does not warrant, guarantee or make any representations regarding the 
 <br><br>
 ForgeRock shall not be liable for any direct, indirect or consequential damages or costs of any type arising out of any action taken by you or others related to the sample code.
 
-# Modernize Accelerators - Bulk User Migration Toolkit
+# Modernize IAM Accelerators - Bulk User Migration Toolkit
 One-time and incremental import of user profiles and groups from an external legacy IAM user store to Forgerock DS is often a requirement in complex migration process.
 With custom schema being used by Legacy IAM systems (custom object classes, custom attributes, custom naming and organization units/suffix) the process of synchronizing information can be complex to design and implement. In addition, the particular mapping of the extended schema (attributes, object classes and group-membership used for core IAM transactions) can also be cumbersome and lengthy.
 
