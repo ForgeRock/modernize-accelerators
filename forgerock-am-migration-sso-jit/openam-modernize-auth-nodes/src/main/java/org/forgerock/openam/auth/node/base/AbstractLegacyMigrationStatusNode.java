@@ -18,92 +18,123 @@ package org.forgerock.openam.auth.node.base;
 import static org.forgerock.openam.modernize.utils.NodeConstants.FALSE_OUTCOME_ID;
 import static org.forgerock.openam.modernize.utils.NodeConstants.OPEN_IDM_ADMIN_PASSWORD_HEADER;
 import static org.forgerock.openam.modernize.utils.NodeConstants.OPEN_IDM_ADMIN_USERNAME_HEADER;
-import static org.forgerock.openam.modernize.utils.NodeConstants.TRUE_OUTCOME_ID;
 import static org.forgerock.openam.modernize.utils.NodeConstants.QUERY_IDM_QUERY_USER_PATH;
+import static org.forgerock.openam.modernize.utils.NodeConstants.TRUE_OUTCOME_ID;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import org.forgerock.http.Client;
+import org.forgerock.http.handler.HttpClientHandler;
+import org.forgerock.http.protocol.Request;
+import org.forgerock.http.protocol.Response;
 import org.forgerock.json.JsonValue;
 import org.forgerock.openam.annotations.sm.Attribute;
 import org.forgerock.openam.auth.node.api.Action;
 import org.forgerock.openam.auth.node.api.Node;
 import org.forgerock.openam.auth.node.api.NodeProcessException;
-import org.forgerock.openam.modernize.utils.RequestUtils;
 import org.forgerock.util.i18n.PreferredLocales;
+import org.forgerock.util.promise.NeverThrowsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.sun.identity.sm.RequiredValueValidator;
 
+/**
+ * This class serves as a base for the LegacyMigrationStatus node.
+ */
 public abstract class AbstractLegacyMigrationStatusNode implements Node {
 
 	private Logger LOGGER = LoggerFactory.getLogger(AbstractLegacyMigrationStatusNode.class);
 
 	/**
-	 * The Config.
+	 * The configuration for this node.
 	 */
 	public interface Config {
 
+		/**
+		 * Defines the ForgeRock IDM URL
+		 * 
+		 * @return the configured ForgeRock IDM URL
+		 */
 		@Attribute(order = 1, validators = { RequiredValueValidator.class })
 		String idmUserEndpoint();
 
+		/**
+		 * Defines the value for the IDM administrator username that is used when
+		 * creating a new user.
+		 * 
+		 * @return the configured value for the IDM administrator username that is used
+		 *         when creating a new user
+		 */
 		@Attribute(order = 2, validators = { RequiredValueValidator.class })
 		String idmAdminUser();
 
+		/**
+		 * Defines the secret id that is used to retrieve the IDM administrator user's
+		 * password
+		 * 
+		 * @return the configured secret id that is used to retrieve the IDM
+		 *         administrator useruser's password
+		 */
 		@Attribute(order = 3, validators = { RequiredValueValidator.class })
 		String idmPasswordId();
 	}
 
 	/**
-	 * 
 	 * Makes a call to the IDM user end point to check if the userName provided is
 	 * migrated.
 	 * 
-	 * @param userName
+	 * @param userName    the username that will be verified
+	 * @param idmEndpoint the IDM host
+	 * @param idmAdmin    the IDM administrator username
+	 * @param idmPassword the IDM administrator password
 	 * @return true if the user is found, false otherwise
-	 * @throws NodeProcessException
+	 * @throws NodeProcessException If there is an error
+	 * @throws InterruptedException
+	 * @throws NeverThrowsException
+	 * @throws IOException
 	 */
-	protected boolean getUserMigrationStatus(String userName, String idmEndpoint, String idmAdmin, String idmPassword)
-			throws NodeProcessException {
+	public boolean getUserMigrationStatus(String userName, String idmEndpoint, String idmAdmin, String idmPassword,
+			HttpClientHandler httpClientHandler)
+			throws NodeProcessException, NeverThrowsException, InterruptedException, IOException {
 		String getUserPathWithQuery = idmEndpoint + QUERY_IDM_QUERY_USER_PATH + "\'" + userName + "\'";
 		LOGGER.debug("getUserMigrationStatus()::getUserPathWithQuery: " + getUserPathWithQuery);
-		MultiValueMap<String, String> headersMap = new LinkedMultiValueMap<>();
-		headersMap.add(OPEN_IDM_ADMIN_USERNAME_HEADER, idmAdmin);
-		headersMap.add(OPEN_IDM_ADMIN_PASSWORD_HEADER, idmPassword);
-		ResponseEntity<String> responseEntity = RequestUtils.sendGetRequest(getUserPathWithQuery,
-				MediaType.APPLICATION_JSON, headersMap);
-		return (getUserMigrationStatus(responseEntity));
+		Response response = getUser(getUserPathWithQuery, idmAdmin, idmPassword, httpClientHandler);
+		JsonValue jsonValues = JsonValue.json(response.getEntity().getJson());
+		return (getUserMigrationStatus(jsonValues));
+	}
+
+	private Response getUser(String endpoint, String idmAdmin, String idmPassword, HttpClientHandler httpClientHandler)
+			throws NeverThrowsException, InterruptedException {
+		Request request = new Request();
+		try {
+			request.setMethod("GET").setUri(endpoint);
+		} catch (URISyntaxException e) {
+			LOGGER.error("getuser()::URISyntaxException: " + e);
+		}
+		request.getHeaders().add(OPEN_IDM_ADMIN_USERNAME_HEADER, idmAdmin);
+		request.getHeaders().add(OPEN_IDM_ADMIN_PASSWORD_HEADER, idmPassword);
+		request.getHeaders().add("Content-Type", "application/json");
+		Client client = new Client(httpClientHandler);
+		return client.send(request).getOrThrow();
 	}
 
 	/**
 	 * 
-	 * Validate in response if the user exists
+	 * Validate in the response if the user exists
 	 * 
-	 * @param responseEntity
+	 * @param jsonValues
 	 * @return
 	 * @throws NodeProcessException
 	 */
-	private boolean getUserMigrationStatus(ResponseEntity<String> responseEntity) throws NodeProcessException {
-		LOGGER.debug("getUserMigrationStatus()::response.getBody(): " + responseEntity.getBody());
-		ObjectMapper mapper = new ObjectMapper();
-		JsonNode responseNode = null;
-		try {
-			responseNode = mapper.readTree(responseEntity.getBody());
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw new NodeProcessException("Unable to check if user is migrated: " + e.getMessage());
-		}
-		if (responseNode != null && responseNode.get("resultCount") != null
-				&& responseNode.get("resultCount").asInt() > 0) {
+	private boolean getUserMigrationStatus(JsonValue jsonValues) throws NodeProcessException {
+		LOGGER.debug("getUserMigrationStatus()::response.getBody(): " + jsonValues);
+		JsonValue value = JsonValue.json(jsonValues);
+		if (value != null && value.get("resultCount") != null && value.get("resultCount").asInteger() > 0) {
 			return true;
 		}
 		return false;

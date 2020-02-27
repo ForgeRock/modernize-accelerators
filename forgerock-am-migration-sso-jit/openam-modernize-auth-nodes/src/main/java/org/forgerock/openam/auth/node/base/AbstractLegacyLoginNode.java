@@ -30,13 +30,21 @@ import org.forgerock.util.i18n.PreferredLocales;
 import com.google.common.collect.ImmutableList;
 import com.sun.identity.sm.RequiredValueValidator;
 
+/**
+ * This class serves as a base for the LegacyLogin node.
+ */
 public abstract class AbstractLegacyLoginNode implements Node {
 
 	/**
-	 * The Config.
+	 * The configuration for this node.
 	 */
 	public interface Config {
 
+		/**
+		 * Defines the legacy IAM cookie name
+		 * 
+		 * @return the configured legacy IAM cookie name
+		 */
 		@Attribute(order = 1, validators = { RequiredValueValidator.class })
 		String legacyCookieName();
 	}

@@ -20,6 +20,7 @@ import static org.forgerock.openam.auth.node.api.SharedStateConstants.USERNAME;
 
 import javax.inject.Inject;
 
+import org.forgerock.http.handler.HttpClientHandler;
 import org.forgerock.openam.auth.node.api.Action;
 import org.forgerock.openam.auth.node.api.Node;
 import org.forgerock.openam.auth.node.api.NodeProcessException;
@@ -30,17 +31,16 @@ import org.forgerock.openam.secrets.Secrets;
 import org.forgerock.openam.secrets.SecretsProviderFacade;
 import org.forgerock.secrets.NoSuchSecretException;
 import org.forgerock.secrets.Purpose;
+import org.forgerock.util.promise.NeverThrowsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.assistedinject.Assisted;
 
 /**
- * 
  * <p>
- * This node updates a users password.
+ * A node which updates a users password in ForgeRock IDM.
  * </p>
- *
  */
 @Node.Metadata(configClass = AbstractLegacySetPasswordNode.Config.class, outcomeProvider = AbstractLegacySetPasswordNode.OutcomeProvider.class)
 public class LegacyFRSetPassword extends AbstractLegacySetPasswordNode {
@@ -48,11 +48,21 @@ public class LegacyFRSetPassword extends AbstractLegacySetPasswordNode {
 	private Logger LOGGER = LoggerFactory.getLogger(LegacyFRSetPassword.class);
 	private final AbstractLegacySetPasswordNode.Config config;
 	private String idmPassword;
+	private final HttpClientHandler httpClientHandler;
 
+	/**
+	 * Creates a LegacyFRSetPassword node with the provided configuration
+	 * 
+	 * @param config  the configuration for this Node.
+	 * @param realm   the realm the node is accessed from.
+	 * @param secrets the secret store used to get passwords
+	 * @throws NodeProcessException If there is an error reading the configuration.
+	 */
 	@Inject
-	public LegacyFRSetPassword(@Assisted LegacyFRSetPassword.Config config, @Assisted Realm realm, Secrets secrets)
-			throws NodeProcessException {
+	public LegacyFRSetPassword(@Assisted LegacyFRSetPassword.Config config, @Assisted Realm realm, Secrets secrets,
+			HttpClientHandler httpClientHandler) throws NodeProcessException {
 		this.config = config;
+		this.httpClientHandler = httpClientHandler;
 		SecretsProviderFacade secretsProvider = secrets.getRealmSecrets(realm);
 		try {
 			this.idmPassword = secretsProvider.getNamedSecret(Purpose.PASSWORD, config.idmPasswordId())
@@ -71,8 +81,12 @@ public class LegacyFRSetPassword extends AbstractLegacySetPasswordNode {
 		String username = context.sharedState.get(USERNAME).asString();
 		LOGGER.debug("process()::Username: " + username);
 		String password = context.transientState.get(PASSWORD).asString();
-		return goTo(setUserPassword(username, password, config.idmUserEndpoint(), config.idmAdminUser(), idmPassword))
-				.build();
+		try {
+			return goTo(setUserPassword(username, password, config.idmUserEndpoint(), config.idmAdminUser(),
+					idmPassword, httpClientHandler)).build();
+		} catch (NeverThrowsException | InterruptedException e) {
+			throw new NodeProcessException("Error in LegacyFRSetPassword: " + e);
+		}
 
 	}
 }

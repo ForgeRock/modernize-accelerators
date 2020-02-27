@@ -16,7 +16,7 @@
 package org.forgerock.openam.modernize.utils;
 
 /**
- * This class represents all the constants that are used by the accelerators
+ * This class defines all the constants that are used by the accelerators
  * Accelerator nodes.
  *
  */

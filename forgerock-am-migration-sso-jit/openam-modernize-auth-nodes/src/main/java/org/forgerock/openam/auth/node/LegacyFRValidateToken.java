@@ -20,54 +20,64 @@ import static org.forgerock.openam.modernize.utils.NodeConstants.LEGACY_COOKIE_S
 import static org.forgerock.openam.modernize.utils.NodeConstants.SESSION_VALIDATION_ACTION;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 import javax.inject.Inject;
 
+import org.forgerock.http.Client;
+import org.forgerock.http.handler.HttpClientHandler;
+import org.forgerock.http.protocol.Request;
+import org.forgerock.http.protocol.Response;
+import org.forgerock.json.JsonValue;
 import org.forgerock.openam.annotations.sm.Attribute;
 import org.forgerock.openam.auth.node.api.Action;
 import org.forgerock.openam.auth.node.api.Node;
 import org.forgerock.openam.auth.node.api.NodeProcessException;
 import org.forgerock.openam.auth.node.api.TreeContext;
 import org.forgerock.openam.auth.node.base.AbstractValidateTokenNode;
-import org.forgerock.openam.modernize.utils.RequestUtils;
+import org.forgerock.util.promise.NeverThrowsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.assistedinject.Assisted;
 import com.sun.identity.sm.RequiredValueValidator;
 
 /**
- * 
  * <p>
- * This node validates if the user accessed the tree holding a legacy iAM SSO
- * Token. If the session is valid, the node also saves on the shared state the
- * legacy cookie identified, and the username associated to that cookie in the
- * legacy iAM.
+ * A node which validates if the user accessing the tree is having a legacy IAM
+ * SSO Token. If the session is validated successfully, the node also saves on
+ * the shared state the legacy cookie identified, and the username associated to
+ * that cookie in the legacy IAM.
  * </p>
- *
  */
 @Node.Metadata(configClass = LegacyFRValidateToken.LegacyFRConfig.class, outcomeProvider = AbstractValidateTokenNode.OutcomeProvider.class)
 public class LegacyFRValidateToken extends AbstractValidateTokenNode {
 
 	private Logger LOGGER = LoggerFactory.getLogger(LegacyFRValidateToken.class);
 	private final LegacyFRConfig config;
+	private final HttpClientHandler httpClientHandler;
 
 	public interface LegacyFRConfig extends AbstractValidateTokenNode.Config {
 
+		/**
+		 * Defines the URL for the legacy IAM session validation
+		 * 
+		 * @return the URL for the legacy IAM session validation
+		 */
 		@Attribute(order = 10, validators = { RequiredValueValidator.class })
 		String checkLegacyTokenUri();
 
 	}
 
+	/**
+	 * Creates a LegacyFRValidateToken node with the provided configuration
+	 * 
+	 * @param config the configuration for this Node.
+	 */
 	@Inject
-	public LegacyFRValidateToken(@Assisted LegacyFRConfig config) {
+	public LegacyFRValidateToken(@Assisted LegacyFRConfig config, HttpClientHandler httpClientHandler) {
 		this.config = config;
+		this.httpClientHandler = httpClientHandler;
 	}
 
 	/**
@@ -77,9 +87,18 @@ public class LegacyFRValidateToken extends AbstractValidateTokenNode {
 	public Action process(TreeContext context) throws NodeProcessException {
 		String legacyCookie = context.request.cookies.get(config.legacyCookieName());
 		LOGGER.debug("process()::legacyCookie: " + legacyCookie);
-		String uid = validateLegacySession(legacyCookie);
+		String uid = null;
+		try {
+			uid = validateLegacySession(legacyCookie);
+		} catch (NeverThrowsException e) {
+			throw new NodeProcessException("NeverThrowsException in async call: " + e);
+		} catch (InterruptedException e) {
+			throw new NodeProcessException("InterruptedException: " + e);
+		} catch (IOException e) {
+			throw new NodeProcessException("IOException: " + e);
+		}
 		LOGGER.debug("process()::User id from legacy cookie: " + uid);
-		if (uid != null && legacyCookie != null) {
+		if (uid != null) {
 			if (!legacyCookie.contains(config.legacyCookieName())) {
 				legacyCookie = config.legacyCookieName() + "=" + legacyCookie;
 			}
@@ -92,33 +111,32 @@ public class LegacyFRValidateToken extends AbstractValidateTokenNode {
 	}
 
 	/**
+	 * Validates a legacy IAM cookie by calling the session validation endpoint.
 	 * 
-	 * Validates a legacy iAM cookie by calling the session validation end point.
-	 * 
-	 * @param legacyCookie
-	 * @return the user id if the session is valid, or null if the session is
-	 *         invalid or something went wrong.
+	 * @param legacyCookie the user's legacy SSO token
+	 * @return the user id if the session is valid, or <b>null</b> if the session is
+	 *         invalid or something unexpected happened.
+	 * @throws InterruptedException
+	 * @throws NeverThrowsException
+	 * @throws IOException
 	 */
-	private String validateLegacySession(String legacyCookie) {
+	private String validateLegacySession(String legacyCookie)
+			throws NeverThrowsException, InterruptedException, IOException {
 		if (legacyCookie != null && legacyCookie.length() > 0) {
-			MultiValueMap<String, String> headersMap = new LinkedMultiValueMap<>();
-			headersMap.add("Accept-API-Version", "resource=1.2");
-			ResponseEntity<String> responseEntity = RequestUtils.sendPostRequest(
-					config.checkLegacyTokenUri() + legacyCookie + "&" + SESSION_VALIDATION_ACTION, null,
-					MediaType.APPLICATION_JSON, headersMap);
-			String response = responseEntity.getBody();
-			ObjectMapper mapper = new ObjectMapper();
-			JsonNode responseNode = null;
+			Request request = new Request();
 			try {
-				responseNode = mapper.readTree(response);
-			} catch (IOException e) {
-				e.printStackTrace();
+				request.setMethod("POST")
+						.setUri(config.checkLegacyTokenUri() + legacyCookie + "&" + SESSION_VALIDATION_ACTION);
+			} catch (URISyntaxException e) {
+				LOGGER.error("getuser()::URISyntaxException: " + e);
 			}
-
-			if (responseNode != null) {
-				if (responseNode.get("valid").asBoolean()) {
-					return responseNode.get("uid").asText();
-				}
+			request.getHeaders().add("Accept-API-Version", "resource=1.2");
+			request.getHeaders().add("Content-Type", "application/json");
+			Client client = new Client(httpClientHandler);
+			Response response = client.send(request).getOrThrow();
+			JsonValue responseValue = (JsonValue) response.getEntity().getJson();
+			if (responseValue.get("valid").asBoolean()) {
+				return responseValue.get("uid").asString();
 			}
 		}
 		return null;

@@ -30,13 +30,15 @@ import org.forgerock.util.i18n.PreferredLocales;
 import com.google.common.collect.ImmutableList;
 import com.sun.identity.sm.RequiredValueValidator;
 
+/**
+ * This class serves as a base for the ValidateToken node.
+ */
 public abstract class AbstractValidateTokenNode implements Node {
 
 	/**
-	 * The Config.
+	 * The configuration for this node.
 	 */
 	public interface Config {
-
 		@Attribute(order = 1, validators = { RequiredValueValidator.class })
 		String legacyCookieName();
 	}

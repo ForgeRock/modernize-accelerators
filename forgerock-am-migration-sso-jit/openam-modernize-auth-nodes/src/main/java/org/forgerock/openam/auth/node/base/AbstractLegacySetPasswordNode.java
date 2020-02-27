@@ -23,71 +23,92 @@ import static org.forgerock.openam.modernize.utils.NodeConstants.PATCH_IDM_USER_
 import static org.forgerock.openam.modernize.utils.NodeConstants.TRUE_OUTCOME_ID;
 import static org.forgerock.openam.modernize.utils.NodeConstants.USER_FORCE_PASSWORD_RESET;
 
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import org.forgerock.http.Client;
+import org.forgerock.http.handler.HttpClientHandler;
+import org.forgerock.http.protocol.Request;
+import org.forgerock.http.protocol.Response;
 import org.forgerock.json.JsonValue;
 import org.forgerock.openam.annotations.sm.Attribute;
 import org.forgerock.openam.auth.node.api.Action;
 import org.forgerock.openam.auth.node.api.Node;
-import org.forgerock.openam.modernize.utils.RequestUtils;
+import org.forgerock.util.annotations.VisibleForTesting;
 import org.forgerock.util.i18n.PreferredLocales;
+import org.forgerock.util.promise.NeverThrowsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableList;
 import com.sun.identity.sm.RequiredValueValidator;
 
+/**
+ * This class serves as a base for the LegacySetPassword node.
+ */
 public abstract class AbstractLegacySetPasswordNode implements Node {
 
 	private Logger LOGGER = LoggerFactory.getLogger(AbstractLegacySetPasswordNode.class);
 
 	/**
-	 * The Config.
+	 * The configuration for this node.
 	 */
 	public interface Config {
 
+		/**
+		 * Defines the ForgeRock IDM URL
+		 * 
+		 * @return the configured ForgeRock IDM URL
+		 */
 		@Attribute(order = 1, validators = { RequiredValueValidator.class })
 		String idmUserEndpoint();
 
+		/**
+		 * Defines the value for the IDM administrator username that is used when
+		 * creating a new user.
+		 * 
+		 * @return the configured value for the IDM administrator username that is used
+		 *         when creating a new user
+		 */
 		@Attribute(order = 2, validators = { RequiredValueValidator.class })
 		String idmAdminUser();
 
+		/**
+		 * Defines the secret id that is used to retrieve the IDM administrator user's
+		 * password
+		 * 
+		 * @return the configured secret id that is used to retrieve the IDM
+		 *         administrator useruser's password
+		 */
 		@Attribute(order = 3, validators = { RequiredValueValidator.class })
 		String idmPasswordId();
 	}
 
 	/**
-	 * 
 	 * Sets the user password id DS via the IDM API
 	 * 
-	 * @param userName
-	 * @param password
-	 * @return true if successful, false otherwise
+	 * @param userName          the user name of the user being authenticated
+	 * @param password          the password of the user being authenticated
+	 * @param idmEndpoint       the IDM endpoint
+	 * @param idmAdmin          the IDM administrator user name
+	 * @param idmPassword       the IDM administrator user password
+	 * @param httpClientHandler
+	 * @return <b>true<b> if the update operation is successful, <b>false</b>
+	 *         otherwise
+	 * @throws InterruptedException
+	 * @throws NeverThrowsException
 	 */
-	protected boolean setUserPassword(String userName, String password, String idmEndpoint, String idmAdmin,
-			String idmPassword) {
+	@VisibleForTesting
+	public boolean setUserPassword(String userName, String password, String idmEndpoint, String idmAdmin,
+			String idmPassword, HttpClientHandler httpClientHandler) throws NeverThrowsException, InterruptedException {
 		LOGGER.error("setUserPassword()::Start");
-		String jsonBody = createPasswordRequestEntity(password);
-		MultiValueMap<String, String> headersMap = new LinkedMultiValueMap<>();
-		headersMap.add(OPEN_IDM_ADMIN_USERNAME_HEADER, idmAdmin);
-		headersMap.add(OPEN_IDM_ADMIN_PASSWORD_HEADER, idmPassword);
-		ResponseEntity<String> responseStatusCode = RequestUtils.sendPostRequest(
-				idmEndpoint + PATCH_IDM_USER_PATH + "'" + userName + "'", jsonBody, MediaType.APPLICATION_JSON,
-				headersMap);
-		if (responseStatusCode != null) {
-			if (responseStatusCode.getStatusCodeValue() == 200) {
-				LOGGER.error("setUserPassword()::End - success - 200 OK");
-				return true;
-			}
+		JsonValue jsonBody = createPasswordRequestEntity(password);
+		Response response = callUpdatePassword(idmEndpoint + PATCH_IDM_USER_PATH + "'" + userName + "'", idmAdmin,
+				idmPassword, jsonBody, httpClientHandler);
+		if (response.getStatus().isSuccessful()) {
+			LOGGER.error("setUserPassword()::End - success - " + response.getStatus());
+			return true;
 		}
 		LOGGER.error("setUserPassword()::End - fail");
 		return false;
@@ -99,32 +120,29 @@ public abstract class AbstractLegacySetPasswordNode implements Node {
 	 * @param password
 	 * @return JSON string
 	 */
-	private String createPasswordRequestEntity(String password) {
+	private JsonValue createPasswordRequestEntity(String password) {
 		LOGGER.debug("createPasswordRequestEntity()::Start");
-		ObjectMapper mapper = new ObjectMapper();
-		ArrayNode updatesList = mapper.createArrayNode();
+		return JsonValue.json(JsonValue.array(
+				JsonValue.object(JsonValue.field("operation", "replace"), JsonValue.field("field", PASSWORD),
+						JsonValue.field("value", password)),
+				JsonValue.object(JsonValue.field("operation", "replace"),
+						JsonValue.field("field", USER_FORCE_PASSWORD_RESET), JsonValue.field("value", false))));
+	}
 
-		ObjectNode replacePasswordNode = mapper.createObjectNode();
-		replacePasswordNode.put("operation", "replace");
-		replacePasswordNode.put("field", PASSWORD);
-		replacePasswordNode.put("value", password);
-		updatesList.add(replacePasswordNode);
-
-		ObjectNode replacePasswordResetNode = mapper.createObjectNode();
-		replacePasswordResetNode.put("operation", "replace");
-		replacePasswordResetNode.put("field", USER_FORCE_PASSWORD_RESET);
-		replacePasswordResetNode.put("value", false);
-		updatesList.add(replacePasswordResetNode);
-
-		String jsonString = null;
+	private Response callUpdatePassword(String endpoint, String idmAdmin, String idmPassword, JsonValue jsonBody,
+			HttpClientHandler httpClientHandler) throws NeverThrowsException, InterruptedException {
+		Request request = new Request();
 		try {
-			jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(updatesList);
-		} catch (JsonProcessingException e) {
-			LOGGER.error("createPasswordRequestEntity()::Error creating provisioning entity: " + e.getMessage());
-			e.printStackTrace();
+			request.setMethod("GET").setUri(endpoint);
+		} catch (URISyntaxException e) {
+			LOGGER.error("getuser()::URISyntaxException: " + e);
 		}
-		LOGGER.debug("createPasswordRequestEntity()::entity: " + jsonString);
-		return jsonString;
+		request.getHeaders().add(OPEN_IDM_ADMIN_USERNAME_HEADER, idmAdmin);
+		request.getHeaders().add(OPEN_IDM_ADMIN_PASSWORD_HEADER, idmPassword);
+		request.getHeaders().add("Content-Type", "application/json");
+		request.setEntity(jsonBody);
+		Client client = new Client(httpClientHandler);
+		return client.send(request).getOrThrow();
 	}
 
 	/**

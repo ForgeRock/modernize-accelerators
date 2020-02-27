@@ -30,19 +30,44 @@ import org.forgerock.openam.plugins.PluginException;
 
 import com.google.common.collect.ImmutableMap;
 
+/**
+ * Plugin that defines the list of nodes that will be installed installed.
+ */
 public class LegacyFRPlugin extends AbstractNodeAmPlugin {
 
+	/**
+	 * The plugin version. This must be in semver (semantic version) format.
+	 *
+	 * @return The version of the plugin.
+	 * @see <a href=
+	 *      "https://www.osgi.org/wp-content/uploads/SemanticVersioning.pdf">Semantic
+	 *      Versioning</a>
+	 */
 	@Override
 	public String getPluginVersion() {
 		return "0.0.0";
 	}
 
+	/**
+	 * Retrieve the Map of list of node classes that the plugin is providing. The
+	 * mappings returned describe which nodes have been introduced in which version
+	 * of this plugin.
+	 * 
+	 * @return The list of node classes.
+	 */
 	@Override
 	protected Map<String, Iterable<? extends Class<? extends Node>>> getNodesByVersion() {
 		return ImmutableMap.of(getPluginVersion(), asList(LegacyFRCreateForgeRockUser.class, LegacyFRLogin.class,
 				LegacyFRMigrationStatus.class, LegacyFRSetPassword.class, LegacyFRValidateToken.class));
 	}
 
+	/**
+	 * This method will be called when the version returned by
+	 * {@link #getPluginVersion()} is higher than the version already installed.
+	 * This method will be called before the {@link #onStartup()} method.
+	 *
+	 * @param fromVersion The old version of the plugin that has been installed.
+	 */
 	@Override
 	public void upgrade(String fromVersion) throws PluginException {
 		pluginTools.upgradeAuthNode(LegacyFRCreateForgeRockUser.class);
