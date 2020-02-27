@@ -1,7 +1,12 @@
 {
   "_copyright": "Copyright 2019 ForgeRock AS Licensed under the Apache License, Version 2.0 (the \"License\"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions andlimitations under the License.",
   "name": "Legacy AM Authenticate Route",
-  "baseURI": "<<proto>>://<<legacyIamHost>>",
+  "properties": {
+        "legacyIamHost": "<<proto:legacyIamHost:port>>",
+		"idmHost": "<<proto:idmHost:port>>",
+		"amHost": "<<proto:amHost:port>>"
+  },
+  "baseURI": "${legacyIamHost}",
   "condition": "${matches(request.uri.path, '/authenticateResourceEndpoint')}",
   "capture": [
     "response",
@@ -69,10 +74,10 @@
             ],
             "add": {
               "host": [
-                "<<legacyIamHost>>"
+                "${legacyIamHost}"
               ],
               "x-forwarded-host": [
-                "<<legacyIamHost>>"
+                "${legacyIamHost}"
               ]
             }
           }
@@ -82,11 +87,11 @@
           "type": "MigrationSsoFilter",
           "config": {
             "migrationImplClassName": "org.forgerock.openig.modernize.impl.LegacyOpenSSOProvider",
-            "getUserMigrationStatusEndpoint": "<<proto>>://<<idmHost>>/openidm/managed/user?_queryFilter=userName+eq+\"{0}\"",
-            "provisionUserEndpoint": "<<proto>>://<<idmHost>>/openidm/managed/user?_action=create",
+            "getUserMigrationStatusEndpoint": "${idmHost}/openidm/managed/user?_queryFilter=userName+eq+\"{0}\"",
+            "provisionUserEndpoint": "${idmHost}/openidm/managed/user?_action=create",
             "openIdmPasswordSecretId": "openidmadminpass",
             "openIdmUsername": "openidm-admin",
-            "openaAmAuthenticateURL": "<<proto>>://<<amHost>>/json/realms/root/authenticate",
+            "openaAmAuthenticateURL": "${amHost}/json/realms/root/authenticate",
             "openAmCookieName": "iPlanetDirectoryPro",
             "openIdmUsernameHeader": "X-OpenIDM-Username",
             "openIdmPasswordHeader": "X-OpenIDM-Password",
