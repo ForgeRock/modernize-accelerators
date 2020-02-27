@@ -16,7 +16,8 @@
 package org.forgerock.openam.modernize.utils;
 
 /**
- * This class holds all the constants that are used by the accelerator nodes.
+ * This class defines all the constants that are used by the accelerators
+ * Accelerator nodes.
  *
  */
 public final class NodeConstants {

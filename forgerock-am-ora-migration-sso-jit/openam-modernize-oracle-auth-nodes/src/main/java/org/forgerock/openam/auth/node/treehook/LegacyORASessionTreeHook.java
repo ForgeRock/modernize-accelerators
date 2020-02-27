@@ -34,7 +34,8 @@ import com.google.inject.assistedinject.Assisted;
 import com.iplanet.dpro.session.SessionException;
 
 /**
- * A TreeHook for adding cookies to the HTTP response.
+ * A TreeHook for setting in the user agent the legacy cookie obtained after a
+ * successful login in a legacy system.
  */
 @TreeHook.Metadata(configClass = SetPersistentCookieNode.Config.class)
 public class LegacyORASessionTreeHook implements TreeHook {
@@ -57,6 +58,12 @@ public class LegacyORASessionTreeHook implements TreeHook {
 		this.request = request;
 	}
 
+	/**
+	 * Main method that contains the logic that needs to be executed when the
+	 * session hook is called.
+	 *
+	 * @throws TreeHookException if an exception occurs.
+	 */
 	@Override
 	public void accept() throws TreeHookException {
 		LOGGER.debug("Creating oracle legacy cookie tree hook");
@@ -69,7 +76,7 @@ public class LegacyORASessionTreeHook implements TreeHook {
 			legacyCookieName = session.getProperty(SESSION_LEGACY_COOKIE_NAME);
 			LOGGER.info("accept():: " + legacyCookie);
 		} catch (SessionException e) {
-			e.printStackTrace();
+			LOGGER.error("accept()::Error reading session properties: " + e);
 		}
 		LOGGER.debug("set-cookie: " + legacyCookieName + "=" + legacyCookie);
 		response.getHeaders().add("set-cookie",

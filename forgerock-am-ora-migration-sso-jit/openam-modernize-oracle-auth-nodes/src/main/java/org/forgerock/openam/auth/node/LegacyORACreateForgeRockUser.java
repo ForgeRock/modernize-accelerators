@@ -23,9 +23,15 @@ import static org.forgerock.openam.modernize.utils.NodeConstants.ORA_LAST_NAME;
 import static org.forgerock.openam.modernize.utils.NodeConstants.ORA_MAIL;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 import javax.inject.Inject;
 
+import org.forgerock.http.Client;
+import org.forgerock.http.handler.HttpClientHandler;
+import org.forgerock.http.protocol.Request;
+import org.forgerock.http.protocol.Response;
+import org.forgerock.json.JsonValue;
 import org.forgerock.openam.auth.node.api.Action;
 import org.forgerock.openam.auth.node.api.Node;
 import org.forgerock.openam.auth.node.api.NodeProcessException;
@@ -33,38 +39,44 @@ import org.forgerock.openam.auth.node.api.TreeContext;
 import org.forgerock.openam.auth.node.base.AbstractLegacyCreateForgeRockUserNode;
 import org.forgerock.openam.auth.node.template.ForgeRockUserAttributesTemplate;
 import org.forgerock.openam.core.realms.Realm;
-import org.forgerock.openam.modernize.utils.RequestUtils;
 import org.forgerock.openam.secrets.Secrets;
+import org.forgerock.util.promise.NeverThrowsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.assistedinject.Assisted;
 
 /**
- * 
  * <p>
- * This node validates creates a user in ForgeRock IDM.
+ * A node which creates a user in ForgeRock IDM by calling the user endpoint
+ * with the action query parameter set to create:
+ * <b><i>{@code ?_action=create}</i></b>.
  * </p>
- *
  */
 @Node.Metadata(configClass = LegacyORACreateForgeRockUser.LegacyORACreateForgeRockUserConfig.class, outcomeProvider = AbstractLegacyCreateForgeRockUserNode.OutcomeProvider.class)
 public class LegacyORACreateForgeRockUser extends AbstractLegacyCreateForgeRockUserNode {
 
 	private Logger LOGGER = LoggerFactory.getLogger(LegacyORACreateForgeRockUser.class);
 
+	/**
+	 * Configuration for this node, as an extension from
+	 * {@link AbstractLegacyCreateForgeRockUserNode}
+	 */
 	public interface LegacyORACreateForgeRockUserConfig extends AbstractLegacyCreateForgeRockUserNode.Config {
 	}
 
+	/**
+	 * Creates a LegacyORACreateForgeRockUser node with the provided configuration
+	 * 
+	 * @param config  the configuration for this Node.
+	 * @param realm   the realm the node is accessed from.
+	 * @param secrets the secret store used to get passwords
+	 * @throws NodeProcessException If there is an error reading the configuration.
+	 */
 	@Inject
 	public LegacyORACreateForgeRockUser(@Assisted LegacyORACreateForgeRockUserConfig config, @Assisted Realm realm,
-			Secrets secrets) throws NodeProcessException {
-		super(config, realm, secrets);
+			Secrets secrets, HttpClientHandler httpClientHandler) throws NodeProcessException {
+		super(config, realm, secrets, httpClientHandler);
 	}
 
 	/**
@@ -82,56 +94,63 @@ public class LegacyORACreateForgeRockUser extends AbstractLegacyCreateForgeRockU
 			password = context.transientState.get(PASSWORD).asString();
 		}
 		if (legacyCookie != null) {
-			ForgeRockUserAttributesTemplate userAttributes = getUserAttributes(userName, password, legacyCookie);
-			if (userAttributes != null) {
-				return goTo(provisionUser(userAttributes)).build();
+			ForgeRockUserAttributesTemplate userAttributes;
+			try {
+				userAttributes = getUserAttributes(userName, password, legacyCookie);
+				if (userAttributes != null) {
+					return goTo(provisionUser(userAttributes)).build();
+				}
+			} catch (NeverThrowsException e) {
+				throw new NodeProcessException("NeverThrowsException in async call: " + e);
+			} catch (InterruptedException e) {
+				throw new NodeProcessException("InterruptedException: " + e);
+			} catch (IOException e1) {
+				throw new NodeProcessException("IOException: " + e1);
 			}
+
 		}
 		return goTo(false).build();
 	}
 
 	/**
+	 * Requests the user details endpoint and reads the user attributes, which then
+	 * adds on {@link ForgeRockUserAttributesTemplate}
 	 * 
-	 * Requests the OAM user details endpoint and reads the user attributes, which
-	 * then adds on {@link ForgeRockUserAttributesTemplate}
-	 * 
-	 * @param userName
-	 * @param password
-	 * @param legacyCookie
-	 * @return
+	 * @param userName     - the userName for the user that we need to get details
+	 *                     from the legacy IAM. Also used when creating the user
+	 *                     into IDM
+	 * @param              password- the password for the user that we need to get
+	 *                     details from the legacy IAM. Also used when creating the
+	 *                     user into IDM
+	 * @param legacyCookie - the SSO token used to get access to the user
+	 *                     information from the legacy IAM. Must be valid otherwise
+	 *                     the method fails and returns null
+	 * @return <b>null</b> if there is an error, otherwise
+	 *         {@link ForgeRockUserAttributesTemplate} if legacy IAM was called
+	 *         successfully and the user information was retrieved.
+	 * @throws InterruptedException
+	 * @throws NeverThrowsException
+	 * @throws IOException
 	 */
-	private ForgeRockUserAttributesTemplate getUserAttributes(String userName, String password, String legacyCookie) {
+	private ForgeRockUserAttributesTemplate getUserAttributes(String userName, String password, String legacyCookie)
+			throws NeverThrowsException, InterruptedException, IOException {
 		LOGGER.debug("getUserAttributes()::Start");
-		MultiValueMap<String, String> headersMap = new LinkedMultiValueMap<>();
-		headersMap.add("Cookie", legacyCookie);
-
 		// Call OAM user details API
-		ResponseEntity<String> responseEntity = RequestUtils.sendGetRequest(config.legacyEnvURL() + userName,
-				MediaType.APPLICATION_JSON, headersMap);
-
+		Response response = getUser(config.legacyEnvURL() + userName, legacyCookie);
+		JsonValue entity = (JsonValue) response.getEntity().getJson();
 		// Read the user attributes from the response here. If any other attributes are
 		// required, read here and extend the ForgeRockUserAttributesTemplate
 		String firstName = null;
 		String lastName = null;
 		String email = null;
 
-		if (responseEntity != null) {
-			JsonNode response = null;
-			try {
-				ObjectMapper mapper = new ObjectMapper();
-				response = mapper.readTree(responseEntity.getBody());
-			} catch (IOException e) {
-				LOGGER.error("getUserAttributes()::IOException: " + e.getMessage());
-				e.printStackTrace();
-			}
-			if (response != null) {
-				if (response.get(ORA_FIRST_NAME) != null)
-					firstName = response.get(ORA_FIRST_NAME).asText();
-				if (response.get(ORA_LAST_NAME) != null)
-					lastName = response.get(ORA_LAST_NAME).asText();
-				if (response.get(ORA_MAIL) != null)
-					email = response.get(ORA_MAIL).asText();
-			}
+		if (entity != null) {
+			if (entity.get(ORA_FIRST_NAME) != null)
+				firstName = entity.get(ORA_FIRST_NAME).asString();
+			if (entity.get(ORA_LAST_NAME) != null)
+				lastName = entity.get(ORA_LAST_NAME).asString();
+			if (entity.get(ORA_MAIL) != null)
+				email = entity.get(ORA_MAIL).asString();
 		}
 
 		if (userName != null && firstName != null && lastName != null && email != null) {
@@ -144,6 +163,19 @@ public class LegacyORACreateForgeRockUser extends AbstractLegacyCreateForgeRockU
 			return userAttributes;
 		}
 		return null;
+	}
+
+	private Response getUser(String endpoint, String legacyCookie) throws NeverThrowsException, InterruptedException {
+		Request request = new Request();
+		try {
+			request.setMethod("GET").setUri(endpoint);
+		} catch (URISyntaxException e) {
+			LOGGER.error("getuser()::URISyntaxException: " + e);
+		}
+		request.getHeaders().add("Cookie", legacyCookie);
+		request.getHeaders().add("Content-Type", "application/json");
+		Client client = new Client(httpClientHandler);
+		return client.send(request).getOrThrow();
 	}
 
 }

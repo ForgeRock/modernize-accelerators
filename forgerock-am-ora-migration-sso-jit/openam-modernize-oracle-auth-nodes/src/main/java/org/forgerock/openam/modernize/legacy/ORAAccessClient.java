@@ -84,19 +84,21 @@ public class ORAAccessClient implements Serializable {
 			ac = AccessClient.createDefaultInstance(configLocation, AccessClient.CompatibilityMode.OAM_10G);
 			LOGGER.debug("Initialising ORA access client.");
 		}
+
 		if (rrq == null) {
 			rrq = new ResourceRequest(protocol, resource, method);
-			if (rrq.isProtected()) {
-				LOGGER.debug("Resource is protected.");
-				AuthenticationScheme authnScheme = new AuthenticationScheme(rrq);
-				if (authnScheme.isForm()) {
-					LOGGER.debug("Form Authentication Scheme.");
-				} else {
-					LOGGER.debug("non-Form Authentication Scheme.");
-				}
+		}
+
+		if (rrq.isProtected()) {
+			LOGGER.debug("Resource is protected.");
+			AuthenticationScheme authnScheme = new AuthenticationScheme(rrq);
+			if (authnScheme.isForm()) {
+				LOGGER.debug("Form Authentication Scheme.");
 			} else {
-				LOGGER.debug("Resource is NOT protected.");
+				LOGGER.debug("non-Form Authentication Scheme.");
 			}
+		} else {
+			LOGGER.debug("Resource is NOT protected.");
 		}
 	}
 }

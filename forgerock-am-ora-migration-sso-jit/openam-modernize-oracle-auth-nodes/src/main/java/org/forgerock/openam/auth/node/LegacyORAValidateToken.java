@@ -38,14 +38,12 @@ import oracle.security.am.asdk.AccessException;
 import oracle.security.am.asdk.UserSession;
 
 /**
- * 
  * <p>
- * This node validates if the user accessed the tree holding a legacy IAM SSO
- * Token. If the session is valid, the node also saves on the shared state the
- * legacy cookie identified, and the username associated to that cookie in the
- * legacy iAM.
+ * A node which validates if the user accessing the tree is having a legacy IAM
+ * SSO Token. If the session is validated successfully, the node also saves on
+ * the shared state the legacy cookie identified, and the username associated to
+ * that cookie in the legacy IAM.
  * </p>
- *
  */
 @Node.Metadata(configClass = LegacyORAValidateToken.LegacyORAConfig.class, outcomeProvider = AbstractValidateTokenNode.OutcomeProvider.class)
 public class LegacyORAValidateToken extends AbstractDecisionNode {
@@ -55,9 +53,20 @@ public class LegacyORAValidateToken extends AbstractDecisionNode {
 
 	public interface LegacyORAConfig extends AbstractValidateTokenNode.Config {
 
+		/**
+		 * Defines the path where the OAM ObAccessClient.xml file is configured
+		 * 
+		 * @return the configured path
+		 */
 		@Attribute(order = 10, validators = { RequiredValueValidator.class })
 		String msConfigLocation();
 
+		/**
+		 * Defines the name of the attribute which holds the value of the username, from
+		 * the OAM user identity
+		 * 
+		 * @return the name of the attribute which holds the value of the username
+		 */
 		@Attribute(order = 20, validators = { RequiredValueValidator.class })
 		String namingAttribute();
 	}
@@ -76,7 +85,7 @@ public class LegacyORAValidateToken extends AbstractDecisionNode {
 		LOGGER.debug("process()::legacyCookie: " + legacyCookie);
 		String uid = validateLegacySession(legacyCookie);
 		LOGGER.debug("process()::User id from legacy cookie: " + uid);
-		if (uid != null && legacyCookie != null) {
+		if (uid != null) {
 			if (!legacyCookie.contains(config.legacyCookieName())) {
 				legacyCookie = config.legacyCookieName() + "=" + legacyCookie;
 			}
@@ -89,8 +98,7 @@ public class LegacyORAValidateToken extends AbstractDecisionNode {
 	}
 
 	/**
-	 * 
-	 * Validates a legacy iAM cookie by calling the session validation end point.
+	 * Validates an OAM cookie by calling the session validation endpoint.
 	 * 
 	 * @param legacyCookie
 	 * @return the user id if the session is valid, or null if the session is
@@ -113,8 +121,7 @@ public class LegacyORAValidateToken extends AbstractDecisionNode {
 					}
 				}
 			} catch (AccessException ae) {
-				LOGGER.error("Access Exception: " + ae.getMessage());
-				ae.printStackTrace();
+				LOGGER.error("Access Exception: " + ae);
 			}
 			ac.shutdown();
 		}

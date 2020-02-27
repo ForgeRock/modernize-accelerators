@@ -17,8 +17,11 @@ package org.forgerock.openam.auth.node;
 
 import static org.forgerock.openam.auth.node.api.SharedStateConstants.USERNAME;
 
+import java.io.IOException;
+
 import javax.inject.Inject;
 
+import org.forgerock.http.handler.HttpClientHandler;
 import org.forgerock.openam.auth.node.api.Action;
 import org.forgerock.openam.auth.node.api.Node;
 import org.forgerock.openam.auth.node.api.NodeProcessException;
@@ -29,18 +32,17 @@ import org.forgerock.openam.secrets.Secrets;
 import org.forgerock.openam.secrets.SecretsProviderFacade;
 import org.forgerock.secrets.NoSuchSecretException;
 import org.forgerock.secrets.Purpose;
+import org.forgerock.util.promise.NeverThrowsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.assistedinject.Assisted;
 
 /**
- * 
  * <p>
- * This node validates if the user that accessed the tree is already migrated
- * into ForgeRock IDM.
+ * A node that validates if the user that is accessing the tree is already
+ * migrated into ForgeRock IDM.
  * </p>
- *
  */
 @Node.Metadata(configClass = AbstractLegacyMigrationStatusNode.Config.class, outcomeProvider = AbstractLegacyMigrationStatusNode.OutcomeProvider.class)
 public class LegacyORAMigrationStatus extends AbstractLegacyMigrationStatusNode {
@@ -48,11 +50,21 @@ public class LegacyORAMigrationStatus extends AbstractLegacyMigrationStatusNode 
 	private Logger LOGGER = LoggerFactory.getLogger(LegacyORAMigrationStatus.class);
 	private final AbstractLegacyMigrationStatusNode.Config config;
 	private String idmPassword;
+	private final HttpClientHandler httpClientHandler;
 
+	/**
+	 * Creates a LegacyORAMigrationStatus node with the provided configuration
+	 * 
+	 * @param config  the configuration for this Node.
+	 * @param realm   the realm the node is accessed from.
+	 * @param secrets the secret store used to get passwords
+	 * @throws NodeProcessException If there is an error reading the configuration.
+	 */
 	@Inject
 	public LegacyORAMigrationStatus(@Assisted LegacyORAMigrationStatus.Config config, @Assisted Realm realm,
-			Secrets secrets) throws NodeProcessException {
+			Secrets secrets, HttpClientHandler httpClientHandler) throws NodeProcessException {
 		this.config = config;
+		this.httpClientHandler = httpClientHandler;
 		SecretsProviderFacade secretsProvider = secrets.getRealmSecrets(realm);
 		if (secretsProvider != null) {
 			try {
@@ -72,8 +84,16 @@ public class LegacyORAMigrationStatus extends AbstractLegacyMigrationStatusNode 
 		LOGGER.debug("process()::Start");
 		String username = context.sharedState.get(USERNAME).asString();
 		LOGGER.debug("process()::Username: " + username);
-		return goTo(getUserMigrationStatus(username, config.idmUserEndpoint(), config.idmAdminUser(), idmPassword))
-				.build();
+		try {
+			return goTo(getUserMigrationStatus(username, config.idmUserEndpoint(), config.idmAdminUser(), idmPassword,
+					httpClientHandler)).build();
+		} catch (NeverThrowsException e) {
+			throw new NodeProcessException("NeverThrowsException in async call: " + e);
+		} catch (InterruptedException e) {
+			throw new NodeProcessException("InterruptedException: " + e);
+		} catch (IOException e) {
+			throw new NodeProcessException("IOException: " + e);
+		}
 	}
 
 }

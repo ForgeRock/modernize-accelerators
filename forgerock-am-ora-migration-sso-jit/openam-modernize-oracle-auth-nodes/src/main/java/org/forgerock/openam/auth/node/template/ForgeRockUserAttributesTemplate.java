@@ -15,6 +15,9 @@
  ***************************************************************************/
 package org.forgerock.openam.auth.node.template;
 
+/**
+ * This class servers as a base for the user attributes.
+ */
 public class ForgeRockUserAttributesTemplate {
 	String userName;
 	String password;
