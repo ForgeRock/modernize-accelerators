@@ -30,6 +30,7 @@ import org.forgerock.json.JsonValue;
 import org.forgerock.openam.auth.node.api.ExternalRequestContext;
 import org.forgerock.openam.auth.node.api.NodeProcessException;
 import org.forgerock.openam.auth.node.api.TreeContext;
+import org.forgerock.openam.auth.node.base.AbstractLegacyCreateForgeRockUserNode.Config;
 import org.forgerock.openam.core.realms.Realm;
 import org.forgerock.openam.secrets.Secrets;
 import org.junit.Test;
@@ -81,7 +82,7 @@ public class LegacyORACreateForgeRockUserTest {
 
 	private LegacyORACreateForgeRockUser node(String legacyEnvURL, String idmEndpoint, String idmUser,
 			String idmPasswordId, boolean setPasswordReset) throws NodeProcessException, HttpApplicationException {
-		return new LegacyORACreateForgeRockUser(new LegacyORACreateForgeRockUser.LegacyORACreateForgeRockUserConfig() {
+		return new LegacyORACreateForgeRockUser(new Config() {
 			public String legacyEnvURL() {
 				return legacyEnvURL;
 			}
