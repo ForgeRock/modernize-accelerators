@@ -39,20 +39,13 @@ import org.forgerock.json.JsonValue;
 import org.forgerock.openam.annotations.sm.Attribute;
 import org.forgerock.openam.auth.node.api.Action;
 import org.forgerock.openam.auth.node.api.Node;
-import org.forgerock.openam.auth.node.api.NodeProcessException;
 import org.forgerock.openam.auth.node.template.ForgeRockUserAttributesTemplate;
-import org.forgerock.openam.core.realms.Realm;
-import org.forgerock.openam.secrets.Secrets;
-import org.forgerock.openam.secrets.SecretsProviderFacade;
-import org.forgerock.secrets.NoSuchSecretException;
-import org.forgerock.secrets.Purpose;
 import org.forgerock.util.i18n.PreferredLocales;
 import org.forgerock.util.promise.NeverThrowsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
-import com.google.inject.assistedinject.Assisted;
 import com.sun.identity.sm.RequiredValueValidator;
 
 /**
@@ -61,9 +54,6 @@ import com.sun.identity.sm.RequiredValueValidator;
 public abstract class AbstractLegacyCreateForgeRockUserNode implements Node {
 
 	private Logger LOGGER = LoggerFactory.getLogger(AbstractLegacyCreateForgeRockUserNode.class);
-	protected final AbstractLegacyCreateForgeRockUserNode.Config config;
-	protected String idmPassword;
-	protected final HttpClientHandler httpClientHandler;
 
 	/**
 	 * The configuration for this node.
@@ -114,32 +104,7 @@ public abstract class AbstractLegacyCreateForgeRockUserNode implements Node {
 		 * @return true to set the password reset flag on the user, false otherwise.
 		 */
 		@Attribute(order = 5, validators = { RequiredValueValidator.class })
-		default boolean setPasswordReset() {
-			return false;
-		};
-	}
-
-	/**
-	 * Constructs a new {@link AbstractLegacyCreateForgeRockUserNode} with the
-	 * provided {@link AbstractLegacyCreateForgeRockUserNode.Config}.
-	 *
-	 * @param config provides the settings for initializing an
-	 *               {@link AbstractLegacyCreateForgeRockUserNode}.
-	 * @throws NodeProcessException
-	 */
-	public AbstractLegacyCreateForgeRockUserNode(AbstractLegacyCreateForgeRockUserNode.Config config,
-			@Assisted Realm realm, Secrets secrets, HttpClientHandler httpClientHandler) throws NodeProcessException {
-		this.config = config;
-		this.httpClientHandler = httpClientHandler;
-		SecretsProviderFacade secretsProvider = secrets.getRealmSecrets(realm);
-		if (secretsProvider != null) {
-			try {
-				this.idmPassword = secretsProvider.getNamedSecret(Purpose.PASSWORD, config.idmPasswordId())
-						.getOrThrowUninterruptibly().revealAsUtf8(String::valueOf);
-			} catch (NoSuchSecretException e) {
-				throw new NodeProcessException("No secret " + config.idmPasswordId() + " found");
-			}
-		}
+		boolean setPasswordReset();
 	}
 
 	/**
@@ -150,12 +115,13 @@ public abstract class AbstractLegacyCreateForgeRockUserNode implements Node {
 	 * @throws InterruptedException
 	 * @throws NeverThrowsException
 	 */
-	protected boolean provisionUser(ForgeRockUserAttributesTemplate userAttributes)
+	public boolean provisionUser(ForgeRockUserAttributesTemplate userAttributes, String idmPassword,
+			String idmUserEndpoint, String idmAdminUser, boolean setPasswordReset, HttpClientHandler httpClientHandler)
 			throws NeverThrowsException, InterruptedException {
 		LOGGER.debug("provisionUser()::Start");
-		JsonValue jsonBody = createProvisioningRequestEntity(userAttributes);
-		Response reaponse = createUser(config.idmUserEndpoint() + QUERY_IDM_CREATE_USER_PATH, config.idmAdminUser(),
-				idmPassword, jsonBody);
+		JsonValue jsonBody = createProvisioningRequestEntity(userAttributes, setPasswordReset);
+		Response reaponse = createUser(idmUserEndpoint + QUERY_IDM_CREATE_USER_PATH, idmAdminUser, idmPassword,
+				jsonBody, httpClientHandler);
 		if (reaponse.getStatus().isSuccessful()) {
 			LOGGER.debug("provisionUser()::End - success - 201 created");
 			return true;
@@ -164,11 +130,11 @@ public abstract class AbstractLegacyCreateForgeRockUserNode implements Node {
 		return false;
 	}
 
-	private Response createUser(String endpoint, String idmAdmin, String idmPassword, JsonValue jsonBody)
-			throws NeverThrowsException, InterruptedException {
+	private Response createUser(String endpoint, String idmAdmin, String idmPassword, JsonValue jsonBody,
+			HttpClientHandler httpClientHandler) throws NeverThrowsException, InterruptedException {
 		Request request = new Request();
 		try {
-			request.setMethod("GET").setUri(endpoint);
+			request.setMethod("POST").setUri(endpoint);
 		} catch (URISyntaxException e) {
 			LOGGER.error("getuser()::URISyntaxException: " + e);
 		}
@@ -188,8 +154,9 @@ public abstract class AbstractLegacyCreateForgeRockUserNode implements Node {
 	 * @return JSON string in the format required by the IDM API in order to create
 	 *         a user in DS.
 	 */
-	private JsonValue createProvisioningRequestEntity(ForgeRockUserAttributesTemplate userAttributes) {
-		LOGGER.error("createProvisioningRequestEntity()::userName: " + userAttributes.getUserName());
+	private JsonValue createProvisioningRequestEntity(ForgeRockUserAttributesTemplate userAttributes,
+			boolean setPasswordReset) {
+		LOGGER.debug("createProvisioningRequestEntity()::userName: " + userAttributes.getUserName());
 
 		JsonValue value = JsonValue
 				.json(JsonValue.object(JsonValue.field(USER_GIVEN_NAME, userAttributes.getFirstName()),
@@ -201,7 +168,7 @@ public abstract class AbstractLegacyCreateForgeRockUserNode implements Node {
 		if (userAttributes.getPassword() != null && userAttributes.getPassword().length() > 0) {
 			value.add(PASSWORD, userAttributes.getPassword());
 		}
-		if (config.setPasswordReset()) {
+		if (setPasswordReset) {
 			value.add(USER_FORCE_PASSWORD_RESET, true);
 		}
 		return value;

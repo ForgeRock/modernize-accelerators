@@ -105,6 +105,7 @@ public abstract class AbstractLegacyMigrationStatusNode implements Node {
 		LOGGER.debug("getUserMigrationStatus()::getUserPathWithQuery: " + getUserPathWithQuery);
 		Response response = getUser(getUserPathWithQuery, idmAdmin, idmPassword, httpClientHandler);
 		JsonValue jsonValues = JsonValue.json(response.getEntity().getJson());
+		LOGGER.debug("getUserMigrationStatus()::jsonValues: " + jsonValues);
 		return (getUserMigrationStatus(jsonValues));
 	}
 
@@ -133,8 +134,8 @@ public abstract class AbstractLegacyMigrationStatusNode implements Node {
 	 */
 	private boolean getUserMigrationStatus(JsonValue jsonValues) throws NodeProcessException {
 		LOGGER.debug("getUserMigrationStatus()::response.getBody(): " + jsonValues);
-		JsonValue value = JsonValue.json(jsonValues);
-		if (value != null && value.get("resultCount") != null && value.get("resultCount").asInteger() > 0) {
+		if (jsonValues != null && jsonValues.get("resultCount") != null
+				&& jsonValues.get("resultCount").asInteger() > 0) {
 			return true;
 		}
 		return false;

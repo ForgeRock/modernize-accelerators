@@ -32,7 +32,6 @@ import org.forgerock.http.handler.HttpClientHandler;
 import org.forgerock.http.protocol.Request;
 import org.forgerock.http.protocol.Response;
 import org.forgerock.json.JsonValue;
-import org.forgerock.openam.auth.node.api.AbstractDecisionNode;
 import org.forgerock.openam.auth.node.api.Action;
 import org.forgerock.openam.auth.node.api.Node;
 import org.forgerock.openam.auth.node.api.NodeProcessException;
@@ -41,6 +40,9 @@ import org.forgerock.openam.auth.node.base.AbstractLegacyCreateForgeRockUserNode
 import org.forgerock.openam.auth.node.template.ForgeRockUserAttributesTemplate;
 import org.forgerock.openam.core.realms.Realm;
 import org.forgerock.openam.secrets.Secrets;
+import org.forgerock.openam.secrets.SecretsProviderFacade;
+import org.forgerock.secrets.NoSuchSecretException;
+import org.forgerock.secrets.Purpose;
 import org.forgerock.util.promise.NeverThrowsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,17 +56,13 @@ import com.google.inject.assistedinject.Assisted;
  * <b><i>{@code ?_action=create}</i></b>.
  * </p>
  */
-@Node.Metadata(configClass = LegacyFRCreateForgeRockUser.LegacyFRCreateForgeRockUserConfig.class, outcomeProvider = AbstractDecisionNode.OutcomeProvider.class)
+@Node.Metadata(configClass = AbstractLegacyCreateForgeRockUserNode.Config.class, outcomeProvider = AbstractLegacyCreateForgeRockUserNode.OutcomeProvider.class)
 public class LegacyFRCreateForgeRockUser extends AbstractLegacyCreateForgeRockUserNode {
 
 	private Logger LOGGER = LoggerFactory.getLogger(LegacyFRCreateForgeRockUser.class);
-
-	/**
-	 * Configuration for this node, as an extension from
-	 * {@link AbstractLegacyCreateForgeRockUserNode}
-	 */
-	public interface LegacyFRCreateForgeRockUserConfig extends AbstractLegacyCreateForgeRockUserNode.Config {
-	}
+	private final AbstractLegacyCreateForgeRockUserNode.Config config;
+	private String idmPassword;
+	private final HttpClientHandler httpClientHandler;
 
 	/**
 	 * Creates a LegacyFRCreateForgeRockUser node with the provided configuration
@@ -77,7 +75,17 @@ public class LegacyFRCreateForgeRockUser extends AbstractLegacyCreateForgeRockUs
 	@Inject
 	public LegacyFRCreateForgeRockUser(@Assisted LegacyFRCreateForgeRockUser.Config config, @Assisted Realm realm,
 			Secrets secrets, HttpClientHandler httpClientHandler) throws NodeProcessException {
-		super(config, realm, secrets, httpClientHandler);
+		this.config = config;
+		this.httpClientHandler = httpClientHandler;
+		SecretsProviderFacade secretsProvider = secrets.getRealmSecrets(realm);
+		if (secretsProvider != null) {
+			try {
+				this.idmPassword = secretsProvider.getNamedSecret(Purpose.PASSWORD, config.idmPasswordId())
+						.getOrThrowUninterruptibly().revealAsUtf8(String::valueOf);
+			} catch (NoSuchSecretException e) {
+				throw new NodeProcessException("No secret " + config.idmPasswordId() + " found");
+			}
+		}
 	}
 
 	/**
@@ -85,6 +93,7 @@ public class LegacyFRCreateForgeRockUser extends AbstractLegacyCreateForgeRockUs
 	 */
 	@Override
 	public Action process(TreeContext context) throws NodeProcessException {
+		LOGGER.debug("START-LegacyFRCreateForgeRockUser");
 		String legacyCookie = context.sharedState.get(LEGACY_COOKIE_SHARED_STATE_PARAM).asString();
 		String userName = context.sharedState.get(USERNAME).asString();
 		String password = "";
@@ -96,7 +105,8 @@ public class LegacyFRCreateForgeRockUser extends AbstractLegacyCreateForgeRockUs
 			try {
 				userAttributes = getUserAttributes(userName, password, legacyCookie);
 				if (userAttributes != null) {
-					return goTo(provisionUser(userAttributes)).build();
+					return goTo(provisionUser(userAttributes, idmPassword, config.idmUserEndpoint(),
+							config.idmAdminUser(), config.setPasswordReset(), httpClientHandler)).build();
 				}
 			} catch (NeverThrowsException e) {
 				throw new NodeProcessException("NeverThrowsException in async call: " + e);
@@ -136,7 +146,7 @@ public class LegacyFRCreateForgeRockUser extends AbstractLegacyCreateForgeRockUs
 		LOGGER.debug("getUserAttributes()::Start");
 		// Call OAM user details API
 		Response response = getUser(config.legacyEnvURL() + userName, legacyCookie);
-		JsonValue entity = (JsonValue) response.getEntity().getJson();
+		JsonValue entity = JsonValue.json(response.getEntity().getJson());
 		// Read the user attributes from the response here. If any other attributes are
 		// required, read here and extend the ForgeRockUserAttributesTemplate
 		String firstName = null;
@@ -144,6 +154,7 @@ public class LegacyFRCreateForgeRockUser extends AbstractLegacyCreateForgeRockUs
 		String email = null;
 
 		if (entity != null) {
+			LOGGER.debug("entity: " + entity);
 			firstName = entity.get(USER_GIVEN_NAME).get(0).asString();
 			lastName = entity.get(USER_SN).get(0).asString();
 			email = entity.get(USER_EMAIL).get(0).asString();

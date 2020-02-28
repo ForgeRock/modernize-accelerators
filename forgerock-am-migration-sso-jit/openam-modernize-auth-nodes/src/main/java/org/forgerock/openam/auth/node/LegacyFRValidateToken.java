@@ -134,7 +134,7 @@ public class LegacyFRValidateToken extends AbstractValidateTokenNode {
 			request.getHeaders().add("Content-Type", "application/json");
 			Client client = new Client(httpClientHandler);
 			Response response = client.send(request).getOrThrow();
-			JsonValue responseValue = (JsonValue) response.getEntity().getJson();
+			JsonValue responseValue = JsonValue.json(response.getEntity().getJson());
 			if (responseValue.get("valid").asBoolean()) {
 				return responseValue.get("uid").asString();
 			}
