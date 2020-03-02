@@ -186,7 +186,7 @@ Configuration File: /src/main/resources/org/forgerock/openam/auth/node/LegacyFRM
 
 Configuration          | Example                                                            | Description
 ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------
-IDM User Endpoint      | <<proto>://<<host>>/openidm/managed/user?_queryFilter=userName+eq+ | End point used to verify in ForgeRock IDM if the user is migrated
+IDM User Endpoint      | <<proto>://<<host>>                                                | Protocol and host for the IDM application. Full URL is built by adding query parameters in the node's backend.
 IDM Admin User         | idmAdmin                                                           | IDM admin user used to query the IDM user endpoint
 IDM Password Secret ID | openidmadminpass                                                   | field for the IDM admin password secret id. The secret from the file system with this id. must contain the value of the password for the IDM administrator user
 ```
@@ -208,7 +208,7 @@ Configuration File: /src/main/resources/org/forgerock/openam/auth/node/LegacyfrC
 Configuration          | Example                                                            |Description
 ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Legacy URL             | <<proto>>://<<host>>/openam/json/realms/root/realms/legacy/users/  | End point used to get profile attributes from the legacy IAM
-IDM User Endpoint      | <<proto>>://<<host>>/openidm/managed/user?_action=create           | End point used to create a user in ForgeRock IDM
+IDM User Endpoint      | <<proto>>://<<host>>                                               | Protocol and host for the IDM application. Full URL is built by adding query parameters in the node's backend.
 IDM Admin User         | idmAdmin                                                           | IDM admin user used to query the IDM user endpoint
 IDM Password Secret ID | openidmadminpass                                                   | field for the IDM admin password secret id. The secret from the file system with this id. must contain the value of the password for the IDM administrator user
 Set Password Reset     | true/false - on/off                                                | Switch used to determine if the node is used on a scenario that cannot migrate the user password. Set to true if the password can't be migrated.
@@ -245,9 +245,9 @@ Configuration File: /src/main/resources/org/forgerock/openam/auth/node/LegacyFRS
 
 Configuration          | Example                                                                           | Description
 ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------
-IDM User Endpoint      | <<proto>>://<<host>>/openidm/managed/user?_action=patch&_queryFilter=userName+eq+ | End point used to create a user in ForgeRock IDM
+IDM User Endpoint      | <<proto>>://<<host>>                                                              | Protocol and host for the IDM application. Full URL is built by adding query parameters in the node's backend.
 IDM Admin User         | idmAdmin                                                                          | IDM admin user used to query the IDM user endpoint
-IDM Password Secret ID | openidmadminpass                                                   | field for the IDM admin password secret id. The secret from the file system with this id. must contain the value of the password for the IDM administrator user
+IDM Password Secret ID | openidmadminpass                                                                  | field for the IDM admin password secret id. The secret from the file system with this id. must contain the value of the password for the IDM administrator user
 ```
 
 ## 4. Scenarios

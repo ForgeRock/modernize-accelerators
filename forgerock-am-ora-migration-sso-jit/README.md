@@ -267,7 +267,7 @@ Configuration File: /src/main/resources/org/forgerock/openam/auth/node/LegacyORA
 
 Configuration          | Example                                                            | Description
 ---------------------- | -------------------------------------------------------------------|--------------------------------------------------------------------------------
-IDM user endpoint      | <<proto>://<<host>>/openidm/managed/user?_queryFilter=userName+eq+ | The ForgeRock IDM endpoint that is called to determine whether the user is migrated
+IDM user endpoint      | <<proto>>://<<host>>                                               | Protocol and host for the IDM application. Full URL is built by adding query parameters in the node's backend.
 IDM administrator user | idmAdmin                                                           | The IDM admin user used to query the IDM user endpoint
 IDM Password Secret ID | openidmadminpass                                                   | The IDM admin password secret ID. The secret from the file system with this ID must contain the value of the password for the IDM administrator.
 ```
@@ -289,7 +289,7 @@ Configuration File: /src/main/resources/org/forgerock/openam/auth/node/LegacyORA
 Configuration          | Example                                                            |Description
 ---------------------- | -------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------
 Profile details URL    | <<proto>>://<<host>>/oic_rest/rest/userprofile/people/             | The endpoint used to get the profile attributes from the legacy IAM
-IDM User Endpoint      | <<proto>>://<<host>>/openidm/managed/user?_action=create           | The endpoint used to create a user in ForgeRock IDM
+IDM User Endpoint      | <<proto>>://<<host>>                                               | Protocol and host for the IDM application. Full URL is built by adding query parameters in the node's backend.
 IDM Admin User         | idmAdmin                                                           | The IDM admin user used to query the IDM user endpoint
 IDM Password Secret ID | openidmadminpass                                                   | The IDM admin password secret ID. The secret from the file system with this ID must contain the value of the password for the IDM administrator user
 Set Password Reset     | true/false - on/off                                                | Switch used to determine if the node is used in a scenario that cannot migrate the user password. Set to true if the password can't be migrated.
@@ -330,7 +330,7 @@ Configuration File: /src/main/resources/org/forgerock/openam/auth/node/LegacyORA
 
 Configuration          | Example                                                                           | Description
 ---------------------- | ----------------------------------------------------------------------------------|---------------------------------------------------------------------
-IDM User Endpoint      | <<proto>>://<<host>>/openidm/managed/user?_action=patch&_queryFilter=userName+eq+ | The endpoint used to create a user in ForgeRock IDM
+IDM User Endpoint      | <<proto>>://<<host>>                                                              | Protocol and host for the IDM application. Full URL is built by adding query parameters in the node's backend.
 IDM Admin User         | idmAdmin                                                                          | The IDM admin user used to query the IDM user endpoint
 IDM Password Secret ID | openidmadminpass                                                                  | The IDM admin password secret ID. The secret from the file system with this ID must contain the value of the password for the IDM administrator user.
 ```
