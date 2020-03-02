@@ -3,11 +3,11 @@
     "realm" : "/",
     "amsterVersion" : "6.5.2",
     "entityType" : "UsernameCollector",
-    "entityId" : "8473fe99-864e-47c2-bb00-be3867974971",
+    "entityId" : "b4de9d34-6c29-4e27-9934-95d827673572",
     "pathParams" : { }
   },
   "data" : {
-    "_id" : "8473fe99-864e-47c2-bb00-be3867974971",
+    "_id" : "b4de9d34-6c29-4e27-9934-95d827673572",
     "_type" : {
       "_id" : "UsernameCollectorNode",
       "name" : "Username Collector",

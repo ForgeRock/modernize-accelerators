@@ -10,7 +10,7 @@
     "_id" : "8007a946-38b4-4278-9edd-2bf9e77e6e99",
     "idmAdminUser" : "openidm-admin",
     "idmPasswordId" : "openidmadminpass",
-    "idmUserEndpoint" : "<<proto>>://<<host>>/openidm/managed/user?_queryFilter=userName+eq+",
+    "idmUserEndpoint" : "<<proto>>://<<host>>",
     "_type" : {
       "_id" : "LegacyFRMigrationStatus",
       "name" : "Legacy-FR-Migration Status",

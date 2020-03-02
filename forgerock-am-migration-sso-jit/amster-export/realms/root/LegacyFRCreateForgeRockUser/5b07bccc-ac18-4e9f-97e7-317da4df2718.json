@@ -12,7 +12,7 @@
     "setPasswordReset" : false,
     "idmPasswordId" : "openidmadminpass",
     "legacyEnvURL" : "<<proto>>://<<host>>/openam/json/realms/root/realms/legacy/users/",
-    "idmUserEndpoint" : "<<proto>>://<<host>>/openidm/managed/user?_action=create",
+    "idmUserEndpoint" : "<<proto>>://<<host>>",
     "_type" : {
       "_id" : "LegacyFRCreateForgeRockUser",
       "name" : "Legacy-FR-Create FR User",

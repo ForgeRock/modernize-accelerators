@@ -8,7 +8,7 @@
   },
   "data" : {
     "_id" : "6536d513-371c-4e5f-b804-1178e144786e",
-    "legacyCookieName" : "legacyCookieName",
+    "legacyCookieName" : "iPlanetDirectoryPro",
     "checkLegacyTokenUri" : "<<proto>>://<<host>>/openam/json/sessions?tokenId=",
     "_type" : {
       "_id" : "LegacyFRValidateToken",

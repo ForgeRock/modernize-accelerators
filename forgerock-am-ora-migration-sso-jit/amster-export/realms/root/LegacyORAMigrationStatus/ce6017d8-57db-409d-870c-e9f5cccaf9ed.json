@@ -3,14 +3,14 @@
     "realm" : "/",
     "amsterVersion" : "6.5.2",
     "entityType" : "LegacyORAMigrationStatus",
-    "entityId" : "6d17fb14-f937-4c05-92d2-62ff39a59823",
+    "entityId" : "ce6017d8-57db-409d-870c-e9f5cccaf9ed",
     "pathParams" : { }
   },
   "data" : {
-    "_id" : "6d17fb14-f937-4c05-92d2-62ff39a59823",
+    "_id" : "ce6017d8-57db-409d-870c-e9f5cccaf9ed",
     "idmAdminUser" : "openidm-admin",
     "idmPasswordId" : "openidmadminpass",
-    "idmUserEndpoint" : "<<proto>>://<<host>>/openidm/managed/user?_queryFilter=userName+eq+",
+    "idmUserEndpoint" : "<<proto>>://<<host>>",
     "_type" : {
       "_id" : "LegacyORAMigrationStatus",
       "name" : "Legacy-ORA-Migration Status",

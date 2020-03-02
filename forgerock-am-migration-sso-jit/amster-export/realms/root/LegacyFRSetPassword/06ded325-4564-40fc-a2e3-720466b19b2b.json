@@ -10,7 +10,7 @@
     "_id" : "06ded325-4564-40fc-a2e3-720466b19b2b",
     "idmAdminUser" : "openidm-admin",
     "idmPasswordId" : "openidmadminpass",
-    "idmUserEndpoint" : "<<proto>>://<<host>>/openidm/managed/user?_action=patch&_queryFilter=userName+eq+",
+    "idmUserEndpoint" : "<<proto>>://<<host>>",
     "_type" : {
       "_id" : "LegacyFRSetPassword",
       "name" : "Legacy-FR-Set Password",

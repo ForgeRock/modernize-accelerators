@@ -8,7 +8,7 @@
   },
   "data" : {
     "_id" : "563d013f-1bd5-41a3-8906-5f98c21636cf",
-    "legacyCookieName" : "legacyCookieName",
+    "legacyCookieName" : "iPlanetDirectoryPro",
     "legacyLoginUri" : "<<proto>>://<<host>>/json/realms/root/realms/legacy/authenticate",
     "_type" : {
       "_id" : "LegacyFRLogin",

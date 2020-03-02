@@ -3,11 +3,11 @@
     "realm" : "/",
     "amsterVersion" : "6.5.2",
     "entityType" : "LegacyORALogin",
-    "entityId" : "a67ee23b-500e-4555-8ae1-4c0aba28a574",
+    "entityId" : "475ee106-e961-4d08-a5ae-7db2015ace4d",
     "pathParams" : { }
   },
   "data" : {
-    "_id" : "a67ee23b-500e-4555-8ae1-4c0aba28a574",
+    "_id" : "475ee106-e961-4d08-a5ae-7db2015ace4d",
     "msMethod" : "GET",
     "legacyCookieName" : "OAMAuthnCookie",
     "msConfigLocation" : "/path/to/config",
