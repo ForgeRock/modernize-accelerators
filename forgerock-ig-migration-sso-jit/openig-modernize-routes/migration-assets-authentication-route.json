@@ -8,10 +8,6 @@
   },
   "baseURI": "${legacyIamHost}",
   "condition": "${matches(request.uri.path, '/authenticateResourceEndpoint')}",
-  "capture": [
-    "response",
-    "request"
-  ],
   "heap": [
     {
       "name": "ReverseProxyHandler",
@@ -19,18 +15,6 @@
       "config": {
         "connectionTimeout": "60 seconds",
         "soTimeout": "unlimited"
-      },
-      "capture": [
-        "response",
-        "request"
-      ]
-    },
-    {
-      "name": "capture",
-      "type": "CaptureDecorator",
-      "config": {
-        "captureEntity": true,
-        "captureContext": true
       }
     },
     {
@@ -41,11 +25,7 @@
           "TransactionIdOutboundFilter"
         ],
         "handler": "ClientHandler"
-      },
-      "capture": [
-        "response",
-        "request"
-      ]
+      }
     }
   ],
     "secrets": {

@@ -15,27 +15,26 @@
  ***************************************************************************/
 package org.forgerock.openig.modernize.impl;
 
+import static org.forgerock.util.Options.defaultOptions;
+
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 
+import org.forgerock.http.Client;
+import org.forgerock.http.HttpApplicationException;
+import org.forgerock.http.handler.HttpClientHandler;
 import org.forgerock.http.protocol.Request;
 import org.forgerock.http.protocol.Response;
 import org.forgerock.http.protocol.Status;
+import org.forgerock.json.JsonValue;
 import org.forgerock.openig.modernize.LegacyIAMProvider;
-import org.forgerock.openig.modernize.common.RequestUtils;
 import org.forgerock.openig.modernize.common.User;
+import org.forgerock.util.promise.NeverThrowsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 
 public class LegacyOpenSSOProvider implements LegacyIAMProvider {
 
@@ -54,22 +53,20 @@ public class LegacyOpenSSOProvider implements LegacyIAMProvider {
 	 * {@inheritDoc}
 	 */
 	public User getUserCredentials(Request request) throws Exception {
-		LOGGER.info("getUserCredentials()::Start");
-		ObjectMapper mapper = new ObjectMapper();
-		JsonNode callbacks = null;
-		callbacks = mapper.readTree(request.getEntity().getString());
-		if (callbacks != null) {
+		LOGGER.debug("getUserCredentials()::Start");
+		JsonValue entity = JsonValue.json(request.getEntity().getJson());
+		if (entity != null) {
 			User user = new User();
-			user.setUserName(
-					callbacks.get(rb.getString(CONFIG_CALLBACKS)).get(0).get(rb.getString(CONFIG_CALLBACKS_INPUT))
-							.get(0).get(rb.getString(CONFIG_CALLBACKS_INPUT_VALUE)).asText());
+			user.setUserName(entity.get(rb.getString(CONFIG_CALLBACKS)).get(0).get(rb.getString(CONFIG_CALLBACKS_INPUT))
+					.get(0).get(rb.getString(CONFIG_CALLBACKS_INPUT_VALUE)).asString());
 			user.setUserPassword(
-					callbacks.get(rb.getString(CONFIG_CALLBACKS)).get(1).get(rb.getString(CONFIG_CALLBACKS_INPUT))
-							.get(0).get(rb.getString(CONFIG_CALLBACKS_INPUT_VALUE)).asText());
-			LOGGER.info("getUserCredentials()::user: " + user.toString());
+					entity.get(rb.getString(CONFIG_CALLBACKS)).get(1).get(rb.getString(CONFIG_CALLBACKS_INPUT)).get(0)
+							.get(rb.getString(CONFIG_CALLBACKS_INPUT_VALUE)).asString());
+			LOGGER.debug("getUserCredentials()::user: " + user.toString());
 			return user;
 		}
-		LOGGER.error("getUserCredentials()::End: Something went wrong.");
+		LOGGER.error(
+				"getUserCredentials()::End: Something went wrong while intercepting and reading the user credentials.");
 		return null;
 	}
 
@@ -79,22 +76,33 @@ public class LegacyOpenSSOProvider implements LegacyIAMProvider {
 	public User getExtendedUserAttributes(Response response, String userName) {
 		String legacyCookie = getLegacyCookie(response.getHeaders().copyAsMultiMapOfStrings(),
 				rb.getString(CONFIG_LEGACY_COOKIE_NAME));
-		return getExtendedUserProfile(userName, legacyCookie);
+		try {
+			return getExtendedUserProfile(userName, legacyCookie);
+		} catch (NeverThrowsException e) {
+			LOGGER.debug("getExtendedUserAttributes()::NeverThrowsException: " + e);
+		} catch (InterruptedException e) {
+			LOGGER.debug("getExtendedUserAttributes()::InterruptedException: " + e);
+		} catch (HttpApplicationException e) {
+			LOGGER.debug("getExtendedUserAttributes()::HttpApplicationException: " + e);
+		} catch (IOException e) {
+			LOGGER.debug("getExtendedUserAttributes()::IOException: " + e);
+		}
+		return null;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public boolean validateLegacyAuthResponse(Response response) {
-		LOGGER.info("validateLegacyAuthResponse()::response.getStatus(): " + response.getStatus());
+		LOGGER.debug("validateLegacyAuthResponse()::response.getStatus(): " + response.getStatus());
 		if (response.getStatus().equals(Status.OK)) {
 			if (getLegacyCookie(response.getHeaders().copyAsMultiMapOfStrings(),
 					rb.getString(CONFIG_LEGACY_COOKIE_NAME)) != null) {
-				LOGGER.info("validateLegacyAuthResponse()::Success");
+				LOGGER.debug("validateLegacyAuthResponse()::Success");
 				return true;
 			}
 		}
-		LOGGER.info("validateLegacyAuthResponse()::Fail");
+		LOGGER.debug("validateLegacyAuthResponse()::Fail");
 		return false;
 	}
 
@@ -123,12 +131,16 @@ public class LegacyOpenSSOProvider implements LegacyIAMProvider {
 	 * @param username
 	 * @param cookie
 	 * @return
+	 * @throws InterruptedException
+	 * @throws NeverThrowsException
+	 * @throws HttpApplicationException
+	 * @throws IOException
 	 */
-	private User getExtendedUserProfile(String username, String cookie) {
+	private User getExtendedUserProfile(String username, String cookie)
+			throws NeverThrowsException, InterruptedException, HttpApplicationException, IOException {
 		StringBuilder legacygetUserDetailsEndpoint = new StringBuilder();
 		legacygetUserDetailsEndpoint.append(rb.getString(CONFIG_USER_DETAILS_URL)).append(username);
-		ResponseEntity<String> responseEntity = callUserDetailsEndpoint(legacygetUserDetailsEndpoint.toString(),
-				cookie);
+		Response responseEntity = callUserDetailsEndpoint(legacygetUserDetailsEndpoint.toString(), cookie);
 		if (responseEntity != null) {
 			return setUserProperties(responseEntity);
 		}
@@ -142,11 +154,23 @@ public class LegacyOpenSSOProvider implements LegacyIAMProvider {
 	 * @param legacygetUserDetailsEndpoint
 	 * @param cookie
 	 * @return
+	 * @throws InterruptedException
+	 * @throws NeverThrowsException
+	 * @throws HttpApplicationException
 	 */
-	private ResponseEntity<String> callUserDetailsEndpoint(String legacygetUserDetailsEndpoint, String cookie) {
-		MultiValueMap<String, String> headersMap = new LinkedMultiValueMap<String, String>();
-		headersMap.add(rb.getString(CONFIG_COOKIE_HEADER), cookie);
-		return RequestUtils.sendGetRequest(legacygetUserDetailsEndpoint, MediaType.APPLICATION_JSON, headersMap);
+	private Response callUserDetailsEndpoint(String legacygetUserDetailsEndpoint, String cookie)
+			throws NeverThrowsException, InterruptedException, HttpApplicationException {
+		HttpClientHandler httpClientHandler = new HttpClientHandler(defaultOptions());
+		Request request = new Request();
+		try {
+			request.setMethod("GET").setUri(legacygetUserDetailsEndpoint);
+		} catch (URISyntaxException e) {
+			LOGGER.error("getuser()::URISyntaxException: " + e);
+		}
+		request.getHeaders().add(rb.getString(CONFIG_COOKIE_HEADER), cookie);
+		request.getHeaders().add("Content-Type", "application/json");
+		Client client = new Client(httpClientHandler);
+		return client.send(request).getOrThrow();
 	}
 
 	/**
@@ -156,32 +180,17 @@ public class LegacyOpenSSOProvider implements LegacyIAMProvider {
 	 * 
 	 * @param responseEntity
 	 * @return
+	 * @throws IOException
 	 */
-	private User setUserProperties(ResponseEntity<String> responseEntity) {
-		JsonNode node = null;
-		try {
-			ObjectMapper mapper = new ObjectMapper();
-			node = mapper.readTree(responseEntity.getBody());
-		} catch (IOException e) {
-			LOGGER.error("setUserProperties()::Error: " + e.getMessage());
-			e.printStackTrace();
-		}
-		if (node != null) {
+	private User setUserProperties(Response responseEntity) throws IOException {
+		JsonValue entity = JsonValue.json(responseEntity.getEntity().getJson());
+		if (entity != null) {
 			User user = new User();
-			user.setUserFirstName(getUserProperty(node, "givenName"));
-			user.setUserLastName(getUserProperty(node, "sn"));
-			user.setUserEmail(getUserProperty(node, "mail"));
+			user.setUserFirstName(entity.get("givenName").get(0).asString());
+			user.setUserLastName(entity.get("sn").get(0).asString());
+			user.setUserEmail(entity.get("mail").get(0).asString());
 			return user;
 		}
 		return null;
 	}
-
-	String getUserProperty(JsonNode node, String propertyName) {
-		ArrayNode arrayNode = (ArrayNode) node.get(propertyName);
-		if (arrayNode != null) {
-			return arrayNode.get(0).asText();
-		}
-		return null;
-	}
-
 }
