@@ -89,8 +89,6 @@ This project uses a config file for any configurable properties you might need. 
 
 The [openig-modernize-filters](https://github.com/ForgeRock/modernize-accelerators/tree/develop/forgerock-ig-migration-sso-jit/openig-modernize-filters) project brings together all the resources presented so far, and leads the sequence of actions required for SSO and JIT. This is orchestrated by the filter <b>MigrationSsoFilter</b>.
 
-#### 2.3.4. The IG routes
-
 ### 2.4. Building the Code
 
 The build process and dependencies are managed by Maven. The first time you build the project, Maven will pull down all the dependencies and Maven plugins required by the build, which can take a longer time. 
