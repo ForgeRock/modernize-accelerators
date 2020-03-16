@@ -16,8 +16,6 @@
 package org.forgerock.openig.modernize.provider;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.URISyntaxException;
 import java.text.MessageFormat;
 import java.util.List;
@@ -30,6 +28,7 @@ import org.forgerock.http.protocol.Request;
 import org.forgerock.http.protocol.Response;
 import org.forgerock.json.JsonValue;
 import org.forgerock.openig.modernize.common.User;
+import org.forgerock.openig.modernize.impl.LegacyOpenSSOProvider;
 import org.forgerock.util.promise.NeverThrowsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,36 +44,20 @@ public final class ForgeRockProvider {
 	 * request headers or body, and returns a {@link User} instance with filled
 	 * userName and userPassword
 	 * 
-	 * @param legacyIAMProvider        - the implementation class instantiated
+	 * @param legacyIAMProvider
+	 * 
 	 * @param request                  - ForgeRock HTTP {@link Request}
 	 * @param getUserCredentialsMethod - Method name from the modernize library
 	 * @return {@link User} - An user object with userName and userPassword set.
+	 * @throws Exception
 	 * 
 	 */
-	public static User getUserCredentials(Class<?> legacyIAMProvider, Request request,
+	public static User getUserCredentials(LegacyOpenSSOProvider legacyIAMProvider, Request request,
 			String getUserCredentialsMethod) {
-		Method getUserCredentials = null;
 		try {
-			getUserCredentials = legacyIAMProvider.getMethod(getUserCredentialsMethod, Request.class);
-		} catch (NoSuchMethodException e1) {
-			LOGGER.error("getUserCredentials()::NoSuchMethodException: " + e1);
-		} catch (SecurityException e1) {
-			LOGGER.error("getUserCredentials()::SecurityException: " + e1);
-		}
-		if (getUserCredentials != null) {
-			LOGGER.debug(
-					"Retrieved method " + getUserCredentials.getName() + " from class " + legacyIAMProvider.getName());
-			try {
-				return (User) getUserCredentials.invoke(legacyIAMProvider.newInstance(), request);
-			} catch (IllegalAccessException e) {
-				LOGGER.error("getUserCredentials()::IllegalAccessException: " + e);
-			} catch (IllegalArgumentException e) {
-				LOGGER.error("getUserCredentials()::IllegalArgumentException: " + e);
-			} catch (InvocationTargetException e) {
-				LOGGER.error("getUserCredentials()::InvocationTargetException: " + e);
-			} catch (InstantiationException e) {
-				LOGGER.error("getUserCredentials()::InstantiationException: " + e);
-			}
+			return legacyIAMProvider.getUserCredentials(request);
+		} catch (Exception e) {
+			LOGGER.error("getUserCredentials()::Exception while reading user's credentials: " + e);
 		}
 		return null;
 	}
@@ -331,26 +314,14 @@ public final class ForgeRockProvider {
 	 * @param response             - The ForgeRock HTTP {@link Response}
 	 * @param user                 - The user before getting the extended user
 	 *                             profile atributes
-	 * @param legacyIAMProvider    - the implementation class instantiated
+	 * @param legacyIAMProvider
 	 * @param getUserProfileMethod - Method name from the modernize library
 	 * @return {@link User} - An user object with userName userPassword, and
 	 *         attributes set
 	 */
-	public static User getExtendedUserProfile(Response response, User user, Class<?> legacyIAMProvider,
+	public static User getExtendedUserProfile(Response response, User user, LegacyOpenSSOProvider legacyIAMProvider,
 			String getUserProfileMethod) {
-		try {
-			Method getExtendedUserProfile = legacyIAMProvider.getMethod(getUserProfileMethod, Response.class,
-					String.class);
-			if (getExtendedUserProfile != null) {
-				LOGGER.debug("Retrieved method " + getExtendedUserProfile.getName() + " from class "
-						+ legacyIAMProvider.getName());
-				return (User) getExtendedUserProfile.invoke(legacyIAMProvider.newInstance(), response,
-						user.getUserName());
-			}
-		} catch (Exception e) {
-			LOGGER.error("getExtendedUserProfile()::Error invoking " + getUserProfileMethod + ": " + e);
-		}
-		return null;
+		return legacyIAMProvider.getExtendedUserAttributes(response, user.getUserName());
 	}
 
 	/**
@@ -359,27 +330,14 @@ public final class ForgeRockProvider {
 	 * 
 	 * @param response                           - The ForgeRock HTTP
 	 *                                           {@link Response}
-	 * @param legacyIAMProvider                  - the implementation class
-	 *                                           instantiated
+	 * @param legacyIAMProvider
 	 * @param validateLegacyAuthenticationMethod - Method name from the modernize
 	 *                                           library
 	 * @return
 	 */
-	public static boolean successfullLegacyAuthentication(Response response, Class<?> legacyIAMProvider,
+	public static boolean successfullLegacyAuthentication(Response response, LegacyOpenSSOProvider legacyIAMProvider,
 			String validateLegacyAuthenticationMethod) {
-		try {
-			Method validateLegacyAuthResponse = legacyIAMProvider.getMethod(validateLegacyAuthenticationMethod,
-					Response.class);
-			if (validateLegacyAuthResponse != null) {
-				LOGGER.debug("Retrieved method " + validateLegacyAuthResponse.getName() + " from class "
-						+ legacyIAMProvider.getName());
-				return (boolean) validateLegacyAuthResponse.invoke(legacyIAMProvider.newInstance(), response);
-			}
-		} catch (Exception e) {
-			LOGGER.error("successfullLegacyAuthentication()::Error invoking " + validateLegacyAuthenticationMethod
-					+ ": " + e);
-		}
-		return false;
+		return legacyIAMProvider.validateLegacyAuthResponse(response);
 	}
 
 	/**

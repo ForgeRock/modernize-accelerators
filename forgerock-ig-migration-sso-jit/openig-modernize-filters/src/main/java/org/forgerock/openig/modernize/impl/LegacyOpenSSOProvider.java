@@ -39,7 +39,8 @@ import org.slf4j.LoggerFactory;
 public class LegacyOpenSSOProvider implements LegacyIAMProvider {
 
 	private Logger LOGGER = LoggerFactory.getLogger(LegacyOpenSSOProvider.class);
-	private static ResourceBundle rb = ResourceBundle.getBundle("config");
+	private static ResourceBundle rb = ResourceBundle
+			.getBundle("org.forgerock.openig.modernize.impl.LegacyOpenSSOProvider");
 
 	private static final String CONFIG_CALLBACKS = "callbacksParam";
 	private static final String CONFIG_CALLBACKS_INPUT = "configCallbacksInputParam";

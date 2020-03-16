@@ -66,8 +66,7 @@
           "name": "MigrationSsoFilter",
           "type": "MigrationSsoFilter",
           "config": {
-            "migrationImplClassName": "org.forgerock.openig.modernize.impl.LegacyOpenSSOProvider",
-            "getUserMigrationStatusEndpoint": "${idmHost}/openidm/managed/user?_queryFilter=userName+eq+\"{0}\"",
+            "getUserMigrationStatusEndpoint": "${idmHost}/openidm/managed/user",
             "provisionUserEndpoint": "${idmHost}/openidm/managed/user?_action=create",
             "openIdmPasswordSecretId": "openidmadminpass",
             "openIdmUsername": "openidm-admin",
@@ -78,7 +77,7 @@
             "acceptApiVersionHeader": "Accept-API-Version",
             "acceptApiVersionHeaderValue": "resource=2.0, protocol=1.0",
             "setCookieHeader": "Set-Cookie",
-			"directory": "${openig.baseDirectory.path}/secrets"
+            "directory": "${openig.baseDirectory.path}/secrets"
           }
         }
       ],

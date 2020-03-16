@@ -19,12 +19,12 @@ Bidirectional SSO capability between legacy IAM and ForgeRock IAM helps minimize
 ForgeRock understands customers' needs to speed up migration design decisions and cut implementation time, and is thus delivering the following assets as part of the Migration Accelerators:
 
 ```
-System         | Type                | Name                               | Description
----------------|---------------------|------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------
-Framework      | jar library         | openig-modernize-library-x.y.z.jar | A library containing the main interfaces provided for implementing the migration components
-Client         | Java class          | LegacyOpenSSOProvider.java         | Example implementation of the openig-modernize-library-x.y.z.jar framework
-IG             | jar library         | openig-modernize-filters           | The IG library holding the migration filters which use the implementation of the openig-modernize-library-x.y.z.jar framework
-IG             | Route               | migration-assets-authentication    | A route that covers the authentication endpoint
+System                           | Type                | Name                               | Description
+---------------------------------|---------------------|------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------
+Interface                        | Java class          | LegacyIAMProvider.java             | the main interface provided for implementing the migration components
+Interface implementation example | Java class          | LegacyOpenSSOProvider.java         | Example implementation of the main interface
+IG                               | jar library         | openig-modernize-filters           | The IG project holding the migration filter which use the implementation of the main interface
+IG                               | Route               | migration-assets-authentication    | A route that covers the authentication endpoint
 ```
 
 ## 2. Building The Source Code
@@ -70,48 +70,20 @@ cd forgerock-ig-migration-sso-jit
 
 ### 2.3. Resources explained
 
-#### 2.3.1. The framework
-
-In the [resources](https://github.com/ForgeRock/modernize-accelerators/tree/develop/forgerock-ig-migration-sso-jit/resources) folder you will find the pre-built jar file named openig-modernize-library.x.y.x.jar. This jar file is not editable and contains the base interface with the pre-defined mandatory methods that need to be implemented for any migration project.
-You should use this jar file as a dependency, and implement the class <b>LegacyIAMProvider</b>.
-
-If you need to update this framework yourself, you can do so by importing the [openig-modernize-library](https://github.com/ForgeRock/modernize-accelerators/tree/develop/forgerock-ig-migration-sso-jit/openig-modernize-library) project into your preferred IDE.
+#### 2.3.1. The main interface
 
 + LegacyIAMProvider contains the 3 base methods that must be implemented:
     + getUserCredentials - Implementation must read the user credentials from the Forgerock HTTP Request. The HTTP request gives flexibility to capture the user's credentials from the request headers or from the request body. Should output a User object with the intercepted username and password.
     + getExtendedUserAttributes - Get user profile attributes from the legacy IAM, with userName as input.
     + validateLegacyAuthResponse - Validate if the authentication response from the legacy system is successfull.
 
-To use the library as a dependency, you can add it to your lib directory for a simple java project, or import it to your maven or gradle project as an artifact.
 
-Example for installing the jar as a maven artifact on a local maven repository:
+#### 2.3.2. The interface implementation example
 
-```
-mvn install:install-file \
-   -Dfile='/path/to/openig-modernize-library.x.y.x.jar' \
-   -DgroupId=forgerock.modernize \
-   -DartifactId=modernize \
-   -Dversion=0.0.1 \
-   -Dpackaging=jar \
-   -DgeneratePom=true
-```
+The LegacyOpenSSOProvider is an example class that demonstrated the usage and implementation of the main interface described in section 2.3.1. 
+We can see that the 3 main methods of the interface are implemented here, along with other methods that do specific actions for the user's IAM platform.
 
-Example usage of the jar file in a maven's project pom.xml:
-
-```
-<dependency>
-	<groupId>forgerock.modernize</groupId>
-	<artifactId>modernize</artifactId>
-	<version>0.0.1</version>
-</dependency>
-```
-
-#### 2.3.2. The framework implementation
-
-The [openig-modernize-client-implementation](https://github.com/ForgeRock/modernize-accelerators/tree/develop/forgerock-ig-migration-sso-jit/openig-modernize-client-implementation) project holds an example of code that demonstrated the usage and implementation of the framework described in section 2.3.1. 
-We can see that the 3 main methods of the interface from the framework are implemented here, along with other methods that do specific actions for the user's IAM platform.
-
-This project uses a config file for any configurable properties you might need. The <b>config.properties</b> file is located under /src/main/resources.
+This project uses a config file for any configurable properties you might need. The <b>LegacyOpenSSOProvider.properties</b> file is located under /src/main/resources/org/forgerock/openig/modernize/impl.
 
 #### 2.3.3. The IG filters
 
@@ -129,8 +101,8 @@ cd modernize-accelerators/forgerock-ig-migration-sso-jit/openig-modernize-auth-n
 mvn package
 ```
 
-Maven builds the binary in `openig-modernize-filters/target/`. The file name format is `openig-modernize-reflection-<nextversion>-SNAPSHOT.jar` . 
-For example, "openig-modernize-reflection-1.0-SNAPSHOT.jar".
+Maven builds the binary in `openig-modernize-filters/target/`. The file name format is `openig-modernize-filters-<nextversion>-SNAPSHOT.jar` . 
+For example, "openig-modernize-filters-1.0-SNAPSHOT.jar".
 
 
 ### 2.5. Building the OpenIG war file
@@ -143,11 +115,7 @@ mkdir ROOT && cd ROOT
 jar -xf ~/Downloads/IG-6.5.1.war
 ```
 
-+ Copy the following files in the /ROOT/WEB-INF/lib folder:
-    + the jar files from [resources](https://github.com/ForgeRock/modernize-accelerators/tree/develop/forgerock-ig-migration-sso-jit/resources) folder: `cp ~/resources/* WEB-INF/lib`
-	Note: If you modified the framework project and generated a new jar, you must copy your own version of the jar instead of the default one found in the folder.
-    + the jar file containing the IG filters: `cp ~/openig-modernize-filters-<nextversion>-SNAPSHOT.jar WEB-INF/lib`
-	+ the jar file containing the framework implementation: `cp ~/openig-modernize-filters-<nextversion>-SNAPSHOT.jar WEB-INF/lib`
++ Copy the jar file containing the IG filters: `cp ~/openig-modernize-filters-<nextversion>-SNAPSHOT.jar WEB-INF/lib` in the /ROOT/WEB-INF/lib folder.
 
 + Rebuild the WAR file: 
 
@@ -208,12 +176,11 @@ The route provided with this toolkit serves as an example of implementation. The
   "name": "MigrationSsoFilter",
   "type": "MigrationSsoFilter",
   "config": {
-	"migrationImplClassName": "org.forgerock.openig.modernize.impl.LegacyOpenSSOProvider",
-	"getUserMigrationStatusEndpoint": "<<proto>>://<<idmHost>>/openidm/managed/user?_queryFilter=userName+eq+\"{0}\"",
-	"provisionUserEndpoint": "<<proto>>://<<idmHost>>/openidm/managed/user?_action=create",
+	"getUserMigrationStatusEndpoint": "${idmHost}/openidm/managed/user",
+	"provisionUserEndpoint": "${idmHost}/openidm/managed/user?_action=create",
 	"openIdmPasswordSecretId": "openidmadminpass",
 	"openIdmUsername": "openidm-admin",
-	"openaAmAuthenticateURL": "<<proto>>://<<amHost>>/json/realms/root/authenticate",
+	"openaAmAuthenticateURL": "${amHost}/json/realms/root/authenticate",
 	"openAmCookieName": "iPlanetDirectoryPro",
 	"openIdmUsernameHeader": "X-OpenIDM-Username",
 	"openIdmPasswordHeader": "X-OpenIDM-Password",
@@ -230,7 +197,6 @@ Filter Class: /openig-modernize-filters/src/main/java/org/forgerock/openig/moder
 
 Configuration                      | Example                                                                        | Description
 ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-migrationImplClassName             | org.forgerock.openig.modernize.impl.LegacyOpenSSOProvider                      | This should be the package.class implemented byt the user. In this toolkit is presented under /openig-modernize-client-implementation/src/main/java/org/forgerock/openig/modernize/impl/LegacyOpenSSOProvider.java
 getUserMigrationStatusEndpoint     | <<proto>>://<<idmHost>>/openidm/managed/user?_queryFilter=userName+eq+\"{0}\"" | This represents the user endpoint from ForgeRock IDM, with a query action.
 provisionUserEndpoint              | <<proto>>://<<idmHost>>/openidm/managed/user?_action=create                    | This represents the user endpoint from ForgeRock IDM, with a create action.
 openIdmPassword                    | openidm-admin                                                                  | The openidm admin user password.
@@ -250,7 +216,7 @@ setCookieHeader                    | Set-Cookie                                 
 
 
 ## 4. Extending & Customizing
-Any changes you need to make to adapt to a specific legacy system can be done in the provided sample projects. To do so, you first need to import the projects you downloaded - https://github.com/ForgeRock/modernize-accelerators/tree/develop/forgerock-ig-migration-sso-jit from GitHub.
+Any changes you need to make to adapt to a specific legacy system can be done in the provided sample project. To do so, you first need to import the project you downloaded - https://github.com/ForgeRock/modernize-accelerators/tree/develop/forgerock-ig-migration-sso-jit from GitHub.
 
 ## 5. Troubleshooting Common Problems
 + N/A
