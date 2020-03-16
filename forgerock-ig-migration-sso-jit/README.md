@@ -154,7 +154,7 @@ The route provided with this toolkit serves as an example of implementation. The
 <br>Route filters:
 
 - <b>MigrationSsoFilter</b> - Custom filter provided in this SSO toolkit. The filter does the following actions:
-    - Intercepts the user' credentials from the authentication request by calling the framework method implementation <b>getUserCredentials</b> injected via java reflection API.
+    - Intercepts the user' credentials from the authentication request by calling the method <b>getUserCredentials</b>.
 	- Verifies if the user is migrated in ForgeRock IDM
 		- If the user is migrated:
 			- he is authenticated in ForgeRock AM
@@ -164,8 +164,8 @@ The route provided with this toolkit serves as an example of implementation. The
 			
 		- If the user is not migrated:
 			- the filter allows the request to pass directly to legacy IAM to validate the credentials
-			- on the response from legacy IAM, the filter verifies if the authentication succeeded by calling the framework method implementation <b>validateLegacyAuthResponse</b> injected via java reflection API.
-			- on successful authentication in legacy IAM, the filter attempts to retrieve the user profile details by calling the framework method implementation <b>getExtendedUserAttributes</b> injected via java reflection API.
+			- on the response from legacy IAM, the filter verifies if the authentication succeeded by calling the  method <b>validateLegacyAuthResponse</b>.
+			- on successful authentication in legacy IAM, the filter attempts to retrieve the user profile details by calling the method <b>getExtendedUserAttributes</b>.
 			- with the user profile attributes retrieved, the filter provisions the user in ForgeRock IDM.
 
 - Filter config example:
