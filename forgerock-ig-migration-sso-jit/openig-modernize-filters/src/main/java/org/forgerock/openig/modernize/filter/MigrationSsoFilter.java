@@ -27,11 +27,11 @@ import org.forgerock.http.protocol.Request;
 import org.forgerock.http.protocol.Response;
 import org.forgerock.http.protocol.Status;
 import org.forgerock.json.JsonValue;
-import org.forgerock.json.JsonValueException;
 import org.forgerock.openig.heap.GenericHeaplet;
 import org.forgerock.openig.heap.HeapException;
 import org.forgerock.openig.heap.Name;
 import org.forgerock.openig.modernize.common.User;
+import org.forgerock.openig.modernize.impl.LegacyOpenSSOProvider;
 import org.forgerock.openig.modernize.provider.ForgeRockProvider;
 import org.forgerock.openig.secrets.FileSystemSecretStoreHeaplet;
 import org.forgerock.openig.secrets.SecretsUtils;
@@ -53,7 +53,7 @@ public class MigrationSsoFilter implements Filter {
 	private static final String VALIDATE_LEGACY_AUTHENTICATION_METHOD = "validateLegacyAuthResponse";
 	private static final String GET_USER_PROFILE_METHOD = "getExtendedUserAttributes";
 
-	Class<?> legacyIAMProvider;
+	private LegacyOpenSSOProvider legacyIAMProvider;
 
 	private String getUserMigrationStatusEndpoint;
 	private String provisionUserEndpoint;
@@ -235,15 +235,7 @@ public class MigrationSsoFilter implements Filter {
 			}
 
 			// Load framework impl
-			try {
-				filter.legacyIAMProvider = Class
-						.forName(config.get("migrationImplClassName").as(evaluatedWithHeapProperties()).asString());
-			} catch (JsonValueException e) {
-				throw new HeapException(
-						"No class configured in property migrationImplClassName or property missing: " + e);
-			} catch (ClassNotFoundException e) {
-				throw new HeapException("Class configured in migrationImplClassName was not found: " + e);
-			}
+			filter.legacyIAMProvider = new LegacyOpenSSOProvider();
 
 			// Secrets
 			final FileSystemSecretStoreHeaplet heaplet = new FileSystemSecretStoreHeaplet();

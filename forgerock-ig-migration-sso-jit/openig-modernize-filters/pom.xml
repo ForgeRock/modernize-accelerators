@@ -29,19 +29,6 @@
 			<version>6.5.1</version>
 		</dependency>
 
-		<!-- From local repository -->
-		<dependency>
-			<groupId>forgerock.modernize</groupId>
-			<artifactId>modernize</artifactId>
-			<version>0.0.1</version>
-		</dependency>
-
-		<dependency>
-			<groupId>forgerock.modernize</groupId>
-			<artifactId>modernize-javadoc</artifactId>
-			<version>0.0.1</version>
-		</dependency>
-
 		<!-- Testing dependencies -->
 		<dependency>
 			<groupId>junit</groupId>

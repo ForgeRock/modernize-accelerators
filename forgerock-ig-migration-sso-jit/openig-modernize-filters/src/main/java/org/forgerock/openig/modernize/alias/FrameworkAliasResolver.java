@@ -19,7 +19,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.forgerock.openig.alias.ClassAliasResolver;
-import org.forgerock.openig.modernize.filter.CookieDomainFilter;
 import org.forgerock.openig.modernize.filter.MigrationSsoFilter;
 
 public class FrameworkAliasResolver implements ClassAliasResolver {
