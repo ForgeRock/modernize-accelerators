@@ -73,7 +73,7 @@ MAVEN_OPTS='-Xmx2g -Xms2g -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=512m'
 
 #### 2.1.2. External libraries
 
-+ The source files also use the Oracle Access Manager Access SDK. Download the SDK from the Oracle [downloads](https://www.oracle.com/middleware/technologies/identity-management/downloads.html) page. Then add the <b>oamasdk-api.jar</b> file to the WEB-INF/lib directory. Other jars that are needed as dependencies are:
++ The source files also use the Oracle Access Manager Access SDK. Download the SDK from the Oracle [downloads](https://www.oracle.com/middleware/technologies/identity-management/downloads.html) page. Then add the <b>oamasdk-api.jar</b> file to the WEB-INF/lib directory. Other dependencies that are needed as dependencies are, and are found in the downloaded SDK:
     + identitystore.jar
     + jps-api.jar
     + jps-common.jar
