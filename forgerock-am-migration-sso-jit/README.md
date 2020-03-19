@@ -103,9 +103,9 @@ For example, "openam-modernize-auth-nodes-1.0.0-SNAPSHOT.jar".
 ### 2.4. Adding the Library to the AM WAR File
 
 + Download and unzip the AM.war file from ForgeRock BackStage:
+[https://backstage.forgerock.com/downloads/browse/am/latest](https://backstage.forgerock.com/downloads/browse/am/latest)
 
 ```
-https://backstage.forgerock.com/downloads/browse/am/latest
 mkdir ROOT && cd ROOT
 jar -xf ~/Downloads/AM-6.5.2.2.war
 ```
