@@ -420,8 +420,7 @@ Any changes you need to make to adapt to a specific legacy system can be done in
 
 ## 6. Troubleshooting Common Problems
 + <b>Problem:</b> Changes in configuration don't show up in the AM console after deployment.<br>
-<b>Solution:</b> Make sure to increment the plugin version from the method getPluginVersion() associated with the modified node if any changes are made in the configuration of a node in the Java class or the properties file.
-<br><br>
+<b>Solution:</b> Make sure to increment the plugin version from the method getPluginVersion() associated with the modified node if any changes are made in the configuration of a node in the Java class or the properties file.<br>
 + <b>Problem:</b> No nodes, not even the out of the box ones, are displayed in the tree creation screen.<br>
 <b>Solution:</b> Check the node's <b>@Attribute(order = number)</b> annotations. This can happen if two or more properties in the same node have the same <b>order = number</b>.
 + <b>Problem:</b> The SMSESSION cookie created by ForgeRock is not recognized and this error message can be seen in the Siteminder agent logs: "Unable to process SMSESSION cookie"<br>
