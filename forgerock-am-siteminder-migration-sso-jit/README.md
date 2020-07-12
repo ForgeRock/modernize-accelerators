@@ -219,7 +219,7 @@ To set your custom authentication tree as the default authentication tree inside
 
 + Demo video - [building the tree](https://github.com/ForgeRock/modernize-accelerators/blob/develop/forgerock-am-siteminder-migration-sso-jit/video/Oracle%20-%20Building%20The%20Tree.mp4) 
 
-![siteminderMigrationSsoTree](images/siteminderMigrationSsoTree.PNG)
+![siteminderMigrationSsoTree](images/migrationTree.PNG)
 
 #### 3.3.2. Alternative - Importing the Tree With Amster
 
@@ -383,7 +383,7 @@ IDM Password Secret ID | openidmadminpass                                       
 - The user accesses the authentication tree.
 - Upon accessing the tree, the user is automatically logged in because a valid legacy Siteminder SSO token is present in the browser. As a result, a user profile is created in ForgeRock IDM and AM, with no password set.
 <br><br>
-![Scenario1](images/Scenario1.jpg)
+![Scenario1](images/Scenario1.png)
 <br>
 
 <b>Note:</b> Following this scenario, some users might never get their password migrated before the legacy IAM is decomissioned. To avoid this problem, a [bulk migration toolkit](https://github.com/ForgeRock/modernize-accelerators/tree/master/forgerock-bulk-migration-generic) has been designed.
@@ -392,27 +392,27 @@ IDM Password Secret ID | openidmadminpass                                       
 - The user accesses the authentication tree. The tree prompts the user for the username and password.
 - After providing credentials, the user is successfully authenticated. This happens because the user was successfully logged in to the legacy Siteminder environment. Since the Data Store Decision node returned false but the user was already migrated, and the legacy login was successful, the password is also updated in DS.
 <br><br>
-![Scenario2](images/Scenario2.jpg)
+![Scenario2](images/Scenario2.png)
 <br>
 
 ### 4.3. Scenario 3 - The user is not migrated, does not have a valid legacy Siteminder SSO token, and accesses the authentication tree
 - The user accesses the authentication tree. The tree prompts the user for the username and password.
 - After providing credentials, the user is successfully authenticated. This happens because the user was successfully logged in to the legacy Siteminder instance, and the user's profile was successfully provisioned in ForgeRock DS, including the password.
 <br><br>
-![Scenario3](images/Scenario3.jpg)
+![Scenario3](images/Scenario3.png)
 <br>
 
 ### 4.4. Scenario 4 - This scenario is triggered when the user has a valid legacy Siteminder SSO token in the browser and is already migrated
 - The user (previously migrated) authenticates first to the legacy Siteminder instance.
 - The user accesses the authentication tree.
 - The outcome of this scenario is that the user is authenticated automatically to both the legacy Siteminder instance and to ForgeRock AM after execution of the tree has completed.
-![Scenario4](images/Scenario4.jpg)
+![Scenario4](images/Scenario4.png)
 <br>
 
 ### 4.5. Scenario 5 - This is the standard scenario triggered when the user is already migrated, and Data Store decision node authenticates the user successfully
 - The user accesses the authentication tree. The tree prompts the user for the username and password.
 - The outcome of this scenario is that the user is authenticated automatically to both the legacy Siteminder instance and to ForgeRock AM after execution of the tree has completed.
-![Scenario5](images/Scenario5.jpg)
+![Scenario5](images/Scenario5.png)
 <br>
 
 ## 5. Extending and Customizing
