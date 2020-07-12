@@ -260,7 +260,7 @@ Web agent name                 | webagent                                       
 Web agent secret               | secretId                                                           | The secret store secret id which holds the shared secret of the web agent as defined in the SiteMinder user interface (case sensitive).
 Protected resource             | sales                                                              | The name of the resource to check -- for example, /sales.
 Protected resource action      | GET                                                                | The action to check for the protected resource -- for example, GET.
-Debug switch      			   | true/false - on/off                                                | Activate for additional debug information.
+Debug switch                   | true/false - on/off                                                | Activate for additional debug information.
 ```
 
 <br>
@@ -312,7 +312,7 @@ Web agent name                        | webagent                                
 Web agent secret                      | secretId                                                           | The secret store secret id which holds the shared secret of the web agent as defined in the SiteMinder user interface (case sensitive).
 Protected resource                    | sales                                                              | The name of the resource to check -- for example, /sales.
 Protected resource action             | GET                                                                | The action to check for the protected resource -- for example, GET.
-Debug switch      		              | true/false - on/off                                                | Activate for additional debug information.
+Debug switch                          | true/false - on/off                                                | Activate for additional debug information.
 Migration attributes mapping          | Map<String,String>                                                 | A map which should hold as keys the name of the SiteMinder user attributes, and as values their equivalent name in the ForgeRock IDM database.
 SiteMinder DMS administrator          | smadmin                                                            | Distinguished name of the administrator which has rights to read the directory which holds the user entries.
 SiteMinder DMS administrator password | adminSecretId                                                      | Secret id for the password of the DMS administrator logging in to retrieve user attributes from the user directory.
@@ -351,7 +351,7 @@ Web agent name                 | webagent                                       
 Web agent secret               | secretId                                                           | The secret store secret id which holds the shared secret of the web agent as defined in the SiteMinder user interface (case sensitive).
 Protected resource             | sales                                                              | The name of the resource to check -- for example, /sales.
 Protected resource action      | GET                                                                | The action to check for the protected resource -- for example, GET.
-Debug switch      			   | true/false - on/off                                                | Activate for additional debug information.
+Debug switch                   | true/false - on/off                                                | Activate for additional debug information.
 Legacy cookie domain           | .domain.example.com                                                | The domain on which the legacy cookie must be set so it will be visible by Siteminder SSO
 ```
 
