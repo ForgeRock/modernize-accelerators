@@ -295,7 +295,6 @@ Configuration File: /src/main/resources/org/forgerock/openam/auth/node/LegacySMC
 
 Configuration                         | Example                                                            |Description
 ------------------------------------- | -------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------
-Profile details URL                   | <<proto>>://<<host>>/oic_rest/rest/userprofile/people/             | The endpoint used to get the profile attributes from the legacy IAM
 IDM User Endpoint                     | <<proto>>://<<host>>                                               | Protocol and host for the IDM application. Full URL is built by adding query parameters in the node's backend.
 IDM Admin User                        | idmAdmin                                                           | The IDM admin user used to query the IDM user endpoint
 IDM Password Secret ID                | openidmadminpass                                                   | The IDM admin password secret ID. The secret from the file system with this ID must contain the value of the password for the IDM administrator user
@@ -425,7 +424,7 @@ Any changes you need to make to adapt to a specific legacy system can be done in
 <b>Solution:</b> Check the node's <b>@Attribute(order = number)</b> annotations. This can happen if two or more properties in the same node have the same <b>order = number</b>.
 + <b>Problem:</b> The SMSESSION cookie created by ForgeRock is not recognized and this error message can be seen in the Siteminder agent logs: "Unable to process SMSESSION cookie"<br>
 <b>Solution:</b> Third party cookies are disabled in the Siteminder ACO. To fix this, go to: Infrastructure > Agent > Agent Configuration Objects > your agent ACO > AcceptTPCookie > YES
-+ <b>Problem:</b> The SMSESSION cookie created by ForgeRock, with the SDK, is showing as LOGGEDOFF when accessing the Siteminder application, even if it was created recently.
++ <b>Problem:</b> The SMSESSION cookie created by ForgeRock, with the SDK, is showing as LOGGEDOFF when accessing the Siteminder application, even if it was created recently.<br>
 <b>Solution:</b> Make sure that your Siteminder server and the ForgeRock AM server have the date and time synchronized correctly with each other.
 
 ## 7. Known issues
