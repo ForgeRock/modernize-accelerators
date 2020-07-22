@@ -23,18 +23,18 @@ ForgeRock understands the customer needs to speed up migration design decisions 
 - Password synchronization capabilities inside the Authentication Tree
 - Flex option allowing the extension of the Authentication Tree and Nodes for Siteminder Legacy system
 
-```
-System  | Type                | Name                                                    | Description
---------| --------------------|---------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------
-AM      | Node                | Legacy-SM-Validate Token                                | Retrieves a token from an existing cookie, validates the token against Siteminder and provides as output in the shared state the username and outcome
-AM      | Node                | Legacy-SM-Migration Status                              | Searches in Forgerock IDM the user identity based on the username from the shared state
-AM      | Node                | Legacy-SM-Create FR User                                | Calls the Forgerock IDM API to provision the managed user
-AM      | Node                | Legacy-SM-Login                                         | Based on the username and password from the shared state, executes the Siteminder login method call
-AM      | Node                | Legacy-SM-Set Password                                  | Updates the Forgerock IDM managed user object with the password captured and stored in the shared state
-AM      | Tree Hook           | LegacySessionTreeHook                                   | Manages cookies if a successful login is performed into Siteminder by the tree
-AM      | Authentication Tree | siteminderMigrationSsoTree                              | Implements the migration login and bi-directional SSO
-AM      | Custom Nodes        | openam-modernize-siteminder-auth-nodes-1.0-SNAPSHOT.jar | Custom AM nodes that are used in the migration authentication tree
-```
+
+| System   | Type                 | Name                                                    | Description                                                                                                                                           |
+| -------- | -------------------- | ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| AM       | Node                 | Legacy-SM-Validate Token                                | Retrieves a token from an existing cookie, validates the token against Siteminder and provides as output in the shared state the username and outcome |
+| AM       | Node                 | Legacy-SM-Migration Status                              | Searches in Forgerock IDM the user identity based on the username from the shared state                                                               |
+| AM       | Node                 | Legacy-SM-Create FR User                                | Calls the Forgerock IDM API to provision the managed user                                                                                             |
+| AM       | Node                 | Legacy-SM-Login                                         | Based on the username and password from the shared state, executes the Siteminder login method call                                                   |
+| AM       | Node                 | Legacy-SM-Set Password                                  | Updates the Forgerock IDM managed user object with the password captured and stored in the shared state                                               |
+| AM       | Tree Hook            | LegacySessionTreeHook                                   | Manages cookies if a successful login is performed into Siteminder by the tree                                                                        |
+| AM       | Authentication Tree  | siteminderMigrationSsoTree                              | Implements the migration login and bi-directional SSO                                                                                                 |
+| AM       | Custom Nodes         | openam-modernize-siteminder-auth-nodes-1.0-SNAPSHOT.jar | Custom AM nodes that are used in the migration authentication tree                                                                                    |
+
 
 ## 2. Building The Source Code
 
