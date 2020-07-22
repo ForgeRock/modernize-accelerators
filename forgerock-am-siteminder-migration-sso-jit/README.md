@@ -244,24 +244,25 @@ Custom node provided in the SSO toolkit. Detects if an existing legacy token exi
 ```
 Node Class: /src/main/java/org/forgerock/openam/auth/node/LegacySMValidateToken.java
 Configuration File: /src/main/resources/org/forgerock/openam/auth/node/LegacySMValidateToken.properties
-
-Configuration             | Example              | Description
---------------------------|----------------------|----------------------------------------------------------------------------------------------------------------------------------------
-Legacy cookie name        | SMSESSION            | The name of the SSO token expected by the Siteminder application
-Policy server IP          | 96.65.144.165        | The Siteminder Policy server IP address
-Accounting port           | 44441                | Siteminder Accounting server port (0 for none).
-Authentication port       | 44442                | Siteminder Authentication server port (0 for none).
-Authorization port        | 44442                | Siteminder Authorization server port (0 for none). 
-Minimum connections       | 2                    | Number of initial connections for Siteminder SDK.
-Maximum connections       | 20                   | Maximum number of connections for Siteminder SDK.
-Connection step           | 2                    | Number of connections to allocate when out of connections.
-Timeout                   | 60                   | Siteminder SDK Connection timeout in seconds.
-Web agent name            | webagent             | The agent name. This name must match the agent name provided to the Policy Server. The agent name is not case sensitive.
-Web agent secret          | secretId             | The secret store secret id which holds the shared secret of the web agent as defined in the SiteMinder user interface (case sensitive).
-Protected resource        | sales                | The name of the resource to check -- for example, /sales.
-Protected resource action | GET                  | The action to check for the protected resource -- for example, GET.
-Debug switch              | true/false - on/off  | Activate for additional debug information.
 ```
+
+| Configuration             | Example             | Description                                                                                                                             |
+| ------------------------- | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| Legacy cookie name        | SMSESSION           | The name of the SSO token expected by the Siteminder application                                                                        |
+| Policy server IP          | 96.65.144.165       | The Siteminder Policy server IP address                                                                                                 |
+| Accounting port           | 44441               | Siteminder Accounting server port (0 for none).                                                                                         |
+| Authentication port       | 44442               | Siteminder Authentication server port (0 for none).                                                                                     |
+| Authorization port        | 44442               | Siteminder Authorization server port (0 for none).                                                                                      |
+| Minimum connections       | 2                   | Number of initial connections for Siteminder SDK.                                                                                       |
+| Maximum connections       | 20                  | Maximum number of connections for Siteminder SDK.                                                                                       |
+| Connection step           | 2                   | Number of connections to allocate when out of connections.                                                                              |
+| Timeout                   | 60                  | Siteminder SDK Connection timeout in seconds.                                                                                           |
+| Web agent name            | webagent            | The agent name. This name must match the agent name provided to the Policy Server. The agent name is not case sensitive.                |
+| Web agent secret          | secretId            | The secret store secret id which holds the shared secret of the web agent as defined in the SiteMinder user interface (case sensitive). |
+| Protected resource        | sales               | The name of the resource to check -- for example, /sales.                                                                               |
+| Protected resource action | GET                 | The action to check for the protected resource -- for example, GET.                                                                     |
+| Debug switch              | true/false - on/off | Activate for additional debug information.                                                                                              |
+
 
 <br>
 
@@ -271,13 +272,14 @@ Custom node provided in the SSO toolkit. Checks ForgeRock IDM to determine wheth
 ```
 Node Class: /src/main/java/org/forgerock/openam/auth/node/LegacySMMigrationStatus.java
 Configuration File: /src/main/resources/org/forgerock/openam/auth/node/LegacySMMigrationStatus.properties
-
-Configuration          | Example              | Description
----------------------- | ---------------------|-------------------------------------------------------------------------------------------------------------------------------------------------
-IDM user endpoint      | <<proto>>://<<host>> | Protocol and host for the IDM application. Full URL is built by adding query parameters in the node's backend.
-IDM administrator user | idmAdmin             | The IDM admin user used to query the IDM user endpoint
-IDM Password Secret ID | openidmadminpass     | The IDM admin password secret ID. The secret from the file system with this ID must contain the value of the password for the IDM administrator.
 ```
+
+| Configuration          | Example              | Description                                                                                                                                      |
+| ---------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| IDM user endpoint      | <<proto>>://<<host>> | Protocol and host for the IDM application. Full URL is built by adding query parameters in the node's backend.                                   |
+| IDM administrator user | idmAdmin             | The IDM admin user used to query the IDM user endpoint                                                                                           |
+| IDM Password Secret ID | openidmadminpass     | The IDM admin password secret ID. The secret from the file system with this ID must contain the value of the password for the IDM administrator. |
+
 
 <br>
 
@@ -292,34 +294,35 @@ Custom node provided in the SSO toolkit. Provisions the user in ForgeRock IAM by
 ```
 Node Class: /src/main/java/org/forgerock/openam/auth/node/LegacySMCreateForgeRockUser.java
 Configuration File: /src/main/resources/org/forgerock/openam/auth/node/LegacySMCreateForgeRockUser.properties
-
-Configuration                         | Example               | Description
-------------------------------------- | ----------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------
-IDM User Endpoint                     | <<proto>>://<<host>>  | Protocol and host for the IDM application. Full URL is built by adding query parameters in the node's backend.
-IDM Admin User                        | idmAdmin              | The IDM admin user used to query the IDM user endpoint
-IDM Password Secret ID                | openidmadminpass      | The IDM admin password secret ID. The secret from the file system with this ID must contain the value of the password for the IDM administrator user
-Set Password Reset                    | true/false - on/off   | Switch used to determine if the node is used in a scenario that cannot migrate the user password. Set to true if the password can't be migrated.
-Policy server IP                      | 96.65.144.165         | The Siteminder Policy server IP address
-Accounting port                       | 44441                 | Siteminder Accounting server port (0 for none).
-Authentication port                   | 44442                 | Siteminder Authentication server port (0 for none).
-Authorization port                    | 44442                 | Siteminder Authorization server port (0 for none). 
-Minimum connections                   | 2                     | Number of initial connections for Siteminder SDK.
-Maximum connections                   | 20                    | Maximum number of connections for Siteminder SDK.
-Connection step                       | 2                     | Number of connections to allocate when out of connections.
-Timeout                               | 60                    | Siteminder SDK Connection timeout in seconds.
-Web agent name                        | webagent              | The agent name. This name must match the agent name provided to the Policy Server. The agent name is not case sensitive.
-Web agent secret                      | secretId              | The secret store secret id which holds the shared secret of the web agent as defined in the SiteMinder user interface (case sensitive).
-Protected resource                    | sales                 | The name of the resource to check -- for example, /sales.
-Protected resource action             | GET                   | The action to check for the protected resource -- for example, GET.
-Debug switch                          | true/false - on/off   | Activate for additional debug information.
-Migration attributes mapping          | Map<String,String>    | A map which should hold as keys the name of the SiteMinder user attributes, and as values their equivalent name in the ForgeRock IDM database.
-SiteMinder DMS administrator          | smadmin               | Distinguished name of the administrator which has rights to read the directory which holds the user entries.
-SiteMinder DMS administrator password | adminSecretId         | Secret id for the password of the DMS administrator logging in to retrieve user attributes from the user directory.
-SM User directory                     | userdirectory         | Name of the Siteminder user directory
-SM user directory root                | dc=mycompany,dc=com   | The user directory root search base
-SM username attribute                 | samaccountname        | The username attribute used to search for a user, given it's username.
-SM user object class                  | user                  | The object class used to define the users
 ```
+
+| Configuration                         | Example               | Description                                                                                                                                          |
+| ------------------------------------- | ----------------------|----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| IDM User Endpoint                     | <<proto>>://<<host>>  | Protocol and host for the IDM application. Full URL is built by adding query parameters in the node's backend.                                       |
+| IDM Admin User                        | idmAdmin              | The IDM admin user used to query the IDM user endpoint                                                                                               |
+| IDM Password Secret ID                | openidmadminpass      | The IDM admin password secret ID. The secret from the file system with this ID must contain the value of the password for the IDM administrator user |
+| Set Password Reset                    | true/false - on/off   | Switch used to determine if the node is used in a scenario that cannot migrate the user password. Set to true if the password can't be migrated.     |
+| Policy server IP                      | 96.65.144.165         | The Siteminder Policy server IP address                                                                                                              |
+| Accounting port                       | 44441                 | Siteminder Accounting server port (0 for none).                                                                                                      |
+| Authentication port                   | 44442                 | Siteminder Authentication server port (0 for none).                                                                                                  |
+| Authorization port                    | 44442                 | Siteminder Authorization server port (0 for none).                                                                                                   |
+| Minimum connections                   | 2                     | Number of initial connections for Siteminder SDK.                                                                                                    |
+| Maximum connections                   | 20                    | Maximum number of connections for Siteminder SDK.                                                                                                    |
+| Connection step                       | 2                     | Number of connections to allocate when out of connections.                                                                                           |
+| Timeout                               | 60                    | Siteminder SDK Connection timeout in seconds.                                                                                                        |
+| Web agent name                        | webagent              | The agent name. This name must match the agent name provided to the Policy Server. The agent name is not case sensitive.                             |
+| Web agent secret                      | secretId              | The secret store secret id which holds the shared secret of the web agent as defined in the SiteMinder user interface (case sensitive).              |
+| Protected resource                    | sales                 | The name of the resource to check -- for example, /sales.                                                                                            |
+| Protected resource action             | GET                   | The action to check for the protected resource -- for example, GET.                                                                                  |
+| Debug switch                          | true/false - on/off   | Activate for additional debug information.                                                                                                           |
+| Migration attributes mapping          | Map<String,String>    | A map which should hold as keys the name of the SiteMinder user attributes, and as values their equivalent name in the ForgeRock IDM database.       |
+| SiteMinder DMS administrator          | smadmin               | Distinguished name of the administrator which has rights to read the directory which holds the user entries.                                         |
+| SiteMinder DMS administrator password | adminSecretId         | Secret id for the password of the DMS administrator logging in to retrieve user attributes from the user directory.                                  |
+| SM User directory                     | userdirectory         | Name of the Siteminder user directory                                                                                                                |
+| SM user directory root                | dc=mycompany,dc=com   | The user directory root search base                                                                                                                  |
+| SM username attribute                 | samaccountname        | The username attribute used to search for a user, given it's username.                                                                               |
+| SM user object class                  | user                  | The object class used to define the users                                                                                                            |
+
 
 <br>
 
@@ -334,25 +337,26 @@ Custom node provided in the SSO toolkit. Validates the credentials (username and
 ```
 Node Class: /src/main/java/org/forgerock/openam/auth/node/LegacySMLogin.java
 Configuration File: /src/main/resources/org/forgerock/openam/auth/node/LegacySMLogin.properties
-
-Configuration             | Example             | Description
---------------------------|---------------------|----------------------------------------------------------------------------------------------------------------------------------------
-Legacy cookie name        | SMSESSION           | The name of the SSO token expected by the Siteminder application
-Policy server IP          | 96.65.144.165       | The Siteminder Policy server IP address
-Accounting port           | 44441               | Siteminder Accounting server port (0 for none).
-Authentication port       | 44442               | Siteminder Authentication server port (0 for none).
-Authorization port        | 44442               | Siteminder Authorization server port (0 for none). 
-Minimum connections       | 2                   | Number of initial connections for Siteminder SDK.
-Maximum connections       | 20                  | Maximum number of connections for Siteminder SDK.
-Connection step           | 2                   | Number of connections to allocate when out of connections.
-Timeout                   | 60                  | Siteminder SDK Connection timeout in seconds.
-Web agent name            | webagent            | The agent name. This name must match the agent name provided to the Policy Server. The agent name is not case sensitive.
-Web agent secret          | secretId            | The secret store secret id which holds the shared secret of the web agent as defined in the SiteMinder user interface (case sensitive).
-Protected resource        | sales               | The name of the resource to check -- for example, /sales.
-Protected resource action | GET                 | The action to check for the protected resource -- for example, GET.
-Debug switch              | true/false - on/off | Activate for additional debug information.
-Legacy cookie domain      | .domain.example.com | The domain on which the legacy cookie must be set so it will be visible by Siteminder SSO
 ```
+
+| Configuration             | Example             | Description                                                                                                                             |
+| ------------------------- | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| Legacy cookie name        | SMSESSION           | The name of the SSO token expected by the Siteminder application                                                                        |
+| Policy server IP          | 96.65.144.165       | The Siteminder Policy server IP address                                                                                                 |
+| Accounting port           | 44441               | Siteminder Accounting server port (0 for none).                                                                                         |
+| Authentication port       | 44442               | Siteminder Authentication server port (0 for none).                                                                                     |
+| Authorization port        | 44442               | Siteminder Authorization server port (0 for none).                                                                                      |
+| Minimum connections       | 2                   | Number of initial connections for Siteminder SDK.                                                                                       |
+| Maximum connections       | 20                  | Maximum number of connections for Siteminder SDK.                                                                                       |
+| Connection step           | 2                   | Number of connections to allocate when out of connections.                                                                              |
+| Timeout                   | 60                  | Siteminder SDK Connection timeout in seconds.                                                                                           |
+| Web agent name            | webagent            | The agent name. This name must match the agent name provided to the Policy Server. The agent name is not case sensitive.                |
+| Web agent secret          | secretId            | The secret store secret id which holds the shared secret of the web agent as defined in the SiteMinder user interface (case sensitive). |
+| Protected resource        | sales               | The name of the resource to check -- for example, /sales.                                                                               |
+| Protected resource action | GET                 | The action to check for the protected resource -- for example, GET.                                                                     |
+| Debug switch              | true/false - on/off | Activate for additional debug information.                                                                                              |
+| Legacy cookie domain      | .domain.example.com | The domain on which the legacy cookie must be set so it will be visible by Siteminder SSO                                               |
+
 
 <br>
 
@@ -362,13 +366,14 @@ Custom node provided in the SSO toolkit. Provisions the user password in ForgeRo
 ```
 Node Class: /src/main/java/org/forgerock/openam/auth/node/LegacySMSetPassword.java
 Configuration File: /src/main/resources/org/forgerock/openam/auth/node/LegacySMSetPassword.properties
-
-Configuration          | Example              | Description
----------------------- | ---------------------|------------------------------------------------------------------------------------------------------------------------------------------------------
-IDM User Endpoint      | <<proto>>://<<host>> | Protocol and host for the IDM application. Full URL is built by adding query parameters in the node's backend.
-IDM Admin User         | idmAdmin             | The IDM admin user used to query the IDM user endpoint
-IDM Password Secret ID | openidmadminpass     | The IDM admin password secret ID. The secret from the file system with this ID must contain the value of the password for the IDM administrator user.
 ```
+
+| Configuration          | Example              | Description                                                                                                                                           |
+| ---------------------- | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| IDM User Endpoint      | <<proto>>://<<host>> | Protocol and host for the IDM application. Full URL is built by adding query parameters in the node's backend.                                        |
+| IDM Admin User         | idmAdmin             | The IDM admin user used to query the IDM user endpoint                                                                                                |
+| IDM Password Secret ID | openidmadminpass     | The IDM admin password secret ID. The secret from the file system with this ID must contain the value of the password for the IDM administrator user. |
+
 
 ## 4. Scenarios
 
