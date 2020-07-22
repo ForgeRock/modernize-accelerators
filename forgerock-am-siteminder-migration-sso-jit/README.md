@@ -25,7 +25,7 @@ ForgeRock understands the customer needs to speed up migration design decisions 
 
 ```
 System  | Type                | Name                                                    | Description
---------| --------------------|---------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------
+--------| --------------------|---------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------
 AM      | Node                | Legacy-SM-Validate Token                                | Retrieves a token from an existing cookie, validates the token against Siteminder and provides as output in the shared state the username and outcome
 AM      | Node                | Legacy-SM-Migration Status                              | Searches in Forgerock IDM the user identity based on the username from the shared state
 AM      | Node                | Legacy-SM-Create FR User                                | Calls the Forgerock IDM API to provision the managed user
@@ -246,7 +246,7 @@ Node Class: /src/main/java/org/forgerock/openam/auth/node/LegacySMValidateToken.
 Configuration File: /src/main/resources/org/forgerock/openam/auth/node/LegacySMValidateToken.properties
 
 Configuration             | Example              | Description
---------------------------|----------------------|-----------------------------------------------------------------------------------------
+--------------------------|----------------------|----------------------------------------------------------------------------------------------------------------------------------------
 Legacy cookie name        | SMSESSION            | The name of the SSO token expected by the Siteminder application
 Policy server IP          | 96.65.144.165        | The Siteminder Policy server IP address
 Accounting port           | 44441                | Siteminder Accounting server port (0 for none).
@@ -273,7 +273,7 @@ Node Class: /src/main/java/org/forgerock/openam/auth/node/LegacySMMigrationStatu
 Configuration File: /src/main/resources/org/forgerock/openam/auth/node/LegacySMMigrationStatus.properties
 
 Configuration          | Example              | Description
----------------------- | ---------------------|--------------------------------------------------------------------------------
+---------------------- | ---------------------|-------------------------------------------------------------------------------------------------------------------------------------------------
 IDM user endpoint      | <<proto>>://<<host>> | Protocol and host for the IDM application. Full URL is built by adding query parameters in the node's backend.
 IDM administrator user | idmAdmin             | The IDM admin user used to query the IDM user endpoint
 IDM Password Secret ID | openidmadminpass     | The IDM admin password secret ID. The secret from the file system with this ID must contain the value of the password for the IDM administrator.
@@ -293,8 +293,8 @@ Custom node provided in the SSO toolkit. Provisions the user in ForgeRock IAM by
 Node Class: /src/main/java/org/forgerock/openam/auth/node/LegacySMCreateForgeRockUser.java
 Configuration File: /src/main/resources/org/forgerock/openam/auth/node/LegacySMCreateForgeRockUser.properties
 
-Configuration                         | Example               |Description
-------------------------------------- | ----------------------|-------------------------------------------------------------------------------------------------------------------------------------------------
+Configuration                         | Example               | Description
+------------------------------------- | ----------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------
 IDM User Endpoint                     | <<proto>>://<<host>>  | Protocol and host for the IDM application. Full URL is built by adding query parameters in the node's backend.
 IDM Admin User                        | idmAdmin              | The IDM admin user used to query the IDM user endpoint
 IDM Password Secret ID                | openidmadminpass      | The IDM admin password secret ID. The secret from the file system with this ID must contain the value of the password for the IDM administrator user
@@ -336,7 +336,7 @@ Node Class: /src/main/java/org/forgerock/openam/auth/node/LegacySMLogin.java
 Configuration File: /src/main/resources/org/forgerock/openam/auth/node/LegacySMLogin.properties
 
 Configuration             | Example             | Description
---------------------------|---------------------|-----------------------------------------------------------------------------------------------
+--------------------------|---------------------|----------------------------------------------------------------------------------------------------------------------------------------
 Legacy cookie name        | SMSESSION           | The name of the SSO token expected by the Siteminder application
 Policy server IP          | 96.65.144.165       | The Siteminder Policy server IP address
 Accounting port           | 44441               | Siteminder Accounting server port (0 for none).
@@ -364,7 +364,7 @@ Node Class: /src/main/java/org/forgerock/openam/auth/node/LegacySMSetPassword.ja
 Configuration File: /src/main/resources/org/forgerock/openam/auth/node/LegacySMSetPassword.properties
 
 Configuration          | Example              | Description
----------------------- | ---------------------|---------------------------------------------------------------------
+---------------------- | ---------------------|------------------------------------------------------------------------------------------------------------------------------------------------------
 IDM User Endpoint      | <<proto>>://<<host>> | Protocol and host for the IDM application. Full URL is built by adding query parameters in the node's backend.
 IDM Admin User         | idmAdmin             | The IDM admin user used to query the IDM user endpoint
 IDM Password Secret ID | openidmadminpass     | The IDM admin password secret ID. The secret from the file system with this ID must contain the value of the password for the IDM administrator user.
