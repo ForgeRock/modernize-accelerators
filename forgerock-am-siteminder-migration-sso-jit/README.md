@@ -50,13 +50,13 @@ Follow these instructions to build the project from the command line. Make sure 
 
 You will need the following software to build the code:
 
-```
-Software               | Required Version
----------------------- | ----------------
-Java Development Kit   | 1.8 and above
-Maven                  | 3.1.0 and above
-Git                    | 1.7.6 and above
-```
+
+| Software               | Required Version |
+| ---------------------- | ---------------- |
+| Java Development Kit   | 1.8 and above    |
+| Maven                  | 3.1.0 and above  |
+| Git                    | 1.7.6 and above  |
+
 Set the following environment variables:
 
 - `JAVA_HOME` - points to the location of the version of Java that Maven will use.
