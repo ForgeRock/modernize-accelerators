@@ -88,7 +88,7 @@ Note: You need access to the ForgeRock private-releases maven repository, and yo
     + Create a Bouncy Castle FIPS provider entry in the $JAVA_HOME/jre/lib/security/java.security file. Eg: <b>security.provider.N=org.bouncycastle.jcajce.provider.BouncyCastleFipsProvider</b>. Replace N with the order of precedence you would like to give Bouncy Castle in comparison to the other providers in the file.
 
 + Adding the Siteminder SDK to the classpath.
-    + <b>Option 1</b> - copy the jars from the Siteminder web agent installation to the folder /path/to/modernize-accelerators/forgerock-am-siteminder-migration-sso-jit/openam-modernize-siteminder-auth-nodes/ext-lib/siteminder/. This option works with the default pom.xml from this toolkit.
+    + <b>Option 1</b> - copy the .jar files from the Siteminder web agent installation to the project folder /path/to/modernize-accelerators/forgerock-am-siteminder-migration-sso-jit/openam-modernize-siteminder-auth-nodes/ext-lib/siteminder/. This option works with the default pom.xml from this toolkit.
 	+ <b>Option 2</b> - install the .jar files to a Maven repository and modify the pom.xml file from the toolkit to point to the repository artifacts.
 
 Example for installing the .jar file as a Maven artifact in a local Maven repository:
