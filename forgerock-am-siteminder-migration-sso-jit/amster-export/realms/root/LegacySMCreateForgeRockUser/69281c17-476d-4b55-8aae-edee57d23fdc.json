@@ -1,0 +1,47 @@
+{
+  "metadata" : {
+    "realm" : "/",
+    "amsterVersion" : "6.5.2.3",
+    "entityType" : "LegacySMCreateForgeRockUser",
+    "entityId" : "69281c17-476d-4b55-8aae-edee57d23fdc",
+    "pathParams" : { }
+  },
+  "data" : {
+    "_id" : "69281c17-476d-4b55-8aae-edee57d23fdc",
+    "smUserSearchClass" : "user",
+    "smAdminUser" : "siteminder",
+    "webAgentName" : "iisagent",
+    "connectionMax" : 20,
+    "timeout" : 60,
+    "smUserSearchAttr" : "samaccountname",
+    "idmAdminUser" : "openidm-admin",
+    "setPasswordReset" : false,
+    "authorizationPort" : 44443,
+    "smDirectoryRoot" : "dc=example,dc=com",
+    "policyServerIP" : "96.65.145.166",
+    "debug" : true,
+    "smAdminPassword" : "siteminderadmin",
+    "idmUserEndpoint" : "https://openidm",
+    "smUserDirectory" : "ad",
+    "migrationAttributesMap" : {
+      "mail" : "mail",
+      "sAMAccountName" : "userName",
+      "givenName" : "givenName",
+      "name" : "sn"
+    },
+    "accountingPort" : 44441,
+    "is4xAgent" : true,
+    "idmPasswordId" : "openidmadmin",
+    "protectedResourceAction" : "GET",
+    "protectedResource" : "/sales",
+    "webAgentSecret" : "siteminderwebagent",
+    "connectionMin" : 2,
+    "authenticationPort" : 44442,
+    "connectionStep" : 2,
+    "_type" : {
+      "_id" : "LegacySMCreateForgeRockUser",
+      "name" : "Legacy-SM-Create FR User",
+      "collection" : true
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "metadata" : {
+    "realm" : "/",
+    "amsterVersion" : "6.5.2.3",
+    "entityType" : "LegacySMLogin",
+    "entityId" : "089bade0-a553-4854-b484-fa81144a9ab5",
+    "pathParams" : { }
+  },
+  "data" : {
+    "_id" : "089bade0-a553-4854-b484-fa81144a9ab5",
+    "debug" : true,
+    "webAgentName" : "iisagent",
+    "legacyCookieDomain" : ".domain",
+    "timeout" : 60,
+    "connectionMax" : 20,
+    "accountingPort" : 44441,
+    "is4xAgent" : true,
+    "protectedResourceAction" : "GET",
+    "legacyCookieName" : "SMSESSION",
+    "authorizationPort" : 44443,
+    "protectedResource" : "/sales",
+    "policyServerIP" : "96.65.145.166",
+    "connectionMin" : 2,
+    "webAgentSecret" : "siteminderwebagent",
+    "authenticationPort" : 44442,
+    "connectionStep" : 2,
+    "_type" : {
+      "_id" : "LegacySMLogin",
+      "name" : "Legacy-SM-Login",
+      "collection" : true
+    }
+  }
+}
