@@ -75,7 +75,7 @@ Note: You need access to the ForgeRock private-releases maven repository, and yo
 
 #### 2.1.2. External libraries
 
-+ The migration toolkit uses the Siteminder Java AgentAPI and the DMS API. Download the SDK from your Siteminder support page, or get the required jar files from your existing Siteminder Web Agent installation. The migration toolkit requires the following jar files:
++ The migration toolkit uses the Siteminder Java AgentAPI and the DMS API. Download the SDK from your Siteminder support page, or get the required .jar files from your existing Siteminder Web Agent installation. The migration toolkit requires the following jar files:
     + smagentapi.jar
     + smjavasdk2.jar
     + smcrypto.jar
@@ -84,11 +84,14 @@ Note: You need access to the ForgeRock private-releases maven repository, and yo
 + To setup the SDK and the migration toolkit correctly you must:
     + copy the external Siteminder dependencies inside the /WEB-INF/lib of your AM-x.y.z.war file, or directly to you /WEB-INF/lib folder of your ForgeRock AM installation;
 	+ add the Siteminder dependencies to your classpath, so that your IDE can resolve all the dependencies correctly. To use the library as a dependency, add it to your lib directory for a simple Java project, or import it to your Maven or Gradle project as an artifact.
-	+ Add the Bouncy Castle FIPS jar to your $JAVA_HOME/jre/lib/ext directory
+	+ Add the Bouncy Castle FIPS .jar to your $JAVA_HOME/jre/lib/ext directory
     + Create a Bouncy Castle FIPS provider entry in the $JAVA_HOME/jre/lib/security/java.security file. Eg: <b>security.provider.N=org.bouncycastle.jcajce.provider.BouncyCastleFipsProvider</b>. Replace N with the order of precedence you would like to give Bouncy Castle in comparison to the other providers in the file.
 
++ Adding the Siteminder SDK to the classpath.
+    + <b>Option 1</b> - copy the jars from the Siteminder web agent installation to the folder /path/to/modernize-accelerators/forgerock-am-siteminder-migration-sso-jit/openam-modernize-siteminder-auth-nodes/ext-lib/siteminder/. This option works with the default pom.xml from this toolkit.
+	+ <b>Option 2</b> - install the .jar files to a Maven repository and modify the pom.xml file from the toolkit to point to the repository artifacts.
 
-Example for installing the JAR file as a Maven artifact in a local Maven repository:
+Example for installing the .jar file as a Maven artifact in a local Maven repository:
 
 ```
 mvn install:install-file \
@@ -100,7 +103,7 @@ mvn install:install-file \
    -DgeneratePom=true
 ```
 
-Example usage of the JAR file in the Maven's project pom.xml file:
+Example usage of the .jar file in the Maven's project pom.xml file:
 
 ```
 <dependency>
