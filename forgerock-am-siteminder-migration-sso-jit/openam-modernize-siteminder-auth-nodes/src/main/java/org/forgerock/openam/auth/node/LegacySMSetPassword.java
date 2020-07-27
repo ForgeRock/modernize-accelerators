@@ -64,11 +64,13 @@ public class LegacySMSetPassword extends AbstractLegacySetPasswordNode {
 		this.config = config;
 		this.httpClientHandler = httpClientHandler;
 		SecretsProviderFacade secretsProvider = secrets.getRealmSecrets(realm);
-		try {
-			this.idmPassword = secretsProvider.getNamedSecret(Purpose.PASSWORD, config.idmPasswordId())
-					.getOrThrowUninterruptibly().revealAsUtf8(String::valueOf);
-		} catch (NoSuchSecretException e) {
-			throw new NodeProcessException("No secret " + config.idmPasswordId() + " found");
+		if (secretsProvider != null) {
+			try {
+				this.idmPassword = secretsProvider.getNamedSecret(Purpose.PASSWORD, config.idmPasswordId())
+						.getOrThrowUninterruptibly().revealAsUtf8(String::valueOf);
+			} catch (NoSuchSecretException e) {
+				throw new NodeProcessException("No secret " + config.idmPasswordId() + " found");
+			}
 		}
 	}
 

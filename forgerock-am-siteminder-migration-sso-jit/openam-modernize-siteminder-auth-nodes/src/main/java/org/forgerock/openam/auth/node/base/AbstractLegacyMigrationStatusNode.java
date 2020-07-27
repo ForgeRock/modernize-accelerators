@@ -150,11 +150,13 @@ public abstract class AbstractLegacyMigrationStatusNode implements Node {
 	 * @param jsonValues
 	 * @return true if the user count is greater that zero, false otherwise.
 	 */
-	private boolean getUserMigrationStatus(JsonValue jsonValues) {
+	public boolean getUserMigrationStatus(JsonValue jsonValues) {
 		LOGGER.debug("AbstractLegacyMigrationStatusNode::getUserMigrationStatus() > response.getBody(): {}",
 				jsonValues);
-		return jsonValues != null && jsonValues.get("resultCount") != null
-				&& jsonValues.get("resultCount").asInteger() > 0;
+		if (jsonValues != null && jsonValues.isDefined("resultCount")) {
+			return jsonValues.get("resultCount").asInteger() > 0;
+		}
+		return false;
 	}
 
 	/**

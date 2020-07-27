@@ -118,7 +118,7 @@ public abstract class AbstractLegacySetPasswordNode implements Node {
 	 * @param password
 	 * @return JSON string
 	 */
-	private JsonValue createPasswordRequestEntity(String password) {
+	public JsonValue createPasswordRequestEntity(String password) {
 		LOGGER.debug("createPasswordRequestEntity()::Start");
 		return JsonValue.json(JsonValue.array(
 				JsonValue.object(JsonValue.field("operation", "replace"), JsonValue.field("field", PASSWORD),
