@@ -16,7 +16,7 @@ The framework can be easily extended to support migrations from any Siteminder p
     - Authentication API (with a username and password input)
 
 ### 1.1. Assets Included
-Bi-Directional SSO capability between Siteminder and ForgeRock IAM help minimize risk and time to market in complex migration projects.
+Bi-Directional SSO capability between Siteminder and ForgeRock IAM helps minimize risk and time to market in complex migration projects.
 ForgeRock understands the customer needs to speed up migration design decisions and cut implementation time, and is thus delivering as part of the Migration Accelerators the following assets:
 - Collection of Custom Migration Authentication Nodes (ValidateLegacyToken, GenerateLegacyToken, RetrieveLegacyProfile)
 - Pre-built Migration Authentication Tree with Bi-Directional SSO support that embeds the custom nodes and migration know-how (including handle for invalid authentication attempts)
@@ -60,7 +60,7 @@ You will need the following software to build the code:
 Set the following environment variables:
 
 - `JAVA_HOME` - points to the location of the version of Java that Maven will use.
-- `M2_HOME` - points to the location of the Maven installation and settings.
+- `MAVEN_HOME` - points to the location of the Maven installation and settings.
 - `MAVEN_OPTS` - sets some options for the jvm when running Maven.
 
 For example your environment variables should look like this:
@@ -123,6 +123,7 @@ If you want to run the code unmodified, clone the ForgeRock repository:
 
 ```
 mkdir demo
+cd demo
 git clone https://github.com/ForgeRock/modernize-accelerators.git
 ```
 
@@ -264,7 +265,7 @@ Configuration File: /src/main/resources/org/forgerock/openam/auth/node/LegacySMV
 | Web agent secret id       | secretId             | The secret id of the AM secret that contains the web agent shared secret as defined in the SiteMinder user interface (case sensitive).                             |
 | Is 4x Web agent           | true/false - on/off  | True if the "Is 4x Web Agent" check box is active on the Siteminder Web Agent.                                                                                     |
 | SM Host File Path         | /path/to/SmHost.conf | Location on the AM instance, where the Siteminder web agent SmHost.conf file is located. Mandatory if "Is 4x Web agent" configuration is set to false (disabled).  |
-| Protected resource        | sales                | The name of the resource to check -- for example, /sales.                                                                                                          |
+| Protected resource        | /sales                | The name of the resource to check -- for example, /sales.                                                                                                          |
 | Protected resource action | GET                  | The action to check for the protected resource -- for example, GET.                                                                                                |
 | Debug switch              | true/false - on/off  | Activate for additional debug information.                                                                                                                         |
 
@@ -289,12 +290,12 @@ Configuration File: /src/main/resources/org/forgerock/openam/auth/node/LegacySMM
 <br>
 
 #### 3.4.3. Page Node
-Default page node in ForgeRock IAM used to capture user credentials. This node is generic, and does not need to be customized for specific legacy IAM vendor implementations.
+Default page node in ForgeRock IAM used to capture user credentials. This node is generic, and does not need to be customized for specific legacy CA SiteMinder implementations.
 
 <br>
 
 #### 3.4.4. Legacy-SM-Create FR User
-Custom node provided in the SSO toolkit. Provisions the user in ForgeRock IAM by calling the default ForgeRock IDM-managed object API. This node is generic one, and does not need to be customized for specific legacy IAM vendor implementations. The nodes uses the following shared state attributes: 
+Custom node provided in the SSO toolkit. Provisions the user in ForgeRock IAM by calling the default ForgeRock IDM-managed object API. This node is generic one, and does not need to be customized for specific legacy CA SiteMinder implementations. The nodes uses the following shared state attributes: 
 
 ```
 Node Class: /src/main/java/org/forgerock/openam/auth/node/LegacySMCreateForgeRockUser.java
