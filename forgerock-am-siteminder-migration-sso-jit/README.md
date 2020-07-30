@@ -243,7 +243,7 @@ In this example the tree was created and exported in the root realm, but as a be
 A node is the core abstraction within an authentication tree. Trees are made up of nodes, which can modify the shared state and request input from the user via callbacks.
 
 #### 3.4.1. Legacy-SM-Validate Token
-Custom node provided in the SSO toolkit. Detects if an existing legacy token exists in the browser in a specific cookie, and validates this as an active token against the legacy IAM system via an SDK/API call. The default node uses a GET API call with the cookie fetched from the incoming http request. The name of the cookie and the target URL is configurable. The node is vendor-specific and is flexible enough to be tailored for each vendor.
+Custom node provided in the SSO toolkit. Detects if an existing Siteminder SMSESSION cookie is set in the browser. If a SMSESSION is found it's decoded using the AgentAPI SDK. If the cookie is decoded successfully, the username for which the cookie is created for is saved on the tree context shared state.
 
 ```
 Node Class: /src/main/java/org/forgerock/openam/auth/node/LegacySMValidateToken.java
