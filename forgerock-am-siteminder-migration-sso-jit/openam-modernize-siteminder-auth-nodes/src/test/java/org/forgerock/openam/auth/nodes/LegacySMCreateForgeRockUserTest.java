@@ -112,7 +112,7 @@ public class LegacySMCreateForgeRockUserTest {
 		given(config.connectionMax()).willReturn(CONNECTION_MAX);
 		given(config.connectionStep()).willReturn(CONNECTION_STEP);
 		given(config.timeout()).willReturn(CONNECTION_TIMEOUT);
-		given(config.webAgentSecret()).willReturn("Password");
+		given(config.webAgentPasswordSecretId()).willReturn("Password");
 
 		try {
 			node.process(getContext(sharedState));

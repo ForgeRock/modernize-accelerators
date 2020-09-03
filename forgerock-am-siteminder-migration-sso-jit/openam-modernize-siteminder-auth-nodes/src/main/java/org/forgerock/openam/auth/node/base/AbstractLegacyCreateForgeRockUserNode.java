@@ -81,7 +81,7 @@ public abstract class AbstractLegacyCreateForgeRockUserNode implements Node {
 		 *         administrator useruser's password
 		 */
 		@Attribute(order = 3, validators = { RequiredValueValidator.class })
-		String idmPasswordId();
+		String idmPassworSecretdId();
 
 		/**
 		 * Specifies if the set password reset attribute must be set for the current
@@ -115,6 +115,18 @@ public abstract class AbstractLegacyCreateForgeRockUserNode implements Node {
 		return false;
 	}
 
+	/**
+	 * 
+	 * Sends the create user request to ForgeRock IDM.
+	 * 
+	 * @param endpoint          the create user endpoint
+	 * @param idmAdmin          the IDM admin username
+	 * @param idmPassword       the IDM admin user password
+	 * @param jsonBody          the create user request body containing the creation
+	 *                          attributes
+	 * @param httpClientHandler the forgerock HttpClientHandler
+	 * @return the response to the user creation request
+	 */
 	private Response createUser(String endpoint, String idmAdmin, String idmPassword, JsonValue jsonBody,
 			HttpClientHandler httpClientHandler) {
 		Request request = new Request();

@@ -115,7 +115,7 @@ public class LegacySMLoginTest {
 		given(config.connectionMax()).willReturn(CONNECTION_MAX);
 		given(config.connectionStep()).willReturn(CONNECTION_STEP);
 		given(config.timeout()).willReturn(CONNECTION_TIMEOUT);
-		given(config.webAgentSecret()).willReturn("Password");
+		given(config.webAgentPasswordSecretId()).willReturn("Password");
 
 		node = new LegacySMLogin(config, UUID.randomUUID(), realm, secrets);
 		try {

@@ -82,7 +82,7 @@ public abstract class AbstractLegacySetPasswordNode implements Node {
 		 *         administrator useruser's password
 		 */
 		@Attribute(order = 3, validators = { RequiredValueValidator.class })
-		String idmPasswordId();
+		String idmPassworSecretdId();
 	}
 
 	/**

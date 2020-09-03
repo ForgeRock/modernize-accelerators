@@ -20,7 +20,7 @@
     "authorizationPort" : 44443,
     "protectedResource" : "/sales",
     "policyServerIP" : "96.65.145.166",
-    "webAgentSecret" : "siteminderwebagent",
+    "webAgentPasswordSecretId" : "siteminderwebagent",
     "connectionMin" : 2,
     "authenticationPort" : 44442,
     "connectionStep" : 2,

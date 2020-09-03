@@ -65,10 +65,10 @@ public class LegacySMMigrationStatus extends AbstractLegacyMigrationStatusNode {
 		SecretsProviderFacade secretsProvider = secrets.getRealmSecrets(realm);
 		if (secretsProvider != null) {
 			try {
-				this.idmPassword = secretsProvider.getNamedSecret(Purpose.PASSWORD, config.idmPasswordId())
+				this.idmPassword = secretsProvider.getNamedSecret(Purpose.PASSWORD, config.idmPassworSecretdId())
 						.getOrThrowUninterruptibly().revealAsUtf8(String::valueOf);
 			} catch (NoSuchSecretException e) {
-				throw new NodeProcessException("No secret " + config.idmPasswordId() + " found");
+				throw new NodeProcessException("No secret " + config.idmPassworSecretdId() + " found");
 			}
 		}
 	}

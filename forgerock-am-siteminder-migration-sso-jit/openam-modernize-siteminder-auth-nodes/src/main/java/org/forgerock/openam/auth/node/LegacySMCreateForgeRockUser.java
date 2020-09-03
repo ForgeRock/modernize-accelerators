@@ -24,7 +24,6 @@ import static org.forgerock.openam.modernize.utils.NodeConstants.CONNECTION_MAX;
 import static org.forgerock.openam.modernize.utils.NodeConstants.CONNECTION_MIN;
 import static org.forgerock.openam.modernize.utils.NodeConstants.CONNECTION_STEP;
 import static org.forgerock.openam.modernize.utils.NodeConstants.CONNECTION_TIMEOUT;
-import static org.forgerock.openam.modernize.utils.NodeConstants.DEFAULT_ACTION;
 
 import java.util.HashMap;
 import java.util.List;
@@ -90,92 +89,201 @@ public class LegacySMCreateForgeRockUser extends AbstractLegacyCreateForgeRockUs
 	private String webAgentSecret;
 	private String smAdminPassword;
 
+	/**
+	 * Node configuration
+	 */
 	public interface LegacyFRConfig extends AbstractLegacyCreateForgeRockUserNode.Config {
 
+		/**
+		 * Siteminder Policy Server IP address.
+		 * 
+		 * @return the configured policyServerIP
+		 */
 		@Attribute(order = 10, validators = { RequiredValueValidator.class })
 		String policyServerIP();
 
+		/**
+		 * Siteminder Policy Server Accounting server port (0 for none). Mandatory if
+		 * "Is 4x Web agent" config is activated.
+		 * 
+		 * @return the configured accountingPort
+		 */
 		@Attribute(order = 20)
 		default int accountingPort() {
 			return ACCOUNTING_PORT;
 		}
 
+		/**
+		 * Siteminder Policy Server Authentication server port (0 for none). Mandatory
+		 * if "Is 4x Web agent" config is activated.
+		 * 
+		 * @return the configured authenticationPort
+		 */
 		@Attribute(order = 30)
 		default int authenticationPort() {
 			return AUTHENTICATION_PORT;
 		}
 
+		/**
+		 * Siteminder Policy Server Authorization server port (0 for none). Mandatory if
+		 * "Is 4x Web agent" config is activated.
+		 * 
+		 * @return the configured authorizationPort
+		 */
 		@Attribute(order = 40)
 		default int authorizationPort() {
 			return AUTHORIZATION_PORT;
 		}
 
+		/**
+		 * Number of initial connections. Mandatory if "Is 4x Web agent" config is
+		 * activated.
+		 * 
+		 * @return the configured connectionMin value
+		 */
 		@Attribute(order = 50)
 		default int connectionMin() {
 			return CONNECTION_MIN;
 		}
 
+		/**
+		 * Maximum number of connections. Mandatory if "Is 4x Web agent" config is
+		 * activated.
+		 * 
+		 * @return the configured connectionMax value
+		 */
 		@Attribute(order = 60)
 		default int connectionMax() {
 			return CONNECTION_MAX;
 		}
 
+		/**
+		 * Number of connections to allocate when out of connections. Mandatory if "Is
+		 * 4x Web agent" config is activated.
+		 * 
+		 * @return the configured connectionStep value
+		 */
 		@Attribute(order = 70)
 		default int connectionStep() {
 			return CONNECTION_STEP;
 		}
 
+		/**
+		 * Connection timeout in seconds. Mandatory if "Is 4x Web agent" config is
+		 * activated.
+		 * 
+		 * @return the configured timeoutin seconds
+		 */
 		@Attribute(order = 80)
 		default int timeout() {
 			return CONNECTION_TIMEOUT;
 		}
 
+		/**
+		 * The agent name. This name must match the agent name provided to the Policy
+		 * Server. The agent name is not case sensitive.
+		 * 
+		 * @return the configured webAgentName
+		 */
 		@Attribute(order = 90, validators = { RequiredValueValidator.class })
 		String webAgentName();
 
+		/**
+		 * The secret id of the AM secret that contains the web agent shared secret as
+		 * defined in the SiteMinder user interface (case sensitive).
+		 * 
+		 * @return the configured webAgentSecretId
+		 */
 		@Attribute(order = 100)
-		String webAgentSecret();
+		String webAgentPasswordSecretId();
 
+		/**
+		 * The version of web agent used by the siteminder policy server. Should be True
+		 * if the "Is 4x" check box is active on the Siteminder Web Agent.
+		 * 
+		 * @return true if siteminder web agent version is 4x, false otherwise
+		 */
 		@Attribute(order = 110, validators = { RequiredValueValidator.class })
 		default boolean is4xAgent() {
 			return true;
 		}
 
+		/**
+		 * Location on the AM instance, where the Siteminder web agent SmHost.conf file
+		 * is located. Mandatory if "Is 4x Web agent" configuration is set to false
+		 * (disabled).
+		 * 
+		 * @return configured smHostFilePath
+		 */
 		@Attribute(order = 120)
 		String smHostFilePath();
 
+		/**
+		 * A debug switch used to activate additional debug information.
+		 * 
+		 * @return configured debug value
+		 */
 		@Attribute(order = 130, validators = { RequiredValueValidator.class })
-		String protectedResource();
-
-		@Attribute(order = 140, validators = { RequiredValueValidator.class })
-		default String protectedResourceAction() {
-			return DEFAULT_ACTION;
-		}
-
-		@Attribute(order = 150, validators = { RequiredValueValidator.class })
 		default boolean debug() {
 			return false;
 		}
 
-		@Attribute(order = 160, validators = { RequiredValueValidator.class })
+		/**
+		 * A map which should hold as keys the name of the SiteMinder user attributes,
+		 * and as values their equivalent name in the ForgeRock IDM database.
+		 * 
+		 * @return the configured attributes map
+		 */
+		@Attribute(order = 140, validators = { RequiredValueValidator.class })
 		Map<String, String> migrationAttributesMap();
 
-		@Attribute(order = 170, validators = { RequiredValueValidator.class })
+		/**
+		 * Distinguished name of the siteminder administrator
+		 * 
+		 * @return the configured smAdminUser
+		 */
+		@Attribute(order = 150, validators = { RequiredValueValidator.class })
 		String smAdminUser();
 
-		@Attribute(order = 180, validators = { RequiredValueValidator.class })
-		String smAdminPassword();
+		/**
+		 * Password of the sitemidner DMS administrator logging in
+		 * 
+		 * @return the configured smAdminPassword
+		 */
+		@Attribute(order = 160, validators = { RequiredValueValidator.class })
+		String smAdminPasswordSecretId();
 
-		@Attribute(order = 190, validators = { RequiredValueValidator.class })
+		/**
+		 * Name of the siteminder user directory
+		 * 
+		 * @return the configured user directory
+		 */
+		@Attribute(order = 170, validators = { RequiredValueValidator.class })
 		String smUserDirectory();
 
-		@Attribute(order = 200, validators = { RequiredValueValidator.class })
+		/**
+		 * The user directory root search base. For example, "dc=mycompany,dc=com"
+		 * 
+		 * @return the configured smDirectoryRoot
+		 */
+		@Attribute(order = 180, validators = { RequiredValueValidator.class })
 		String smDirectoryRoot();
 
-		@Attribute(order = 210, validators = { RequiredValueValidator.class })
+		/**
+		 * The username attribute used to search for a user, given it's username. For
+		 * example, "samaccountname"
+		 * 
+		 * @return the configured smUserSearchAttr
+		 */
+		@Attribute(order = 190, validators = { RequiredValueValidator.class })
 		String smUserSearchAttr();
 
-		@Attribute(order = 220, validators = { RequiredValueValidator.class })
+		/**
+		 * The object class used to define the users -- for example, "user"
+		 * 
+		 * @return the configured smUserSearchClass
+		 */
+		@Attribute(order = 200, validators = { RequiredValueValidator.class })
 		String smUserSearchClass();
 
 	}
@@ -198,18 +306,21 @@ public class LegacySMCreateForgeRockUser extends AbstractLegacyCreateForgeRockUs
 		SecretsProviderFacade secretsProvider = secrets.getRealmSecrets(realm);
 		if (secretsProvider != null) {
 			try {
-				this.idmPassword = secretsProvider.getNamedSecret(Purpose.PASSWORD, config.idmPasswordId())
+				this.idmPassword = secretsProvider.getNamedSecret(Purpose.PASSWORD, config.idmPassworSecretdId())
 						.getOrThrowUninterruptibly().revealAsUtf8(String::valueOf).trim();
 				// non 4x web agent takes the secret from SmHost.conf file
 				if (config.is4xAgent()) {
-					this.webAgentSecret = secretsProvider.getNamedSecret(Purpose.PASSWORD, config.webAgentSecret())
+					this.webAgentSecret = secretsProvider
+							.getNamedSecret(Purpose.PASSWORD, config.webAgentPasswordSecretId())
 							.getOrThrowUninterruptibly().revealAsUtf8(String::valueOf).trim();
 				}
-				this.smAdminPassword = secretsProvider.getNamedSecret(Purpose.PASSWORD, config.smAdminPassword())
-						.getOrThrowUninterruptibly().revealAsUtf8(String::valueOf).trim();
+				this.smAdminPassword = secretsProvider
+						.getNamedSecret(Purpose.PASSWORD, config.smAdminPasswordSecretId()).getOrThrowUninterruptibly()
+						.revealAsUtf8(String::valueOf).trim();
 			} catch (NoSuchSecretException e) {
-				throw new NodeProcessException("Check secret configurations for secret id's: " + config.idmPasswordId()
-						+ ", " + config.webAgentSecret() + "," + config.smAdminPassword());
+				throw new NodeProcessException(
+						"Check secret configurations for secret id's: " + config.idmPassworSecretdId() + ", "
+								+ config.webAgentPasswordSecretId() + "," + config.smAdminPasswordSecretId());
 			}
 		}
 	}
@@ -223,7 +334,7 @@ public class LegacySMCreateForgeRockUser extends AbstractLegacyCreateForgeRockUs
 
 		if (!SmSdkUtils.isNodeConfigurationValid(config.is4xAgent(), config.smHostFilePath(), config.accountingPort(),
 				config.authenticationPort(), config.authorizationPort(), config.connectionMin(), config.connectionMax(),
-				config.connectionStep(), config.timeout(), config.webAgentSecret())) {
+				config.connectionStep(), config.timeout(), config.webAgentPasswordSecretId())) {
 			throw new NodeProcessException(
 					"LegacySMCreateForgeRockUser::process: Configuration is not valid for the selected agent type");
 		}
@@ -235,7 +346,7 @@ public class LegacySMCreateForgeRockUser extends AbstractLegacyCreateForgeRockUs
 		}
 		Map<String, String> userAttributes = new HashMap<>();
 		try {
-			userAttributes = getUserAttributes(userName, password);
+			userAttributes = getUserAttributes(userName);
 			if (userAttributes != null) {
 				if (password != null && password.length() > 0) {
 					userAttributes.put(PASSWORD, password);
@@ -260,7 +371,7 @@ public class LegacySMCreateForgeRockUser extends AbstractLegacyCreateForgeRockUs
 	 * @throws SmApiException
 	 */
 	@SuppressWarnings("rawtypes")
-	private Map<String, String> getUserAttributes(String userName, String password) throws SmApiException {
+	private Map<String, String> getUserAttributes(String userName) throws SmApiException {
 		// Initialize AgentAPI
 		AgentAPI agentapi = new AgentAPI();
 		ServerDef serverDefinition = null;

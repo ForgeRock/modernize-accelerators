@@ -88,7 +88,7 @@ public class LegacySMSetPasswordTest {
 		sharedState = org.forgerock.json.JsonValue
 				.json(object(field(USERNAME, USERNAME_VALUE), field(PASSWORD, PASSWORD_VALUE)));
 
-		given(config.idmPasswordId()).willReturn(OPENIDM_ADMIN_SECRET);
+		given(config.idmPassworSecretdId()).willReturn(OPENIDM_ADMIN_SECRET);
 		given(config.idmUserEndpoint()).willReturn(LOCAL_IDM);
 		given(config.idmAdminUser()).willReturn(OPENIDM_ADMIN_USER);
 

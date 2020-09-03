@@ -9,7 +9,7 @@
   "data" : {
     "_id" : "d17cbbe3-be41-443a-901b-383bf7421a4c",
     "idmAdminUser" : "openidm-admin",
-    "idmPasswordId" : "openidmadmin",
+    "idmPassworSecretdId" : "openidmadmin",
     "idmUserEndpoint" : "https://openidm",
     "_type" : {
       "_id" : "LegacySMMigrationStatus",

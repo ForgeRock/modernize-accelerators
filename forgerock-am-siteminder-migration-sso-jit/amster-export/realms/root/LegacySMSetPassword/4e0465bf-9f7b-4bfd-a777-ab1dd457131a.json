@@ -9,7 +9,7 @@
   "data" : {
     "_id" : "4e0465bf-9f7b-4bfd-a777-ab1dd457131a",
     "idmAdminUser" : "openidm-admin",
-    "idmPasswordId" : "openidmadmin",
+    "idmPassworSecretdId" : "openidmadmin",
     "idmUserEndpoint" : "https://openidm",
     "_type" : {
       "_id" : "LegacySMSetPassword",

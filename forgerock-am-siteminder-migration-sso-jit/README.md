@@ -155,6 +155,8 @@ mkdir ROOT && cd ROOT
 jar -xf ~/Downloads/AM-6.5.2.3.war
 ```
 
+<b>Note:</b> It is not recommended to use the ROOT context, as shown in this example. The name of the folder should be changed to match your application context - e.g. <b>openam</b>
+
 + Copy the newly generated JAR file to the /ROOT/WEB-INF/lib directory:
 
 ```

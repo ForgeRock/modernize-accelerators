@@ -23,7 +23,6 @@ import static org.forgerock.openam.modernize.utils.NodeConstants.CONNECTION_MAX;
 import static org.forgerock.openam.modernize.utils.NodeConstants.CONNECTION_MIN;
 import static org.forgerock.openam.modernize.utils.NodeConstants.CONNECTION_STEP;
 import static org.forgerock.openam.modernize.utils.NodeConstants.CONNECTION_TIMEOUT;
-import static org.forgerock.openam.modernize.utils.NodeConstants.DEFAULT_ACTION;
 import static org.forgerock.openam.modernize.utils.NodeConstants.LEGACY_COOKIE_SHARED_STATE_PARAM;
 
 import java.util.Enumeration;
@@ -70,69 +69,141 @@ public class LegacySMValidateToken extends AbstractValidateTokenNode {
 	private final LegacyFRConfig config;
 	private String webAgentSecret;
 
+	/**
+	 * The node configuration
+	 */
 	public interface LegacyFRConfig extends AbstractValidateTokenNode.Config {
 
+		/**
+		 * Siteminder Policy Server IP address.
+		 * 
+		 * @return the configured policyServerIP
+		 */
 		@Attribute(order = 10, validators = { RequiredValueValidator.class })
 		String policyServerIP();
 
+		/**
+		 * Siteminder Policy Server Accounting server port (0 for none). Mandatory if
+		 * "Is 4x Web agent" config is activated.
+		 * 
+		 * @return the configured accountingPort
+		 */
 		@Attribute(order = 20)
 		default int accountingPort() {
 			return ACCOUNTING_PORT;
 		}
 
+		/**
+		 * Siteminder Policy Server Authentication server port (0 for none). Mandatory
+		 * if "Is 4x Web agent" config is activated.
+		 * 
+		 * @return the configured authenticationPort
+		 */
 		@Attribute(order = 30)
 		default int authenticationPort() {
 			return AUTHENTICATION_PORT;
 		}
 
+		/**
+		 * Siteminder Policy Server Authorization server port (0 for none). Mandatory if
+		 * "Is 4x Web agent" config is activated.
+		 * 
+		 * @return the configured authorizationPort
+		 */
 		@Attribute(order = 40)
 		default int authorizationPort() {
 			return AUTHORIZATION_PORT;
 		}
 
+		/**
+		 * Number of initial connections. Mandatory if "Is 4x Web agent" config is
+		 * activated.
+		 * 
+		 * @return the configured connectionMin value
+		 */
 		@Attribute(order = 50)
 		default int connectionMin() {
 			return CONNECTION_MIN;
 		}
 
+		/**
+		 * Maximum number of connections. Mandatory if "Is 4x Web agent" config is
+		 * activated.
+		 * 
+		 * @return the configured connectionMax value
+		 */
 		@Attribute(order = 60)
 		default int connectionMax() {
 			return CONNECTION_MAX;
 		}
 
+		/**
+		 * Number of connections to allocate when out of connections. Mandatory if "Is
+		 * 4x Web agent" config is activated.
+		 * 
+		 * @return the configured connectionStep value
+		 */
 		@Attribute(order = 70)
 		default int connectionStep() {
 			return CONNECTION_STEP;
 		}
 
+		/**
+		 * Connection timeout in seconds. Mandatory if "Is 4x Web agent" config is
+		 * activated.
+		 * 
+		 * @return the configured timeoutin seconds
+		 */
 		@Attribute(order = 80)
 		default int timeout() {
 			return CONNECTION_TIMEOUT;
 		}
 
+		/**
+		 * The agent name. This name must match the agent name provided to the Policy
+		 * Server. The agent name is not case sensitive.
+		 * 
+		 * @return the configured webAgentName
+		 */
 		@Attribute(order = 90, validators = { RequiredValueValidator.class })
 		String webAgentName();
 
+		/**
+		 * The secret id of the AM secret that contains the web agent shared secret as
+		 * defined in the SiteMinder user interface (case sensitive).
+		 * 
+		 * @return the configured webAgentSecretId
+		 */
 		@Attribute(order = 100)
-		String webAgentSecret();
+		String webAgentPasswordSecretId();
 
+		/**
+		 * The version of web agent used by the siteminder policy server. Should be True
+		 * if the "Is 4x" check box is active on the Siteminder Web Agent.
+		 * 
+		 * @return true if siteminder web agent version is 4x, false otherwise
+		 */
 		@Attribute(order = 110, validators = { RequiredValueValidator.class })
 		default boolean is4xAgent() {
 			return true;
 		}
 
+		/**
+		 * Location on the AM instance, where the Siteminder web agent SmHost.conf file
+		 * is located. Mandatory if "Is 4x Web agent" configuration is set to false
+		 * (disabled).
+		 * 
+		 * @return configured smHostFilePath
+		 */
 		@Attribute(order = 120)
 		String smHostFilePath();
 
+		/**
+		 * A debug switch used to activate additional debug information.
+		 * 
+		 * @return configured debug value
+		 */
 		@Attribute(order = 130, validators = { RequiredValueValidator.class })
-		String protectedResource();
-
-		@Attribute(order = 140, validators = { RequiredValueValidator.class })
-		default String protectedResourceAction() {
-			return DEFAULT_ACTION;
-		}
-
-		@Attribute(order = 150, validators = { RequiredValueValidator.class })
 		default boolean debug() {
 			return false;
 		}
@@ -153,12 +224,12 @@ public class LegacySMValidateToken extends AbstractValidateTokenNode {
 			try {
 				// non 4x web agent takes the secret from SmHost.conf file
 				if (config.is4xAgent()) {
-					this.webAgentSecret = secretsProvider.getNamedSecret(Purpose.PASSWORD, config.webAgentSecret())
+					this.webAgentSecret = secretsProvider.getNamedSecret(Purpose.PASSWORD, config.webAgentPasswordSecretId())
 							.getOrThrowUninterruptibly().revealAsUtf8(String::valueOf).trim();
 				}
 			} catch (NoSuchSecretException e) {
 				throw new NodeProcessException(
-						"Check secret configurations for secret id's: " + config.webAgentSecret());
+						"Check secret configurations for secret id's: " + config.webAgentPasswordSecretId());
 			}
 		}
 	}
@@ -172,7 +243,7 @@ public class LegacySMValidateToken extends AbstractValidateTokenNode {
 
 		if (!SmSdkUtils.isNodeConfigurationValid(config.is4xAgent(), config.smHostFilePath(), config.accountingPort(),
 				config.authenticationPort(), config.authorizationPort(), config.connectionMin(), config.connectionMax(),
-				config.connectionStep(), config.timeout(), config.webAgentSecret())) {
+				config.connectionStep(), config.timeout(), config.webAgentPasswordSecretId())) {
 			throw new NodeProcessException(
 					"LegacySMValidateToken::process: Configuration is not valid for the selected agent type");
 		}
