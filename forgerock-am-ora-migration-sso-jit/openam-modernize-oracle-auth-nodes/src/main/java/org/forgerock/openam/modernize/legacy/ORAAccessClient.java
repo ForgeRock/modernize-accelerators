@@ -1,5 +1,5 @@
 /***************************************************************************
- *  Copyright 2019 ForgeRock AS
+ *  Copyright 2021 ForgeRock AS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,8 @@
  *  limitations under the License.
  ***************************************************************************/
 package org.forgerock.openam.modernize.legacy;
+
+import static oracle.security.am.asdk.BaseUserSession.LOGGEDIN;
 
 import java.io.Serializable;
 import java.util.Hashtable;
@@ -30,15 +32,16 @@ import oracle.security.am.asdk.UserSession;
 public class ORAAccessClient implements Serializable {
 
 	private static final long serialVersionUID = 648742305178339393L;
-	private static volatile ORAAccessClient accessClientInstance;
-	private Logger LOGGER = LoggerFactory.getLogger(ORAAccessClient.class);
+	private static ORAAccessClient accessClientInstance;
+	private final transient Logger logger = LoggerFactory.getLogger(ORAAccessClient.class);
 
-	private AccessClient ac;
-	private ResourceRequest rrq;
+	private transient AccessClient ac;
+	private transient ResourceRequest rrq;
 
 	private ORAAccessClient() {
 		if (accessClientInstance != null) {
-			throw new RuntimeException("Use getInstance() method to get the single instance of this class.");
+			throw new RuntimeException(
+					"ORAAccessClient::ORAAccessClient > Use getInstance() method to get the single instance of this class.");
 		}
 	}
 
@@ -52,37 +55,56 @@ public class ORAAccessClient implements Serializable {
 		return accessClientInstance;
 	}
 
-	protected ORAAccessClient readResolve() {
-		return getInstance();
-	}
-
+	/**
+	 * Authenticate the ORA user
+	 *
+	 * @param userName       the username
+	 * @param password       the user's password
+	 * @param protocol       the protocol
+	 * @param resource       the requested resource
+	 * @param method         the endpoint method
+	 * @param configLocation the ORA configuration location
+	 * @return the response cookie
+	 * @throws AccessException
+	 */
 	public String authenticateUser(String userName, String password, String protocol, String resource, String method,
 			String configLocation) throws AccessException {
 		initAccessClient(configLocation, protocol, resource, method);
 		String responseCookie = null;
-		Hashtable<String, String> creds = new Hashtable<String, String>();
-		creds.put("userid", userName);
-		creds.put("password", password);
-		UserSession session = new UserSession(rrq, creds);
-		if (session.getStatus() == UserSession.LOGGEDIN) {
+		Hashtable<String, String> credentials = new Hashtable<>();
+		credentials.put("userid", userName);
+		credentials.put("password", password);
+		UserSession session = new UserSession(rrq, credentials);
+		if (session.getStatus() == LOGGEDIN) {
 			if (session.isAuthorized(rrq)) {
-				LOGGER.debug("User is logged in and authorized for the" + "request at level " + session.getLevel());
+				logger.info(
+						"ORAAccessClient::authenticateUser > User is logged in and authorized for the request at level {}",
+						session.getLevel());
 				responseCookie = session.getSessionToken();
-				LOGGER.debug("Session token: " + responseCookie);
+				logger.info("ORAAccessClient::authenticateUser > Session token: {}", responseCookie);
 			} else {
-				LOGGER.debug("User is logged in but NOT authorized");
+				logger.warn("ORAAccessClient::authenticateUser > User is logged in but NOT authorized");
 			}
 		} else {
-			LOGGER.debug("User is NOT logged in");
+			logger.warn("ORAAccessClient::authenticateUser > User is NOT logged in");
 		}
 		return responseCookie;
 	}
 
+	/**
+	 * Initialises ORA access client
+	 *
+	 * @param configLocation the ORA configuration location
+	 * @param protocol       the protocol
+	 * @param resource       the requested resource
+	 * @param method         the endpoint method
+	 * @throws AccessException
+	 */
 	private void initAccessClient(String configLocation, String protocol, String resource, String method)
 			throws AccessException {
 		if (ac == null) {
 			ac = AccessClient.createDefaultInstance(configLocation, AccessClient.CompatibilityMode.OAM_10G);
-			LOGGER.debug("Initialising ORA access client.");
+			logger.info("ORAAccessClient::initAccessClient > Initialising ORA access client.");
 		}
 
 		if (rrq == null) {
@@ -90,15 +112,15 @@ public class ORAAccessClient implements Serializable {
 		}
 
 		if (rrq.isProtected()) {
-			LOGGER.debug("Resource is protected.");
-			AuthenticationScheme authnScheme = new AuthenticationScheme(rrq);
-			if (authnScheme.isForm()) {
-				LOGGER.debug("Form Authentication Scheme.");
+			logger.warn("ORAAccessClient::initAccessClient > Resource is protected.");
+			AuthenticationScheme authScheme = new AuthenticationScheme(rrq);
+			if (authScheme.isForm()) {
+				logger.info("ORAAccessClient::initAccessClient > Form Authentication Scheme.");
 			} else {
-				LOGGER.debug("non-Form Authentication Scheme.");
+				logger.info("ORAAccessClient::initAccessClient > non-Form Authentication Scheme.");
 			}
 		} else {
-			LOGGER.debug("Resource is NOT protected.");
+			logger.warn("ORAAccessClient::initAccessClient > Resource is NOT protected.");
 		}
 	}
 }

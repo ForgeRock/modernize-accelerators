@@ -1,5 +1,5 @@
 /***************************************************************************
- *  Copyright 2020 ForgeRock AS
+ *  Copyright 2021 ForgeRock AS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,25 +15,15 @@
  ***************************************************************************/
 package org.forgerock.openam.auth.node;
 
-import static org.forgerock.openam.auth.node.api.SharedStateConstants.PASSWORD;
+import static org.forgerock.openam.auth.node.api.SharedStateConstants.OBJECT_ATTRIBUTES;
 import static org.forgerock.openam.auth.node.api.SharedStateConstants.USERNAME;
-import static org.forgerock.openam.modernize.utils.NodeConstants.ACCOUNTING_PORT;
-import static org.forgerock.openam.modernize.utils.NodeConstants.AUTHENTICATION_PORT;
-import static org.forgerock.openam.modernize.utils.NodeConstants.AUTHORIZATION_PORT;
-import static org.forgerock.openam.modernize.utils.NodeConstants.CONNECTION_MAX;
-import static org.forgerock.openam.modernize.utils.NodeConstants.CONNECTION_MIN;
-import static org.forgerock.openam.modernize.utils.NodeConstants.CONNECTION_STEP;
-import static org.forgerock.openam.modernize.utils.NodeConstants.CONNECTION_TIMEOUT;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
 import javax.inject.Inject;
 
-import org.forgerock.http.HttpApplicationException;
-import org.forgerock.http.handler.HttpClientHandler;
+import org.forgerock.json.JsonValue;
 import org.forgerock.openam.annotations.sm.Attribute;
 import org.forgerock.openam.auth.node.api.Action;
 import org.forgerock.openam.auth.node.api.Node;
@@ -42,14 +32,18 @@ import org.forgerock.openam.auth.node.api.TreeContext;
 import org.forgerock.openam.auth.node.base.AbstractLegacyCreateForgeRockUserNode;
 import org.forgerock.openam.core.realms.Realm;
 import org.forgerock.openam.modernize.legacy.SmSdkUtils;
+import org.forgerock.openam.modernize.utils.LegacySMVObjectAttributesHandler;
 import org.forgerock.openam.secrets.Secrets;
 import org.forgerock.openam.secrets.SecretsProviderFacade;
+import org.forgerock.openam.services.SiteminderService;
+import org.forgerock.openam.sm.AnnotatedServiceRegistry;
 import org.forgerock.secrets.NoSuchSecretException;
 import org.forgerock.secrets.Purpose;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.assistedinject.Assisted;
+import com.iplanet.sso.SSOException;
 import com.netegrity.sdk.apiutil.SmApiConnection;
 import com.netegrity.sdk.apiutil.SmApiException;
 import com.netegrity.sdk.apiutil.SmApiResult;
@@ -66,6 +60,7 @@ import com.netegrity.sdk.policyapi.SmPolicyApi;
 import com.netegrity.sdk.policyapi.SmPolicyApiImpl;
 import com.netegrity.sdk.policyapi.SmUserDirectory;
 import com.sun.identity.sm.RequiredValueValidator;
+import com.sun.identity.sm.SMSException;
 
 import netegrity.siteminder.javaagent.AgentAPI;
 import netegrity.siteminder.javaagent.InitDef;
@@ -81,13 +76,13 @@ import netegrity.siteminder.javaagent.ServerDef;
 @Node.Metadata(configClass = LegacySMCreateForgeRockUser.LegacyFRConfig.class, outcomeProvider = AbstractLegacyCreateForgeRockUserNode.OutcomeProvider.class)
 public class LegacySMCreateForgeRockUser extends AbstractLegacyCreateForgeRockUserNode {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(LegacySMCreateForgeRockUser.class);
+	private static final Logger logger = LoggerFactory.getLogger(LegacySMCreateForgeRockUser.class);
 	private final LegacyFRConfig config;
-	private final HttpClientHandler httpClientHandler;
 
-	private String idmPassword;
 	private String webAgentSecret;
 	private String smAdminPassword;
+	LegacySMVObjectAttributesHandler legacySMVObjectAttributesHandler;
+	SiteminderService siteminderService;
 
 	/**
 	 * Node configuration
@@ -95,232 +90,49 @@ public class LegacySMCreateForgeRockUser extends AbstractLegacyCreateForgeRockUs
 	public interface LegacyFRConfig extends AbstractLegacyCreateForgeRockUserNode.Config {
 
 		/**
-		 * Siteminder Policy Server IP address.
-		 * 
-		 * @return the configured policyServerIP
-		 */
-		@Attribute(order = 10, validators = { RequiredValueValidator.class })
-		String policyServerIP();
-
-		/**
-		 * Siteminder Policy Server Accounting server port (0 for none). Mandatory if
-		 * "Is 4x Web agent" config is activated.
-		 * 
-		 * @return the configured accountingPort
-		 */
-		@Attribute(order = 20)
-		default int accountingPort() {
-			return ACCOUNTING_PORT;
-		}
-
-		/**
-		 * Siteminder Policy Server Authentication server port (0 for none). Mandatory
-		 * if "Is 4x Web agent" config is activated.
-		 * 
-		 * @return the configured authenticationPort
-		 */
-		@Attribute(order = 30)
-		default int authenticationPort() {
-			return AUTHENTICATION_PORT;
-		}
-
-		/**
-		 * Siteminder Policy Server Authorization server port (0 for none). Mandatory if
-		 * "Is 4x Web agent" config is activated.
-		 * 
-		 * @return the configured authorizationPort
-		 */
-		@Attribute(order = 40)
-		default int authorizationPort() {
-			return AUTHORIZATION_PORT;
-		}
-
-		/**
-		 * Number of initial connections. Mandatory if "Is 4x Web agent" config is
-		 * activated.
-		 * 
-		 * @return the configured connectionMin value
-		 */
-		@Attribute(order = 50)
-		default int connectionMin() {
-			return CONNECTION_MIN;
-		}
-
-		/**
-		 * Maximum number of connections. Mandatory if "Is 4x Web agent" config is
-		 * activated.
-		 * 
-		 * @return the configured connectionMax value
-		 */
-		@Attribute(order = 60)
-		default int connectionMax() {
-			return CONNECTION_MAX;
-		}
-
-		/**
-		 * Number of connections to allocate when out of connections. Mandatory if "Is
-		 * 4x Web agent" config is activated.
-		 * 
-		 * @return the configured connectionStep value
-		 */
-		@Attribute(order = 70)
-		default int connectionStep() {
-			return CONNECTION_STEP;
-		}
-
-		/**
-		 * Connection timeout in seconds. Mandatory if "Is 4x Web agent" config is
-		 * activated.
-		 * 
-		 * @return the configured timeoutin seconds
-		 */
-		@Attribute(order = 80)
-		default int timeout() {
-			return CONNECTION_TIMEOUT;
-		}
-
-		/**
-		 * The agent name. This name must match the agent name provided to the Policy
-		 * Server. The agent name is not case sensitive.
-		 * 
-		 * @return the configured webAgentName
-		 */
-		@Attribute(order = 90, validators = { RequiredValueValidator.class })
-		String webAgentName();
-
-		/**
-		 * The secret id of the AM secret that contains the web agent shared secret as
-		 * defined in the SiteMinder user interface (case sensitive).
-		 * 
-		 * @return the configured webAgentSecretId
-		 */
-		@Attribute(order = 100)
-		String webAgentPasswordSecretId();
-
-		/**
-		 * The version of web agent used by the siteminder policy server. Should be True
-		 * if the "Is 4x" check box is active on the Siteminder Web Agent.
-		 * 
-		 * @return true if siteminder web agent version is 4x, false otherwise
-		 */
-		@Attribute(order = 110, validators = { RequiredValueValidator.class })
-		default boolean is4xAgent() {
-			return true;
-		}
-
-		/**
-		 * Location on the AM instance, where the Siteminder web agent SmHost.conf file
-		 * is located. Mandatory if "Is 4x Web agent" configuration is set to false
-		 * (disabled).
-		 * 
-		 * @return configured smHostFilePath
-		 */
-		@Attribute(order = 120)
-		String smHostFilePath();
-
-		/**
-		 * A debug switch used to activate additional debug information.
-		 * 
-		 * @return configured debug value
-		 */
-		@Attribute(order = 130, validators = { RequiredValueValidator.class })
-		default boolean debug() {
-			return false;
-		}
-
-		/**
 		 * A map which should hold as keys the name of the SiteMinder user attributes,
 		 * and as values their equivalent name in the ForgeRock IDM database.
-		 * 
+		 *
 		 * @return the configured attributes map
 		 */
-		@Attribute(order = 140, validators = { RequiredValueValidator.class })
+		@Attribute(order = 250, validators = { RequiredValueValidator.class })
 		Map<String, String> migrationAttributesMap();
-
-		/**
-		 * Distinguished name of the siteminder administrator
-		 * 
-		 * @return the configured smAdminUser
-		 */
-		@Attribute(order = 150, validators = { RequiredValueValidator.class })
-		String smAdminUser();
-
-		/**
-		 * Password of the sitemidner DMS administrator logging in
-		 * 
-		 * @return the configured smAdminPassword
-		 */
-		@Attribute(order = 160, validators = { RequiredValueValidator.class })
-		String smAdminPasswordSecretId();
-
-		/**
-		 * Name of the siteminder user directory
-		 * 
-		 * @return the configured user directory
-		 */
-		@Attribute(order = 170, validators = { RequiredValueValidator.class })
-		String smUserDirectory();
-
-		/**
-		 * The user directory root search base. For example, "dc=mycompany,dc=com"
-		 * 
-		 * @return the configured smDirectoryRoot
-		 */
-		@Attribute(order = 180, validators = { RequiredValueValidator.class })
-		String smDirectoryRoot();
-
-		/**
-		 * The username attribute used to search for a user, given it's username. For
-		 * example, "samaccountname"
-		 * 
-		 * @return the configured smUserSearchAttr
-		 */
-		@Attribute(order = 190, validators = { RequiredValueValidator.class })
-		String smUserSearchAttr();
-
-		/**
-		 * The object class used to define the users -- for example, "user"
-		 * 
-		 * @return the configured smUserSearchClass
-		 */
-		@Attribute(order = 200, validators = { RequiredValueValidator.class })
-		String smUserSearchClass();
 
 	}
 
 	/**
 	 * Creates a LegacySMCreateForgeRockUser node with the provided configuration
-	 * 
+	 *
 	 * @param config  the configuration for this Node.
 	 * @param realm   the realm the node is accessed from.
 	 * @param secrets the secret store used to get passwords
-	 * @throws NodeProcessException     If there is an error reading the
-	 *                                  configuration.
-	 * @throws HttpApplicationException
+	 * @throws NodeProcessException If there is an error reading the configuration.
+	 * @throws NodeProcessException when an exception occurs
 	 */
 	@Inject
 	public LegacySMCreateForgeRockUser(@Assisted LegacyFRConfig config, @Assisted Realm realm, Secrets secrets,
-			HttpClientHandler httpClientHandler) throws NodeProcessException {
+			AnnotatedServiceRegistry serviceRegistry) throws NodeProcessException {
 		this.config = config;
-		this.httpClientHandler = httpClientHandler;
+		this.legacySMVObjectAttributesHandler = LegacySMVObjectAttributesHandler.getInstance();
 		SecretsProviderFacade secretsProvider = secrets.getRealmSecrets(realm);
+		try {
+			siteminderService = serviceRegistry.getRealmSingleton(SiteminderService.class, realm).get();
+		} catch (SSOException | SMSException e) {
+			e.printStackTrace();
+		}
 		if (secretsProvider != null) {
 			try {
-				this.idmPassword = secretsProvider.getNamedSecret(Purpose.PASSWORD, config.idmPassworSecretdId())
-						.getOrThrowUninterruptibly().revealAsUtf8(String::valueOf).trim();
 				// non 4x web agent takes the secret from SmHost.conf file
-				if (config.is4xAgent()) {
+				if (Boolean.TRUE.equals(siteminderService.is4xAgent())) {
 					this.webAgentSecret = secretsProvider
-							.getNamedSecret(Purpose.PASSWORD, config.webAgentPasswordSecretId())
-							.getOrThrowUninterruptibly().revealAsUtf8(String::valueOf).trim();
+							.getNamedSecret(Purpose.PASSWORD, siteminderService.webAgentPasswordSecretId())
+							.getOrThrowIfInterrupted().revealAsUtf8(String::valueOf).trim();
 				}
 				this.smAdminPassword = secretsProvider
-						.getNamedSecret(Purpose.PASSWORD, config.smAdminPasswordSecretId()).getOrThrowUninterruptibly()
-						.revealAsUtf8(String::valueOf).trim();
+						.getNamedSecret(Purpose.PASSWORD, siteminderService.smAdminPasswordSecretId())
+						.getOrThrowIfInterrupted().revealAsUtf8(String::valueOf).trim();
 			} catch (NoSuchSecretException e) {
-				throw new NodeProcessException(
-						"Check secret configurations for secret id's: " + config.idmPassworSecretdId() + ", "
-								+ config.webAgentPasswordSecretId() + "," + config.smAdminPasswordSecretId());
+				throw new NodeProcessException("Check secret configurations for secret id's");
 			}
 		}
 	}
@@ -330,106 +142,149 @@ public class LegacySMCreateForgeRockUser extends AbstractLegacyCreateForgeRockUs
 	 */
 	@Override
 	public Action process(TreeContext context) throws NodeProcessException {
-		LOGGER.debug("LegacySMCreateForgeRockUser > Start");
+		logger.info("LegacySMCreateForgeRockUser::process > Start");
 
-		if (!SmSdkUtils.isNodeConfigurationValid(config.is4xAgent(), config.smHostFilePath(), config.accountingPort(),
-				config.authenticationPort(), config.authorizationPort(), config.connectionMin(), config.connectionMax(),
-				config.connectionStep(), config.timeout(), config.webAgentPasswordSecretId())) {
+		if (!SmSdkUtils.isNodeConfigurationValid(siteminderService)) {
 			throw new NodeProcessException(
-					"LegacySMCreateForgeRockUser::process: Configuration is not valid for the selected agent type");
+					"LegacySMLogin::process > Configuration is not valid for the selected agent type");
 		}
 
 		String userName = context.sharedState.get(USERNAME).asString();
-		String password = "";
-		if (context.transientState.get(PASSWORD) != null) {
-			password = context.transientState.get(PASSWORD).asString();
-		}
-		Map<String, String> userAttributes = new HashMap<>();
+		Map<String, String> userAttributes;
 		try {
 			userAttributes = getUserAttributes(userName);
+
 			if (userAttributes != null) {
-				if (password != null && password.length() > 0) {
-					userAttributes.put(PASSWORD, password);
-				}
-				return goTo(provisionUser(userAttributes, idmPassword, config.idmUserEndpoint(), config.idmAdminUser(),
-						config.setPasswordReset(), httpClientHandler)).build();
+				return updateStates(context, userName, userAttributes);
 			}
 		} catch (SmApiException e) {
-			throw new NodeProcessException("LegacySMCreateForgeRockUser::SmApiException: " + e);
+			throw new NodeProcessException("LegacySMCreateForgeRockUser::process > SmApiException: " + e);
 		}
 
 		return goTo(false).build();
 	}
 
 	/**
-	 * 
-	 * Gets a user's attributes from the Siteminder directory.
-	 * 
-	 * @param userName the user retrieved from the shared state
-	 * @param password the password retrieved from the shared state
-	 * @return a map of user attributes, in the format expected by ForgeRock IDM
-	 * @throws SmApiException
+	 * Updates both the sharedState and the transientState (if it's the case)
+	 * SharedState will receive an OBJECT_ATTRIBUTES object which will contain all
+	 * the relevant info for the specified user TransientState will receive a
+	 * password set for the specified user
+	 *
+	 * @param context  the tree context
+	 * @param userName the username of our current user
+	 * @param entity   the response body
+	 * @return the action
 	 */
-	@SuppressWarnings("rawtypes")
-	private Map<String, String> getUserAttributes(String userName) throws SmApiException {
-		// Initialize AgentAPI
-		AgentAPI agentapi = new AgentAPI();
-		ServerDef serverDefinition = null;
-		InitDef initDefinition = new InitDef();
+	public Action updateStates(TreeContext context, String userName, Map<String, String> entity) {
+		JsonValue userAttributes;
+		JsonValue copySharedState = context.sharedState.copy();
+		userAttributes = legacySMVObjectAttributesHandler.updateObjectAttributes(userName, entity, copySharedState);
 
-		// Create SM server and init definitions
-		if (config.is4xAgent()) {
-			LOGGER.info(
-					"LegacySMCreateForgeRockUser::getUserAttributes() > Configuring AgentAPI for using a 4.x web agent.");
-			serverDefinition = SmSdkUtils.createServerDefinition(config.policyServerIP(), config.connectionMin(),
-					config.connectionMax(), config.connectionStep(), config.timeout(), config.authorizationPort(),
-					config.authenticationPort(), config.accountingPort());
-			initDefinition = SmSdkUtils.createInitDefinition(config.webAgentName(), webAgentSecret, false,
-					serverDefinition);
-		} else {
-			LOGGER.info(
-					"LegacySMCreateForgeRockUser::getUserAttributes() > Configuring AgentAPI for using a > 4.x web agent.");
-			int configStatus = agentapi.getConfig(initDefinition, config.webAgentName(), config.smHostFilePath());
-			LOGGER.info("LegacySMCreateForgeRockUser::getUserAttributes() > getConfig returned status: {}",
-					configStatus);
-		}
+		if (userAttributes != null) {
+			if (config.setPasswordReset()) {
+				JsonValue userAttributesTransientState = legacySMVObjectAttributesHandler.setPassword(context);
 
-		int retcode = agentapi.init(initDefinition);
+				if (userAttributesTransientState != null) {
+					logger.info("LegacySMCreateForgeRockUser::updateStates > "
+							+ "OBJECT_ATTRIBUTES added on shared state and on transient state.");
+					return goTo(true).replaceSharedState(context.sharedState.put(OBJECT_ATTRIBUTES, userAttributes))
+							.replaceTransientState(
+									context.transientState.put(OBJECT_ATTRIBUTES, userAttributesTransientState))
+							.build();
+				}
+			}
 
-		if (retcode != AgentAPI.SUCCESS) {
-			LOGGER.error("LegacySMCreateForgeRockUser::getUserAttributes() > AgentAPI init failed with return code: {}",
-					retcode);
-			return null;
-		} else {
-			if (config.debug()) {
-				LOGGER.info("LegacySMCreateForgeRockUser::getUserAttributes() > AgentAPI init SUCCESS.");
+			logger.info("LegacySMCreateForgeRockUser::updateStates > OBJECT_ATTRIBUTES added on shared state.");
+			return goTo(true).replaceSharedState(context.sharedState.put(OBJECT_ATTRIBUTES, userAttributes)).build();
+		} else if (config.setPasswordReset()) {
+			JsonValue userAttributesTransientState = legacySMVObjectAttributesHandler.setPassword(context);
+
+			if (userAttributesTransientState != null) {
+				logger.info("LegacySMCreateForgeRockUser::updateStates > OBJECT_ATTRIBUTES added on transient state.");
+				return goTo(true).replaceTransientState(
+						context.transientState.put(OBJECT_ATTRIBUTES, userAttributesTransientState)).build();
 			}
 		}
 
+		return goTo(false).build();
+	}
+
+	/**
+	 * Gets a user's attributes from the Siteminder directory.
+	 *
+	 * @param userName the user retrieved from the shared state
+	 * @return a map of user attributes, in the format expected by ForgeRock IDM
+	 * @throws SmApiException when an exception occurs
+	 */
+	private Map<String, String> getUserAttributes(String userName) throws SmApiException {
+		// Initialize AgentAPI
+		AgentAPI agentapi = new AgentAPI();
+		ServerDef serverDefinition;
+		InitDef initDefinition = new InitDef();
+
+		// Create SM server and init definitions
+		if (siteminderService.is4xAgent()) {
+			logger.info(
+					"LegacySMCreateForgeRockUser::getUserAttributes > Configuring AgentAPI for using a 4.x web agent.");
+			serverDefinition = SmSdkUtils.createServerDefinition(siteminderService);
+			initDefinition = SmSdkUtils.createInitDefinition(siteminderService.webAgentName(), webAgentSecret, false,
+					serverDefinition);
+		} else {
+			logger.info(
+					"LegacySMCreateForgeRockUser::getUserAttributes > Configuring AgentAPI for using a > 4.x web agent.");
+			int configStatus = agentapi.getConfig(initDefinition, siteminderService.webAgentName(),
+					siteminderService.smHostFilePath());
+			logger.info("LegacySMCreateForgeRockUser::getUserAttributes > getConfig returned status: {}", configStatus);
+		}
+
+		int retCode = agentapi.init(initDefinition);
+
+		if (retCode != AgentAPI.SUCCESS) {
+			logger.error("LegacySMCreateForgeRockUser::getUserAttributes > AgentAPI init failed with return code: {}",
+					retCode);
+			return null;
+		} else if (siteminderService.debug()) {
+			logger.info("LegacySMCreateForgeRockUser::getUserAttributes > AgentAPI init SUCCESS.");
+		}
+
 		// Connection to the policy server
-		SmApiConnection apiConnection = new SmApiConnection(agentapi);
+		return connectToThePolicyServer(agentapi, userName);
+	}
+
+	/**
+	 * Connect to the policy server and get a user's attributes from the Siteminder
+	 * directory.
+	 *
+	 * @param agent    the agent API
+	 * @param userName the user retrieved from the shared state
+	 * @return a map of user attributes, in the format expected by ForgeRock IDM
+	 * @throws SmApiException when an exception occurs
+	 */
+	public Map<String, String> connectToThePolicyServer(AgentAPI agent, String userName) throws SmApiException {
+		SmApiConnection apiConnection = new SmApiConnection(agent);
 		SmApiSession apiSession = new SmApiSession(apiConnection);
-		boolean loginResult = SmSdkUtils.adminLogin(apiSession, config.smAdminUser(), smAdminPassword.toCharArray());
-		LOGGER.info("LegacySMCreateForgeRockUser::getUserAttributes() > adminLogin result: {}", loginResult);
+		boolean loginResult = SmSdkUtils.adminLogin(apiSession, siteminderService.smAdminUser(),
+				smAdminPassword.toCharArray());
+		logger.info("LegacySMCreateForgeRockUser::connectToThePolicyServer > adminLogin result: {}", loginResult);
 
 		// Get a list of user directories the admin can manage.
 		SmPolicyApi policyApi = new SmPolicyApiImpl(apiSession);
-		Vector userDirs = new Vector();
+		Vector<Object> userDirs = new Vector<>();
 
 		// Returns the list of directory names.
-		SmApiResult result = policyApi.getAdminUserDirs(config.smAdminUser(), userDirs);
-		if (config.debug()) {
+		SmApiResult result = policyApi.getAdminUserDirs(siteminderService.smAdminUser(), userDirs);
+		if (siteminderService.debug()) {
 			SmSdkUtils.printObject(userDirs, result);
 		}
 
 		// Check if the USER_DIR can be found in the list and if found assign it here
 		SmUserDirectory userDir = null;
-		for (int i = 0; i < userDirs.size(); ++i) {
-			String dir = (String) userDirs.get(i);
-			if (dir.equals(config.smUserDirectory())) {
-				userDir = new SmUserDirectory(config.smUserDirectory());
-				result = policyApi.getUserDirectory(config.smUserDirectory(), userDir);
-				if (config.debug()) {
+		for (Object ob : userDirs) {
+			String dir = (String) ob;
+			if (dir.equals(siteminderService.smUserDirectory())) {
+				userDir = new SmUserDirectory(siteminderService.smUserDirectory());
+				result = policyApi.getUserDirectory(siteminderService.smUserDirectory(), userDir);
+				if (siteminderService.debug()) {
 					SmSdkUtils.printObject(userDir, result);
 				}
 			}
@@ -440,41 +295,47 @@ public class LegacySMCreateForgeRockUser extends AbstractLegacyCreateForgeRockUs
 		result = dmsApi.getDirectoryContext(userDir, new SmDmsConfig(), dirContext);
 
 		if (!result.isSuccess()) {
-			LOGGER.error("LegacySMCreateForgeRockUser::getUserAttributes() > getDirectoryContext STATUS_NOK");
-			agentapi.unInit();
+			logger.error("LegacySMCreateForgeRockUser::connectToThePolicyServer > getDirectoryContext STATUS_NOK");
+			agent.unInit();
 			return null;
 		} else {
-			LOGGER.info("LegacySMCreateForgeRockUser::getUserAttributes() > getDirectoryContext STATUS_OK");
+			logger.info("LegacySMCreateForgeRockUser::connectToThePolicyServer > getDirectoryContext STATUS_OK");
 		}
 
 		SmDmsDirectory dmsDirectory = dirContext.getDmsDirectory();
-		SmDmsOrganization dmsOrg = dmsDirectory.newOrganization(config.smDirectoryRoot());
-		String dmsSearch = "(&(objectclass=" + config.smUserSearchClass() + ") (" + config.smUserSearchAttr() + "="
-				+ userName + "))";
+		SmDmsOrganization dmsOrg = dmsDirectory.newOrganization(siteminderService.smDirectoryRoot());
+		String dmsSearch = "(&(objectclass=" + siteminderService.smUserSearchClass() + ") ("
+				+ siteminderService.smUserSearchAttr() + "=" + userName + "))";
 
-		SmDmsSearch search = new SmDmsSearch(dmsSearch, config.smDirectoryRoot());
+		SmDmsSearch search = new SmDmsSearch(dmsSearch, siteminderService.smDirectoryRoot());
 
 		// Define search parameters - no need to have them configurable since we always
 		// look for a single result
-		search.setScope(2);// Number of levels to search.
-		search.setNextItem(0);// Initialize forward search start
-		search.setMaxItems(1);// Max number of items to display
-		search.setPreviousItem(0);// Initialize back search start
-		search.setMaxResults(1);// Max items in the result set
+
+		// Number of levels to search.
+		search.setScope(2);
+		// Initialize forward search start
+		search.setNextItem(0);
+		// Max number of items to display
+		search.setMaxItems(1);
+		// Initialize back search start
+		search.setPreviousItem(0);
+		// Max items in the result set
+		search.setMaxResults(1);
+
 		result = dmsOrg.search(search, 1);
-		List vsearch = search.getResults();
+		Vector<Object> vsearch = search.getResults();
 		vsearch.remove(0);
-		SmDmsObject dmsObj = null;
+		SmDmsObject dmsObj;
 		if (vsearch.size() == 1) {
 			dmsObj = (SmDmsObject) vsearch.get(0);
-			LOGGER.info("LegacySMCreateForgeRockUser::getUserAttributes() > found object: {}", dmsObj);
-			if (config.debug()) {
+			logger.info("LegacySMCreateForgeRockUser::connectToThePolicyServer > found object: {}", dmsObj);
+			if (siteminderService.debug()) {
 				SmSdkUtils.printObject(dmsObj, result);
 			}
-			agentapi.unInit();
-			return SmSdkUtils.getUserAttributes(dmsObj, config.migrationAttributesMap(), config.debug());
+			agent.unInit();
+			return SmSdkUtils.getUserAttributes(dmsObj, config.migrationAttributesMap(), siteminderService.debug());
 		}
 		return null;
 	}
-
 }

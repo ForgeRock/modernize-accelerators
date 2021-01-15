@@ -1,0 +1,13 @@
+{
+  "name" : "oam-protected",
+  "baseURI" : "http://ec2-107-23-96-14.compute-1.amazonaws.com:7001",
+  "condition" : "${matches(request.uri.path,'^/oamconsole')}",
+  "capture" : [ "response", "request" ],
+  "handler" : {
+    "type" : "ReverseProxyHandler",
+    "config" : {
+      "connectionTimeout" : "60 seconds",
+      "soTimeout" : "unlimited"
+    }
+  }
+}

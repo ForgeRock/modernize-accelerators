@@ -1,5 +1,5 @@
 /***************************************************************************
- *  Copyright 2020 ForgeRock AS
+ *  Copyright 2021 ForgeRock AS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,14 +19,14 @@ import static java.util.Arrays.asList;
 
 import java.util.Map;
 
+import org.forgerock.openam.auth.node.AddAttributesToObjectAttributesNode;
 import org.forgerock.openam.auth.node.LegacySMCreateForgeRockUser;
 import org.forgerock.openam.auth.node.LegacySMLogin;
-import org.forgerock.openam.auth.node.LegacySMMigrationStatus;
-import org.forgerock.openam.auth.node.LegacySMSetPassword;
 import org.forgerock.openam.auth.node.LegacySMValidateToken;
 import org.forgerock.openam.auth.node.api.AbstractNodeAmPlugin;
 import org.forgerock.openam.auth.node.api.Node;
 import org.forgerock.openam.plugins.PluginException;
+import org.forgerock.openam.services.SiteminderService;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -58,7 +58,7 @@ public class LegacySMPlugin extends AbstractNodeAmPlugin {
 	@Override
 	protected Map<String, Iterable<? extends Class<? extends Node>>> getNodesByVersion() {
 		return ImmutableMap.of(getPluginVersion(), asList(LegacySMCreateForgeRockUser.class, LegacySMLogin.class,
-				LegacySMMigrationStatus.class, LegacySMSetPassword.class, LegacySMValidateToken.class));
+				LegacySMValidateToken.class, AddAttributesToObjectAttributesNode.class));
 	}
 
 	/**
@@ -70,10 +70,27 @@ public class LegacySMPlugin extends AbstractNodeAmPlugin {
 	 */
 	@Override
 	public void upgrade(String fromVersion) throws PluginException {
-		pluginTools.upgradeAuthNode(LegacySMCreateForgeRockUser.class);
-		pluginTools.upgradeAuthNode(LegacySMLogin.class);
-		pluginTools.upgradeAuthNode(LegacySMMigrationStatus.class);
-		pluginTools.upgradeAuthNode(LegacySMSetPassword.class);
-		pluginTools.upgradeAuthNode(LegacySMValidateToken.class);
+		// Services
+		// SSOToken adminToken =
+		// AccessController.doPrivileged(AdminTokenAction.getInstance());
+//		if (fromVersion.equals(PluginTools.DEVELOPMENT_VERSION)) {
+//			ServiceManager sm = null;
+//			try {
+//				sm = new ServiceManager(adminToken);
+//				if (sm.getServiceNames().contains("SiteminderService")) {
+//					sm.removeService("SiteminderService", "1.0");
+//				}
+//			} catch (SSOException | SMSException e) {
+//				e.printStackTrace();
+//			}
+//		}
+
+		pluginTools.installService(SiteminderService.class);
+
+		// Nodes
+		pluginTools.installAuthNode(LegacySMCreateForgeRockUser.class);
+		pluginTools.installAuthNode(LegacySMLogin.class);
+		pluginTools.installAuthNode(LegacySMValidateToken.class);
+		pluginTools.installAuthNode(AddAttributesToObjectAttributesNode.class);
 	}
 }

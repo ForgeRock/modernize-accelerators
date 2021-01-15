@@ -1,5 +1,5 @@
 /***************************************************************************
- *  Copyright 2020 ForgeRock AS
+ *  Copyright 2021 ForgeRock AS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,6 @@
 package org.forgerock.openam.auth.node;
 
 import static org.forgerock.openam.auth.node.api.SharedStateConstants.USERNAME;
-import static org.forgerock.openam.modernize.utils.NodeConstants.ACCOUNTING_PORT;
-import static org.forgerock.openam.modernize.utils.NodeConstants.AUTHENTICATION_PORT;
-import static org.forgerock.openam.modernize.utils.NodeConstants.AUTHORIZATION_PORT;
-import static org.forgerock.openam.modernize.utils.NodeConstants.CONNECTION_MAX;
-import static org.forgerock.openam.modernize.utils.NodeConstants.CONNECTION_MIN;
-import static org.forgerock.openam.modernize.utils.NodeConstants.CONNECTION_STEP;
-import static org.forgerock.openam.modernize.utils.NodeConstants.CONNECTION_TIMEOUT;
 import static org.forgerock.openam.modernize.utils.NodeConstants.LEGACY_COOKIE_SHARED_STATE_PARAM;
 
 import java.util.Enumeration;
@@ -30,7 +23,6 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import org.forgerock.openam.annotations.sm.Attribute;
 import org.forgerock.openam.auth.node.api.Action;
 import org.forgerock.openam.auth.node.api.Node;
 import org.forgerock.openam.auth.node.api.NodeProcessException;
@@ -40,18 +32,19 @@ import org.forgerock.openam.core.realms.Realm;
 import org.forgerock.openam.modernize.legacy.SmSdkUtils;
 import org.forgerock.openam.secrets.Secrets;
 import org.forgerock.openam.secrets.SecretsProviderFacade;
+import org.forgerock.openam.services.SiteminderService;
+import org.forgerock.openam.sm.AnnotatedServiceRegistry;
 import org.forgerock.secrets.NoSuchSecretException;
 import org.forgerock.secrets.Purpose;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.assistedinject.Assisted;
+import com.iplanet.sso.SSOException;
 import com.sun.identity.shared.xml.XMLUtils;
-import com.sun.identity.sm.RequiredValueValidator;
+import com.sun.identity.sm.SMSException;
 
 import netegrity.siteminder.javaagent.AgentAPI;
-import netegrity.siteminder.javaagent.InitDef;
-import netegrity.siteminder.javaagent.ServerDef;
 import netegrity.siteminder.javaagent.TokenDescriptor;
 
 /**
@@ -68,168 +61,42 @@ public class LegacySMValidateToken extends AbstractValidateTokenNode {
 	private static final Logger LOGGER = LoggerFactory.getLogger(LegacySMValidateToken.class);
 	private final LegacyFRConfig config;
 	private String webAgentSecret;
+	SiteminderService siteminderService;
 
 	/**
 	 * The node configuration
 	 */
 	public interface LegacyFRConfig extends AbstractValidateTokenNode.Config {
 
-		/**
-		 * Siteminder Policy Server IP address.
-		 * 
-		 * @return the configured policyServerIP
-		 */
-		@Attribute(order = 10, validators = { RequiredValueValidator.class })
-		String policyServerIP();
-
-		/**
-		 * Siteminder Policy Server Accounting server port (0 for none). Mandatory if
-		 * "Is 4x Web agent" config is activated.
-		 * 
-		 * @return the configured accountingPort
-		 */
-		@Attribute(order = 20)
-		default int accountingPort() {
-			return ACCOUNTING_PORT;
-		}
-
-		/**
-		 * Siteminder Policy Server Authentication server port (0 for none). Mandatory
-		 * if "Is 4x Web agent" config is activated.
-		 * 
-		 * @return the configured authenticationPort
-		 */
-		@Attribute(order = 30)
-		default int authenticationPort() {
-			return AUTHENTICATION_PORT;
-		}
-
-		/**
-		 * Siteminder Policy Server Authorization server port (0 for none). Mandatory if
-		 * "Is 4x Web agent" config is activated.
-		 * 
-		 * @return the configured authorizationPort
-		 */
-		@Attribute(order = 40)
-		default int authorizationPort() {
-			return AUTHORIZATION_PORT;
-		}
-
-		/**
-		 * Number of initial connections. Mandatory if "Is 4x Web agent" config is
-		 * activated.
-		 * 
-		 * @return the configured connectionMin value
-		 */
-		@Attribute(order = 50)
-		default int connectionMin() {
-			return CONNECTION_MIN;
-		}
-
-		/**
-		 * Maximum number of connections. Mandatory if "Is 4x Web agent" config is
-		 * activated.
-		 * 
-		 * @return the configured connectionMax value
-		 */
-		@Attribute(order = 60)
-		default int connectionMax() {
-			return CONNECTION_MAX;
-		}
-
-		/**
-		 * Number of connections to allocate when out of connections. Mandatory if "Is
-		 * 4x Web agent" config is activated.
-		 * 
-		 * @return the configured connectionStep value
-		 */
-		@Attribute(order = 70)
-		default int connectionStep() {
-			return CONNECTION_STEP;
-		}
-
-		/**
-		 * Connection timeout in seconds. Mandatory if "Is 4x Web agent" config is
-		 * activated.
-		 * 
-		 * @return the configured timeoutin seconds
-		 */
-		@Attribute(order = 80)
-		default int timeout() {
-			return CONNECTION_TIMEOUT;
-		}
-
-		/**
-		 * The agent name. This name must match the agent name provided to the Policy
-		 * Server. The agent name is not case sensitive.
-		 * 
-		 * @return the configured webAgentName
-		 */
-		@Attribute(order = 90, validators = { RequiredValueValidator.class })
-		String webAgentName();
-
-		/**
-		 * The secret id of the AM secret that contains the web agent shared secret as
-		 * defined in the SiteMinder user interface (case sensitive).
-		 * 
-		 * @return the configured webAgentSecretId
-		 */
-		@Attribute(order = 100)
-		String webAgentPasswordSecretId();
-
-		/**
-		 * The version of web agent used by the siteminder policy server. Should be True
-		 * if the "Is 4x" check box is active on the Siteminder Web Agent.
-		 * 
-		 * @return true if siteminder web agent version is 4x, false otherwise
-		 */
-		@Attribute(order = 110, validators = { RequiredValueValidator.class })
-		default boolean is4xAgent() {
-			return true;
-		}
-
-		/**
-		 * Location on the AM instance, where the Siteminder web agent SmHost.conf file
-		 * is located. Mandatory if "Is 4x Web agent" configuration is set to false
-		 * (disabled).
-		 * 
-		 * @return configured smHostFilePath
-		 */
-		@Attribute(order = 120)
-		String smHostFilePath();
-
-		/**
-		 * A debug switch used to activate additional debug information.
-		 * 
-		 * @return configured debug value
-		 */
-		@Attribute(order = 130, validators = { RequiredValueValidator.class })
-		default boolean debug() {
-			return false;
-		}
 	}
 
 	/**
 	 * Creates a LegacyFRValidateToken node with the provided configuration
-	 * 
+	 *
 	 * @param config the configuration for this Node.
-	 * @throws NodeProcessException
+	 * @throws NodeProcessException when an exception occurs
 	 */
 	@Inject
-	public LegacySMValidateToken(@Assisted LegacyFRConfig config, @Assisted Realm realm, Secrets secrets)
-			throws NodeProcessException {
+	public LegacySMValidateToken(@Assisted LegacyFRConfig config, @Assisted Realm realm, Secrets secrets,
+			AnnotatedServiceRegistry serviceRegistry) throws NodeProcessException {
 		this.config = config;
+		try {
+			siteminderService = serviceRegistry.getRealmSingleton(SiteminderService.class, realm).get();
+		} catch (SSOException | SMSException e) {
+			e.printStackTrace();
+		}
 		SecretsProviderFacade secretsProvider = secrets.getRealmSecrets(realm);
 		if (secretsProvider != null) {
 			try {
 				// non 4x web agent takes the secret from SmHost.conf file
-				if (config.is4xAgent()) {
-					this.webAgentSecret = secretsProvider.getNamedSecret(Purpose.PASSWORD, config.webAgentPasswordSecretId())
-							.getOrThrowUninterruptibly().revealAsUtf8(String::valueOf).trim();
+				if (Boolean.TRUE.equals(siteminderService.is4xAgent())) {
+					this.webAgentSecret = secretsProvider
+							.getNamedSecret(Purpose.PASSWORD, siteminderService.webAgentPasswordSecretId())
+							.getOrThrowIfInterrupted().revealAsUtf8(String::valueOf).trim();
 				}
 			} catch (NoSuchSecretException e) {
 				throw new NodeProcessException(
-						"Check secret configurations for secret id's: " + config.webAgentPasswordSecretId());
+						"LegacySMValidateToken::LegacySMValidateToken > Check secret configurations for secret id's");
 			}
 		}
 	}
@@ -239,74 +106,72 @@ public class LegacySMValidateToken extends AbstractValidateTokenNode {
 	 */
 	@Override
 	public Action process(TreeContext context) throws NodeProcessException {
-		LOGGER.info("LegacySMValidateToken::process() > Start");
+		LOGGER.info("LegacySMValidateToken::process > Start");
 
-		if (!SmSdkUtils.isNodeConfigurationValid(config.is4xAgent(), config.smHostFilePath(), config.accountingPort(),
-				config.authenticationPort(), config.authorizationPort(), config.connectionMin(), config.connectionMax(),
-				config.connectionStep(), config.timeout(), config.webAgentPasswordSecretId())) {
+		if (!SmSdkUtils.isNodeConfigurationValid(siteminderService)) {
 			throw new NodeProcessException(
-					"LegacySMValidateToken::process: Configuration is not valid for the selected agent type");
+					"LegacySMValidateToken::process > Configuration is not valid for the selected agent type");
 		}
 
 		Map<String, String> cookies = context.request.cookies;
-		String smCookie = cookies.get(config.legacyCookieName());
+		String smCookie = cookies.get(siteminderService.legacyCookieName());
 
 		if (smCookie == null) {
-			LOGGER.info("LegacySMValidateToken::process() > No SM Cookie Found");
+			LOGGER.info("LegacySMValidateToken::process > No SM Cookie Found");
 			return goTo(false).build();
 		}
 
-		LOGGER.info("LegacySMValidateToken::process() > SM cookie found: {}", smCookie);
+		AgentAPI agentAPI = SmSdkUtils.initConnectionAgent(siteminderService, webAgentSecret);
+		String uid = validateLegacySession(agentAPI, smCookie);
 
-		// Initialize AgentAPI
-		AgentAPI agentapi = new AgentAPI();
-		ServerDef serverDefinition = null;
-		InitDef initDefinition = new InitDef();
+		if (uid != null) {
+			// Manage cookie name if absent
+			if (!smCookie.contains(siteminderService.legacyCookieName())) {
+				smCookie = siteminderService.legacyCookieName() + "=" + smCookie;
+			}
 
-		// Create SM server and init definitions
-		if (config.is4xAgent()) {
-			serverDefinition = SmSdkUtils.createServerDefinition(config.policyServerIP(), config.connectionMin(),
-					config.connectionMax(), config.connectionStep(), config.timeout(), config.authorizationPort(),
-					config.authenticationPort(), config.accountingPort());
-			initDefinition = SmSdkUtils.createInitDefinition(config.webAgentName(), webAgentSecret, false,
-					serverDefinition);
-		} else {
-			LOGGER.info("LegacySMValidateToken::process() > Configuring AgentAPI for using a > 4.x web agent.");
-			int configStatus = agentapi.getConfig(initDefinition, config.webAgentName(), config.smHostFilePath());
-			LOGGER.info("LegacySMValidateToken::process() > getConfig returned status: {}", configStatus);
+			// Put uid and cookie on shared state
+			return goTo(true)
+					.replaceSharedState(
+							context.sharedState.put(USERNAME, uid).put(LEGACY_COOKIE_SHARED_STATE_PARAM, smCookie))
+					.build();
 		}
 
-		int retcode = agentapi.init(initDefinition);
+		return goTo(false).build();
+	}
 
-		if (retcode == AgentAPI.SUCCESS) {
-			LOGGER.info("LegacySMValidateToken::process() > SM AgentAPI init succesful");
-		} else {
-			LOGGER.info("LegacySMValidateToken::process() > SM AgentAPI init failed with status {}", retcode);
-			agentapi.unInit();
-			throw new NodeProcessException("SM AgentAPI init failed with status: " + retcode);
-		}
-
+	/**
+	 * Validates a legacy IAM cookie by calling the session validation endpoint.
+	 *
+	 * @param legacyCookie the user's legacy SSO token
+	 * @return the user id if the session is valid, or <b>null</b> if the session is
+	 *         invalid or something unexpected happened.
+	 */
+	public String validateLegacySession(AgentAPI agentAPI, String legacyCookie) {
 		// Validate SM legacy token
-		int version = 0;
-		boolean thirdParty = false;
-		TokenDescriptor tokenDescriptor = new TokenDescriptor(version, thirdParty);
-		netegrity.siteminder.javaagent.AttributeList attributeList = new netegrity.siteminder.javaagent.AttributeList();
+		TokenDescriptor tokenDescriptor = new TokenDescriptor(0, false);
 		StringBuffer token = new StringBuffer();
-		int status = agentapi.decodeSSOToken(smCookie, tokenDescriptor, attributeList, false, token);
+		String smUserName = null;
 
-		LOGGER.info("LegacySMValidateToken::process()::Token status: {}", status);
-
-		if (status == AgentAPI.SUCCESS) {
-			LOGGER.info("LegacySMValidateToken::process() > SM session decoded succesfully");
-		} else {
-			LOGGER.info("LegacySMValidateToken::process() >  SM session decode failed with: status: {} for cookie {}",
-					status, smCookie);
-			agentapi.unInit();
-			throw new NodeProcessException(
-					"LegacySMValidateToken::process() > SMSession decode failed, status=" + status);
+		if (agentAPI == null) {
+			LOGGER.error("LegacySMValidateToken::process > Couldn't init agentAPI.");
+			return null;
 		}
 
-		// Get SM user name and set it on the shared state along with the SM cookie
+		netegrity.siteminder.javaagent.AttributeList attributeList = new netegrity.siteminder.javaagent.AttributeList();
+		int status = agentAPI.decodeSSOToken(legacyCookie, tokenDescriptor, attributeList, false, token);
+		LOGGER.info("LegacySMValidateToken::process > Token status: {}", status);
+		if (status == AgentAPI.SUCCESS) {
+			LOGGER.info("LegacySMValidateToken::process > SM session decoded successfully");
+		} else {
+			LOGGER.error("LegacySMValidateToken::process > SM session decode failed with: status: {} for cookie {}",
+					status, legacyCookie);
+
+			agentAPI.unInit();
+			return null;
+		}
+
+		// Get SM user name
 		@SuppressWarnings("rawtypes")
 		Enumeration attributes = attributeList.attributes();
 		while (attributes.hasMoreElements()) {
@@ -314,17 +179,14 @@ public class LegacySMValidateToken extends AbstractValidateTokenNode {
 					.nextElement();
 			int attrId = attr.id;
 			if (attrId == AgentAPI.ATTR_USERNAME) {
-				String smUserName = XMLUtils.removeNullCharAtEnd(new String(attr.value));
-				LOGGER.info("LegacySMValidateToken::process() > smUserName: {}", smUserName);
-				agentapi.unInit();
-				return goTo(true).replaceSharedState(context.sharedState.copy().add(USERNAME, smUserName)
-						.add(LEGACY_COOKIE_SHARED_STATE_PARAM, smCookie)).build();
+				smUserName = XMLUtils.removeNullCharAtEnd(new String(attr.value));
+				break;
 			}
 		}
-		LOGGER.error("LegacySMValidateToken::process() > Did not find SM user name. Destroying AgentAPI");
-		agentapi.unInit();
-		return goTo(false).build();
 
+		LOGGER.info("LegacySMValidateToken::process > SM user name: {}", smUserName);
+		agentAPI.unInit();
+
+		return smUserName;
 	}
-
 }

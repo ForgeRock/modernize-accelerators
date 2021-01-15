@@ -1,5 +1,5 @@
 /***************************************************************************
- *  Copyright 2019 ForgeRock AS
+ *  Copyright 2021 ForgeRock AS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,18 +20,20 @@ import static org.forgerock.openam.modernize.utils.NodeConstants.LEGACY_COOKIE_S
 
 import javax.inject.Inject;
 
-import org.forgerock.openam.annotations.sm.Attribute;
 import org.forgerock.openam.auth.node.api.AbstractDecisionNode;
 import org.forgerock.openam.auth.node.api.Action;
 import org.forgerock.openam.auth.node.api.Node;
-import org.forgerock.openam.auth.node.api.NodeProcessException;
 import org.forgerock.openam.auth.node.api.TreeContext;
 import org.forgerock.openam.auth.node.base.AbstractValidateTokenNode;
+import org.forgerock.openam.core.realms.Realm;
+import org.forgerock.openam.services.OracleService;
+import org.forgerock.openam.sm.AnnotatedServiceRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.assistedinject.Assisted;
-import com.sun.identity.sm.RequiredValueValidator;
+import com.iplanet.sso.SSOException;
+import com.sun.identity.sm.SMSException;
 
 import oracle.security.am.asdk.AccessClient;
 import oracle.security.am.asdk.AccessException;
@@ -48,84 +50,85 @@ import oracle.security.am.asdk.UserSession;
 @Node.Metadata(configClass = LegacyORAValidateToken.LegacyORAConfig.class, outcomeProvider = AbstractValidateTokenNode.OutcomeProvider.class)
 public class LegacyORAValidateToken extends AbstractDecisionNode {
 
-	private Logger LOGGER = LoggerFactory.getLogger(LegacyORAValidateToken.class);
+	private final Logger logger = LoggerFactory.getLogger(LegacyORAValidateToken.class);
 	private final LegacyORAConfig config;
+	OracleService oracleService;
 
 	public interface LegacyORAConfig extends AbstractValidateTokenNode.Config {
-
-		/**
-		 * Defines the path where the OAM ObAccessClient.xml file is configured
-		 * 
-		 * @return the configured path
-		 */
-		@Attribute(order = 10, validators = { RequiredValueValidator.class })
-		String msConfigLocation();
-
-		/**
-		 * Defines the name of the attribute which holds the value of the username, from
-		 * the OAM user identity
-		 * 
-		 * @return the name of the attribute which holds the value of the username
-		 */
-		@Attribute(order = 20, validators = { RequiredValueValidator.class })
-		String namingAttribute();
 	}
 
+	/**
+	 * Node's constructor
+	 * 
+	 * @param realm           the current realm of the node.
+	 * @param config          the node's configuration
+	 * @param serviceRegistry instance of the tree's serice config.
+	 */
 	@Inject
-	public LegacyORAValidateToken(@Assisted LegacyORAConfig config) {
+	public LegacyORAValidateToken(@Assisted Realm realm, @Assisted LegacyORAConfig config,
+			AnnotatedServiceRegistry serviceRegistry) {
 		this.config = config;
+		try {
+			oracleService = serviceRegistry.getRealmSingleton(OracleService.class, realm).get();
+		} catch (SSOException | SMSException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
 	 * Main method called when the node is triggered.
 	 */
 	@Override
-	public Action process(TreeContext context) throws NodeProcessException {
-		String legacyCookie = context.request.cookies.get(config.legacyCookieName());
-		LOGGER.debug("process()::legacyCookie: " + legacyCookie);
+	public Action process(TreeContext context) {
+
+		String legacyCookie = context.request.cookies.get(oracleService.legacyCookieName());
+		logger.info("LegacyORAValidateToken::process > legacyCookie: {}", legacyCookie);
 		String uid = validateLegacySession(legacyCookie);
-		LOGGER.debug("process()::User id from legacy cookie: " + uid);
+
 		if (uid != null) {
-			if (!legacyCookie.contains(config.legacyCookieName())) {
-				legacyCookie = config.legacyCookieName() + "=" + legacyCookie;
+			if (!legacyCookie.contains(oracleService.legacyCookieName())) {
+				legacyCookie = oracleService.legacyCookieName() + "=" + legacyCookie;
 			}
 			return goTo(true)
 					.replaceSharedState(
 							context.sharedState.add(USERNAME, uid).add(LEGACY_COOKIE_SHARED_STATE_PARAM, legacyCookie))
 					.build();
 		}
+
+		logger.info("LegacyORAValidateToken::process > Node outcome: FALSE");
 		return goTo(false).build();
 	}
 
 	/**
 	 * Validates an OAM cookie by calling the session validation endpoint.
-	 * 
-	 * @param legacyCookie
+	 *
+	 * @param legacyCookie the ORA legacy cookie
 	 * @return the user id if the session is valid, or null if the session is
 	 *         invalid or something went wrong.
 	 */
 	private String validateLegacySession(String legacyCookie) {
 		if (legacyCookie != null && legacyCookie.length() > 0) {
 			AccessClient ac = null;
+
 			try {
-				ac = AccessClient.createDefaultInstance(config.msConfigLocation(),
+				ac = AccessClient.createDefaultInstance(oracleService.msConfigLocation(),
 						AccessClient.CompatibilityMode.OAM_10G);
 				UserSession session = new UserSession(ac, legacyCookie);
-				LOGGER.debug("Session status: " + session.getStatus());
+				logger.info("LegacyORAValidateToken::validateLegacySession > Session status: {}", session.getStatus());
 				String userDn = session.getUserIdentity();
-				LOGGER.debug("User identity: " + userDn);
 				String[] dnParts = userDn.split(",");
+
 				for (String part : dnParts) {
-					if (part.contains(config.namingAttribute() + "=")) {
+					if (part.contains(oracleService.namingAttribute() + "=")) {
 						return part.split("=")[1];
 					}
 				}
 			} catch (AccessException ae) {
-				LOGGER.error("Access Exception: " + ae);
+				logger.error("LegacyORAValidateToken::validateLegacySession > Access Exception: {0}", ae);
 			}
-			ac.shutdown();
+			if (ac != null)
+				ac.shutdown();
 		}
 		return null;
 	}
-
 }

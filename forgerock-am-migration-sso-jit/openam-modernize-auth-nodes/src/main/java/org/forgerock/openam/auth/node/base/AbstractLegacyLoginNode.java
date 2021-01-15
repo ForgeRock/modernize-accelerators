@@ -1,5 +1,5 @@
 /***************************************************************************
- *  Copyright 2019 ForgeRock AS
+ *  Copyright 2021 ForgeRock AS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,53 +22,43 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 import org.forgerock.json.JsonValue;
-import org.forgerock.openam.annotations.sm.Attribute;
 import org.forgerock.openam.auth.node.api.Action;
 import org.forgerock.openam.auth.node.api.Node;
 import org.forgerock.util.i18n.PreferredLocales;
 
 import com.google.common.collect.ImmutableList;
-import com.sun.identity.sm.RequiredValueValidator;
 
 /**
  * This class serves as a base for the LegacyLogin node.
  */
 public abstract class AbstractLegacyLoginNode implements Node {
 
-	/**
-	 * The configuration for this node.
-	 */
-	public interface Config {
+    /**
+     * The configuration for this node.
+     */
+    public interface Config {
+    }
 
-		/**
-		 * Defines the legacy IAM cookie name
-		 * 
-		 * @return the configured legacy IAM cookie name
-		 */
-		@Attribute(order = 1, validators = { RequiredValueValidator.class })
-		String legacyCookieName();
-	}
+    /**
+     * Move on to the next node in the tree that is connected to the given outcome.
+     *
+     * @param outcome the outcome.
+     * @return an action builder to provide additional details.
+     */
+    protected Action.ActionBuilder goTo(boolean outcome) {
+        return Action.goTo(outcome ? TRUE_OUTCOME_ID : FALSE_OUTCOME_ID);
+    }
 
-	/**
-	 * Move on to the next node in the tree that is connected to the given outcome.
-	 * 
-	 * @param outcome the outcome.
-	 * @return an action builder to provide additional details.
-	 */
-	protected Action.ActionBuilder goTo(boolean outcome) {
-		return Action.goTo(outcome ? TRUE_OUTCOME_ID : FALSE_OUTCOME_ID);
-	}
-
-	/**
-	 * Provides a static set of outcomes for decision nodes.
-	 */
-	public static final class OutcomeProvider implements org.forgerock.openam.auth.node.api.OutcomeProvider {
-		@Override
-		public List<Outcome> getOutcomes(PreferredLocales locales, JsonValue nodeAttributes) {
-			ResourceBundle bundle = locales.getBundleInPreferredLocale("amAuthTrees",
-					OutcomeProvider.class.getClassLoader());
-			return ImmutableList.of(new Outcome(TRUE_OUTCOME_ID, bundle.getString("trueOutcome")),
-					new Outcome(FALSE_OUTCOME_ID, bundle.getString("falseOutcome")));
-		}
-	}
+    /**
+     * Provides a static set of outcomes for decision nodes.
+     */
+    public static final class OutcomeProvider implements org.forgerock.openam.auth.node.api.OutcomeProvider {
+        @Override
+        public List<Outcome> getOutcomes(PreferredLocales locales, JsonValue nodeAttributes) {
+            ResourceBundle bundle = locales.getBundleInPreferredLocale("amAuthTrees",
+                    OutcomeProvider.class.getClassLoader());
+            return ImmutableList.of(new Outcome(TRUE_OUTCOME_ID, bundle.getString("trueOutcome")),
+                    new Outcome(FALSE_OUTCOME_ID, bundle.getString("falseOutcome")));
+        }
+    }
 }

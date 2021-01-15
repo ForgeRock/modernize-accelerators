@@ -1,5 +1,5 @@
 /***************************************************************************
- *  Copyright 2019 ForgeRock AS
+ *  Copyright 2021 ForgeRock AS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,8 @@ import static org.forgerock.openam.modernize.utils.NodeConstants.SESSION_LEGACY_
 
 import javax.inject.Inject;
 
-import org.forgerock.http.protocol.Request;
 import org.forgerock.http.protocol.Response;
 import org.forgerock.openam.auth.node.api.TreeHook;
-import org.forgerock.openam.auth.node.api.TreeHookException;
 import org.forgerock.openam.auth.nodes.SetPersistentCookieNode;
 import org.forgerock.openam.session.Session;
 import org.slf4j.Logger;
@@ -42,8 +40,7 @@ public class LegacyORASessionTreeHook implements TreeHook {
 
 	private final Session session;
 	private final Response response;
-	private final Request request;
-	private Logger LOGGER = LoggerFactory.getLogger(LegacyORASessionTreeHook.class);
+	private Logger logger = LoggerFactory.getLogger(LegacyORASessionTreeHook.class);
 
 	/**
 	 * The OracleSessionTreeHook constructor.
@@ -52,21 +49,18 @@ public class LegacyORASessionTreeHook implements TreeHook {
 	 * @param response the response.
 	 */
 	@Inject
-	public LegacyORASessionTreeHook(@Assisted Session session, @Assisted Response response, @Assisted Request request) {
+	public LegacyORASessionTreeHook(@Assisted Session session, @Assisted Response response) {
 		this.session = session;
 		this.response = response;
-		this.request = request;
 	}
 
 	/**
 	 * Main method that contains the logic that needs to be executed when the
 	 * session hook is called.
-	 *
-	 * @throws TreeHookException if an exception occurs.
 	 */
 	@Override
-	public void accept() throws TreeHookException {
-		LOGGER.debug("Creating oracle legacy cookie tree hook");
+	public void accept() {
+		logger.debug("accept():: Creating oracle legacy cookie tree hook");
 		String legacyCookie = null;
 		String legacyCookieDomain = null;
 		String legacyCookieName = null;
@@ -74,11 +68,11 @@ public class LegacyORASessionTreeHook implements TreeHook {
 			legacyCookie = session.getProperty(SESSION_LEGACY_COOKIE);
 			legacyCookieDomain = session.getProperty(SESSION_LEGACY_COOKIE_DOMAIN);
 			legacyCookieName = session.getProperty(SESSION_LEGACY_COOKIE_NAME);
-			LOGGER.info("accept():: " + legacyCookie);
+			logger.info("LegacyORASessionTreeHook::accept > {}", legacyCookie);
 		} catch (SessionException e) {
-			LOGGER.error("accept()::Error reading session properties: " + e);
+			logger.error("LegacyORASessionTreeHook::accept > Error reading session properties: ", e);
 		}
-		LOGGER.debug("set-cookie: " + legacyCookieName + "=" + legacyCookie);
+		logger.debug("LegacyORASessionTreeHook::accept > set-cookie: {} = {}", legacyCookieName, legacyCookie);
 		response.getHeaders().add("set-cookie",
 				legacyCookieName + "=" + legacyCookie + "; Path=/" + "; Domain=" + legacyCookieDomain);
 	}

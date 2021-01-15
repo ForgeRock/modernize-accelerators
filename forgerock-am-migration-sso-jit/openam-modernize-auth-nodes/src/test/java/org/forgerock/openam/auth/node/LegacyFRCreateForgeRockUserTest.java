@@ -1,5 +1,5 @@
 /***************************************************************************
- *  Copyright 2019 ForgeRock AS
+ *  Copyright 2021 ForgeRock AS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,95 +15,345 @@
  ***************************************************************************/
 package org.forgerock.openam.auth.node;
 
+import static org.forgerock.openam.auth.node.api.SharedStateConstants.OBJECT_ATTRIBUTES;
 import static org.forgerock.openam.auth.node.api.SharedStateConstants.PASSWORD;
 import static org.forgerock.openam.auth.node.api.SharedStateConstants.REALM;
 import static org.forgerock.openam.auth.node.api.SharedStateConstants.USERNAME;
 import static org.forgerock.openam.modernize.utils.NodeConstants.LEGACY_COOKIE_SHARED_STATE_PARAM;
+import static org.forgerock.openam.modernize.utils.NodeConstants.USER_NAME;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.MockitoAnnotations.initMocks;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
-import org.forgerock.http.HttpApplicationException;
-import org.forgerock.http.handler.HttpClientHandler;
+import org.forgerock.http.protocol.Response;
+import org.forgerock.http.protocol.Status;
 import org.forgerock.json.JsonValue;
 import org.forgerock.openam.auth.node.api.ExternalRequestContext;
-import org.forgerock.openam.auth.node.api.NodeProcessException;
 import org.forgerock.openam.auth.node.api.TreeContext;
-import org.forgerock.openam.auth.node.base.AbstractLegacyCreateForgeRockUserNode.Config;
 import org.forgerock.openam.core.realms.Realm;
-import org.forgerock.openam.secrets.Secrets;
-import org.junit.Test;
+import org.forgerock.openam.services.LegacyFRService;
+import org.forgerock.openam.sm.AnnotatedServiceRegistry;
+import org.mockito.Mock;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
+import com.iplanet.sso.SSOException;
+import com.sun.identity.sm.SMSException;
 
 public class LegacyFRCreateForgeRockUserTest {
 
-	private static final String LOCAL_IDM = "http://localhost:8080";
-	private static final String LOCAL_LEGACY = "http://localhost:8080";
-	private static final String OPENIDM_ADMIN_USER = "openidm-admin";
-	private static final String OPENIDM_ADMIN_SECRET = "secret";
+	LegacyFRCreateForgeRockUser.LegacyFRCreateForgeRockUserConfig config = new LegacyFRCreateForgeRockUser.LegacyFRCreateForgeRockUserConfig() {
+		@Override
+		public Map<String, String> migrationAttributesMap() {
+			Map<String, String> map = new HashMap<>();
+			map.put("cn", "cn");
+			map.put("sn", "sn");
+			map.put("givenName", "givenName");
+			return map;
+		}
 
-	private final Realm realm = mock(Realm.class);
-	private final Secrets secrets = mock(Secrets.class);
-	private final JsonValue sharedState = JsonValue.json(ImmutableMap.of(USERNAME, "oamuser", REALM, "/",
-			LEGACY_COOKIE_SHARED_STATE_PARAM,
-			"wmUipRaEyUzShwue67k.*AAJTSQACMDIAAlNLABxFeWFSeG84TDVGTE41b3hGeUZ2alFyT2hIWW89AAR0eXBlAANDVFMAAlMxAAIwMQ..*"));
-	private final JsonValue transientState = JsonValue.json(ImmutableMap.of(PASSWORD, "password"));
-	private final TreeContext mockContext = new TreeContext(sharedState, transientState,
-			new ExternalRequestContext.Builder().build(), Collections.emptyList());
+		@Override
+		public boolean setPasswordReset() {
+			return true;
+		}
+	};
 
-	@Test
-	public void shouldReturnFalseOutcomeWhenWrongHost() throws Exception {
-		LegacyFRCreateForgeRockUser createUserNode = node(LOCAL_LEGACY, "http://somehost.example.com",
-				OPENIDM_ADMIN_USER, OPENIDM_ADMIN_SECRET, false);
-		assertEquals(createUserNode.process(mockContext).outcome, "false");
+	@Mock
+	AnnotatedServiceRegistry serviceRegistry;
+
+	@Mock
+	Realm realm;
+
+	private static final String FALSE_OUTCOME = "false";
+	private static final String TRUE_OUTCOME = "true";
+
+	private static final int VALID_CONFIG = 0;
+	private static final int INVALID_CONFIG = 1;
+
+	private static final String GOOD_LEGACY_ENV_URL = "http://localhost:8080/openam/json/realms/root/realms/legacy/users/";
+	private static final String WRONG_LEGACY_ENV_URL = "http://wronghost:8080/openam/json/realms/root/realms/legacy/users/";
+	private static final String USER = "demo";
+
+	private JsonValue sharedState = JsonValue.json(JsonValue.object(JsonValue.field(USERNAME, USER),
+			JsonValue.field(REALM, "/"), JsonValue.field(LEGACY_COOKIE_SHARED_STATE_PARAM,
+					"m88oJy_dPTrSw2P37oILh2eVeiE.*AAJTSQACMDEAAlNLABxEbWpQTzJudExiVmFTQVdPYno5ZkpQUlBtbGc9AAR0eXBlAANDVFMAAlMxAAA.*")));
+
+	private final JsonValue transientState = JsonValue
+			.json(JsonValue.object(JsonValue.field(PASSWORD, "Raco12s3czz4vd5dv6@")));
+
+	@BeforeMethod
+	private void setup() throws SMSException, SSOException {
+		initMocks(this);
+		given(serviceRegistry.getRealmSingleton(LegacyFRService.class, realm))
+				.willReturn(generateConfigs().get(VALID_CONFIG));
 	}
 
 	@Test
-	public void shouldReturnFalseOutcomeWhenWrongCredentials() throws Exception {
-		LegacyFRCreateForgeRockUser createUserNode = node(LOCAL_LEGACY, LOCAL_IDM, OPENIDM_ADMIN_USER,
-				OPENIDM_ADMIN_SECRET, false);
-		assertEquals(createUserNode.process(mockContext).outcome, "false");
+	public void shouldReturnFalseOutcomeWhenNoCookie() {
+		LegacyFRCreateForgeRockUser node = new LegacyFRCreateForgeRockUser(realm, config, serviceRegistry);
+
+		assertEquals(FALSE_OUTCOME, node.process(getContextNoCookies()).outcome);
 	}
 
-	/**
-	 * Given all the correct parameters, the test executes non-mocked method - needs
-	 * up and running IDM instance, or mock
-	 * 
-	 * @throws Exception
-	 */
 	@Test
-	public void shouldReturnTrueOutcomeWhenWhenEndpointAndCredentialsAreCorrect() throws Exception {
-		LegacyFRCreateForgeRockUser createUserNode = node(LOCAL_LEGACY, LOCAL_IDM, OPENIDM_ADMIN_USER,
-				OPENIDM_ADMIN_SECRET, false);
-		assertEquals(createUserNode.process(mockContext).outcome, "true");
+	public void shouldReturnFalseOutcomeWhenWrongHost() throws SMSException, SSOException {
+		given(serviceRegistry.getRealmSingleton(LegacyFRService.class, realm))
+				.willReturn(generateConfigs().get(INVALID_CONFIG));
+
+		LegacyFRCreateForgeRockUser node = new LegacyFRCreateForgeRockUser(realm, config, serviceRegistry);
+
+		assertEquals(FALSE_OUTCOME, node.process(getValidContext()).outcome);
 	}
 
-	private LegacyFRCreateForgeRockUser node(String legacyEnvURL, String idmEndpoint, String idmUser,
-			String idmPasswordId, boolean setPasswordReset) throws NodeProcessException, HttpApplicationException {
-		return new LegacyFRCreateForgeRockUser(new Config() {
-			public String legacyEnvURL() {
-				return legacyEnvURL;
+	@Test
+	public void shouldReturnFalseOutcomeWhenWrongCredentials() throws SMSException, SSOException {
+		LegacyFRCreateForgeRockUser node = new LegacyFRCreateForgeRockUser(realm, config, serviceRegistry) {
+			@Override
+			public Response getUser(String endpoint, String legacyCookie) {
+				Response response = new Response(Status.OK);
+				ArrayList<String> arrayList = new ArrayList<>();
+				arrayList.add(USER);
+				response.setEntity(JsonValue
+						.json(JsonValue.object(JsonValue.field("uid", arrayList), JsonValue.field("cn", arrayList),
+								JsonValue.field("sn", arrayList), JsonValue.field("givenName", arrayList))));
+				return response;
+			}
+		};
+
+		given(serviceRegistry.getRealmSingleton(LegacyFRService.class, realm))
+				.willReturn(generateConfigs().get(VALID_CONFIG));
+		assertEquals(FALSE_OUTCOME, node.process(getContextNoPassword()).outcome);
+	}
+
+	@Test
+	public void shouldReturnTrueOutcomeWhenWhenEndpointAndCredentialsAreCorrectSetPassword()
+			throws SMSException, SSOException {
+		LegacyFRCreateForgeRockUser node = new LegacyFRCreateForgeRockUser(realm, config, serviceRegistry) {
+			@Override
+			public Response getUser(String endpoint, String legacyCookie) {
+				Response response = new Response(Status.OK);
+				ArrayList<String> arrayList = new ArrayList<>();
+				arrayList.add(USER);
+				response.setEntity(JsonValue
+						.json(JsonValue.object(JsonValue.field("uid", arrayList), JsonValue.field("cn", arrayList),
+								JsonValue.field("sn", arrayList), JsonValue.field("givenName", arrayList))));
+				return response;
+			}
+		};
+
+		given(serviceRegistry.getRealmSingleton(LegacyFRService.class, realm))
+				.willReturn(generateConfigs().get(VALID_CONFIG));
+		assertEquals(TRUE_OUTCOME, node.process(getValidContext()).outcome);
+	}
+
+	@Test
+	public void shouldReturnTrueOutcomeWhenWhenEndpointAndCredentialsAreCorrectSetPasswordObjectAttributesOnSharedState()
+			throws SMSException, SSOException {
+		LegacyFRCreateForgeRockUser node = new LegacyFRCreateForgeRockUser(realm, config, serviceRegistry) {
+			@Override
+			public Response getUser(String endpoint, String legacyCookie) {
+				Response response = new Response(Status.OK);
+				ArrayList<String> arrayList = new ArrayList<>();
+				arrayList.add(USER);
+				response.setEntity(JsonValue
+						.json(JsonValue.object(JsonValue.field("uid", arrayList), JsonValue.field("cn", arrayList),
+								JsonValue.field("sn", arrayList), JsonValue.field("givenName", arrayList))));
+				return response;
+			}
+		};
+
+		sharedState = JsonValue.json(JsonValue.object(JsonValue.field(USERNAME, USER), JsonValue.field(REALM, "/"),
+				JsonValue.field(LEGACY_COOKIE_SHARED_STATE_PARAM,
+						"m88oJy_dPTrSw2P37oILh2eVeiE.*AAJTSQACMDEAAlNLABxEbWpQTzJudExiVmFTQVdPYno5ZkpQUlBtbGc9AAR0eXBlAANDVFMAAlMxAAA.*"),
+				JsonValue.field(OBJECT_ATTRIBUTES, JsonValue.object(JsonValue.field(USER_NAME, USER)))));
+
+		given(serviceRegistry.getRealmSingleton(LegacyFRService.class, realm))
+				.willReturn(generateConfigs().get(VALID_CONFIG));
+		assertEquals(TRUE_OUTCOME, node.process(getValidContext()).outcome);
+	}
+
+	@Test
+	public void shouldReturnTrueOutcomeWhenWhenEndpointAndCredentialsAreCorrectNOTSetPassword()
+			throws SMSException, SSOException {
+		LegacyFRCreateForgeRockUser.LegacyFRCreateForgeRockUserConfig config = new LegacyFRCreateForgeRockUser.LegacyFRCreateForgeRockUserConfig() {
+			@Override
+			public Map<String, String> migrationAttributesMap() {
+				Map<String, String> map = new HashMap<>();
+				map.put("cn", "cn");
+				map.put("sn", "sn");
+				map.put("givenName", "givenName");
+				return map;
 			}
 
-			public String idmUserEndpoint() {
-				return idmEndpoint;
-			}
-
-			public String idmAdminUser() {
-				return idmUser;
-			}
-
-			public String idmPasswordId() {
-				return idmPasswordId;
-			}
-
+			@Override
 			public boolean setPasswordReset() {
-				return setPasswordReset;
-			};
+				return false;
+			}
+		};
 
-		}, realm, secrets, new HttpClientHandler());
+		LegacyFRCreateForgeRockUser node = new LegacyFRCreateForgeRockUser(realm, config, serviceRegistry) {
+			@Override
+			public Response getUser(String endpoint, String legacyCookie) {
+				Response response = new Response(Status.OK);
+				ArrayList<String> arrayList = new ArrayList<>();
+				arrayList.add(USER);
+				response.setEntity(JsonValue
+						.json(JsonValue.object(JsonValue.field("uid", arrayList), JsonValue.field("cn", arrayList),
+								JsonValue.field("sn", arrayList), JsonValue.field("givenName", arrayList))));
+				return response;
+			}
+		};
+
+		given(serviceRegistry.getRealmSingleton(LegacyFRService.class, realm))
+				.willReturn(generateConfigs().get(VALID_CONFIG));
+		assertEquals(TRUE_OUTCOME, node.process(getValidContext()).outcome);
 	}
 
+	@Test
+	public void shouldReturnTrueOutcomeWhenWhenEndpointAndCredentialsAreCorrectNOTSetPasswordObjectAttributesOnSharedState()
+			throws SMSException, SSOException {
+		LegacyFRCreateForgeRockUser.LegacyFRCreateForgeRockUserConfig config = new LegacyFRCreateForgeRockUser.LegacyFRCreateForgeRockUserConfig() {
+			@Override
+			public Map<String, String> migrationAttributesMap() {
+				Map<String, String> map = new HashMap<>();
+				map.put("cn", "cn");
+				map.put("sn", "sn");
+				map.put("givenName", "givenName");
+				return map;
+			}
+
+			@Override
+			public boolean setPasswordReset() {
+				return false;
+			}
+		};
+
+		LegacyFRCreateForgeRockUser node = new LegacyFRCreateForgeRockUser(realm, config, serviceRegistry) {
+			@Override
+			public Response getUser(String endpoint, String legacyCookie) {
+				Response response = new Response(Status.OK);
+				ArrayList<String> arrayList = new ArrayList<>();
+				arrayList.add(USER);
+				response.setEntity(JsonValue
+						.json(JsonValue.object(JsonValue.field("uid", arrayList), JsonValue.field("cn", arrayList),
+								JsonValue.field("sn", arrayList), JsonValue.field("givenName", arrayList))));
+				return response;
+			}
+		};
+
+		sharedState = JsonValue.json(JsonValue.object(JsonValue.field(USERNAME, USER), JsonValue.field(REALM, "/"),
+				JsonValue.field(LEGACY_COOKIE_SHARED_STATE_PARAM,
+						"m88oJy_dPTrSw2P37oILh2eVeiE.*AAJTSQACMDEAAlNLABxEbWpQTzJudExiVmFTQVdPYno5ZkpQUlBtbGc9AAR0eXBlAANDVFMAAlMxAAA.*"),
+				JsonValue.field(OBJECT_ATTRIBUTES, JsonValue.object(JsonValue.field(USER_NAME, USER)))));
+
+		given(serviceRegistry.getRealmSingleton(LegacyFRService.class, realm))
+				.willReturn(generateConfigs().get(VALID_CONFIG));
+		assertEquals(TRUE_OUTCOME, node.process(getValidContext()).outcome);
+	}
+
+	@Test
+	public void shouldReturnTrueOutcomeWhenWhenEndpointAndCredentialsAreCorrectSetPasswordUserAttributesNULL()
+			throws SMSException, SSOException {
+		LegacyFRCreateForgeRockUser.LegacyFRCreateForgeRockUserConfig config = new LegacyFRCreateForgeRockUser.LegacyFRCreateForgeRockUserConfig() {
+			@Override
+			public Map<String, String> migrationAttributesMap() {
+				Map<String, String> map = new HashMap<>();
+				return map;
+			}
+
+			@Override
+			public boolean setPasswordReset() {
+				return true;
+			}
+		};
+
+		LegacyFRCreateForgeRockUser node = new LegacyFRCreateForgeRockUser(realm, config, serviceRegistry) {
+			@Override
+			public Response getUser(String endpoint, String legacyCookie) {
+				Response response = new Response(Status.OK);
+				ArrayList<String> arrayList = new ArrayList<>();
+				arrayList.add(USER);
+				response.setEntity(JsonValue
+						.json(JsonValue.object(JsonValue.field("uid", arrayList), JsonValue.field("cn", arrayList),
+								JsonValue.field("sn", arrayList), JsonValue.field("givenName", arrayList))));
+				return response;
+			}
+		};
+
+		given(serviceRegistry.getRealmSingleton(LegacyFRService.class, realm))
+				.willReturn(generateConfigs().get(VALID_CONFIG));
+		assertEquals(TRUE_OUTCOME, node.process(getValidContext()).outcome);
+	}
+
+	private List<Optional<LegacyFRService>> generateConfigs() {
+		LegacyFRService validConfigService = new LegacyFRService() {
+			@Override
+			public String legacyEnvURL() {
+				return GOOD_LEGACY_ENV_URL;
+			}
+
+			@Override
+			public String legacyLoginUri() {
+				return "";
+			}
+
+			@Override
+			public String legacyCookieName() {
+				return "";
+			}
+
+			@Override
+			public String checkLegacyTokenUri() {
+				return "";
+			}
+		};
+
+		LegacyFRService invalidConfigService = new LegacyFRService() {
+			@Override
+			public String legacyEnvURL() {
+				return WRONG_LEGACY_ENV_URL;
+			}
+
+			@Override
+			public String legacyLoginUri() {
+				return "";
+			}
+
+			@Override
+			public String legacyCookieName() {
+				return "";
+			}
+
+			@Override
+			public String checkLegacyTokenUri() {
+				return "";
+			}
+		};
+		return List.of(Optional.of(validConfigService), Optional.of(invalidConfigService));
+	}
+
+	private TreeContext getValidContext() {
+		return new TreeContext(sharedState, transientState, new ExternalRequestContext.Builder().build(),
+				Collections.emptyList(), Optional.empty());
+	}
+
+	private TreeContext getContextNoPassword() {
+		return new TreeContext(sharedState, JsonValue.json(""), new ExternalRequestContext.Builder().build(),
+				Collections.emptyList(), Optional.empty());
+	}
+
+	private TreeContext getContextNoCookies() {
+		JsonValue sharedStateNoCookie = JsonValue.json(ImmutableMap.of(USERNAME, "demo", REALM, "/"));
+
+		return new TreeContext(sharedStateNoCookie, transientState, new ExternalRequestContext.Builder().build(),
+				Collections.emptyList(), Optional.empty());
+	}
 }

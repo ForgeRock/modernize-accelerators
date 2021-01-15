@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<CompoundList xmlns="http://www.oblix.com">
+    <SimpleList>
+        <NameValPair Value="MiAMI_OAM_Agent" ParamName="id"/>
+    </SimpleList>
+    <SimpleList>
+        <NameValPair Value="true" ParamName="debug"/>
+    </SimpleList>
+    <SimpleList>
+        <NameValPair Value="open" ParamName="security"/>
+    </SimpleList>
+    <SimpleList>
+        <NameValPair Value="Enabled" ParamName="state"/>
+    </SimpleList>
+    <SimpleList>
+        <NameValPair Value="IAMSuiteAgent" ParamName="preferredHost"/>
+    </SimpleList>
+    <SimpleList>
+        <NameValPair Value="0" ParamName="maxCacheElems"/>
+    </SimpleList>
+    <SimpleList>
+        <NameValPair Value="0" ParamName="cacheTimeout"/>
+    </SimpleList>
+    <SimpleList>
+        <NameValPair Value="60" ParamName="maxSessionTime"/>
+    </SimpleList>
+    <SimpleList>
+        <NameValPair Value="1" ParamName="maxConnections"/>
+    </SimpleList>
+    <SimpleList>
+        <NameValPair Value="1" ParamName="failoverThreshold"/>
+    </SimpleList>
+    <SimpleList>
+        <NameValPair Value="-1" ParamName="aaaTimeoutThreshold"/>
+    </SimpleList>
+    <SimpleList>
+        <NameValPair Value="60" ParamName="sleepFor"/>
+    </SimpleList>
+    <SimpleList>
+        <NameValPair Value="0" ParamName="denyOnNotProtected"/>
+    </SimpleList>
+    <SimpleList>
+        <NameValPair Value="no-cache" ParamName="cachePragmaHeader"/>
+    </SimpleList>
+    <SimpleList>
+        <NameValPair Value="no-cache" ParamName="cacheControlHeader"/>
+    </SimpleList>
+    <SimpleList>
+        <NameValPair Value="0" ParamName="ipValidation"/>
+    </SimpleList>
+    <SimpleList>
+        <NameValPair Value="" ParamName="accessClientPasswd"/>
+    </SimpleList>
+    <SimpleList>
+        <NameValPair Value="0" ParamName="cookieSessionTime"/>
+    </SimpleList>
+    <SimpleList>
+        <NameValPair Value="3600" ParamName="idleSessionTimeout"/>
+    </SimpleList>
+    <SimpleList>
+        <NameValPair Value=".ec2.internal" ParamName="primaryCookieDomain"/>
+    </SimpleList>
+    <ValNameList ListName="primaryServer1">
+        <NameValPair Value="ec2-107-23-96-14.compute-1.amazonaws.com" ParamName="host"/>
+        <NameValPair Value="5575" ParamName="port"/>
+        <NameValPair Value="10" ParamName="numOfConnections"/>
+    </ValNameList>
+    <ValList ListName="primary_server_list">
+        <ValListMember Value="primaryServer1"/>
+    </ValList>
+    <ValList ListName="protectWebXmlSecuredPagesOnly">
+        <ValListMember Value="true"/>
+    </ValList>
+    <ValList ListName="client_request_retry_attempts">
+        <ValListMember Value="1"/>
+    </ValList>
+    <ValList ListName="proxySSLHeaderVar">
+        <ValListMember Value="IS_SSL"/>
+    </ValList>
+    <ValList ListName="inactiveReconfigPeriod">
+        <ValListMember Value="10"/>
+    </ValList>
+    <ValList ListName="URLInUTF8Format">
+        <ValListMember Value="true"/>
+    </ValList>
+    <ValList ListName="fallbackToContainerPolicy">
+        <ValListMember Value="true"/>
+    </ValList>
+    <ValList ListName="logoutRedirectUrl">
+        <ValListMember Value="http://ec2-107-23-96-14.compute-1.amazonaws.com:14100/oam/server/logout"/>
+    </ValList>
+</CompoundList>

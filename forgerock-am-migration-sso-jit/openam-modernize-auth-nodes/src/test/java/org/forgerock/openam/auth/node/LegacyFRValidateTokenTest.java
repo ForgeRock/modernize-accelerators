@@ -1,5 +1,5 @@
 /***************************************************************************
- *  Copyright 2019 ForgeRock AS
+ *  Copyright 2021 ForgeRock AS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,63 +16,126 @@
 package org.forgerock.openam.auth.node;
 
 import static org.forgerock.openam.auth.node.api.SharedStateConstants.REALM;
-import static org.forgerock.openam.auth.node.api.SharedStateConstants.USERNAME;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.MockitoAnnotations.initMocks;
 
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.Optional;
 
-import org.forgerock.http.HttpApplicationException;
-import org.forgerock.http.handler.HttpClientHandler;
 import org.forgerock.json.JsonValue;
 import org.forgerock.openam.auth.node.api.ExternalRequestContext;
 import org.forgerock.openam.auth.node.api.NodeProcessException;
 import org.forgerock.openam.auth.node.api.TreeContext;
-import org.junit.Test;
+import org.forgerock.openam.core.realms.Realm;
+import org.forgerock.openam.services.LegacyFRService;
+import org.forgerock.openam.sm.AnnotatedServiceRegistry;
+import org.mockito.Mock;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableMap;
+import com.iplanet.sso.SSOException;
+import com.sun.identity.sm.SMSException;
 
 public class LegacyFRValidateTokenTest {
 
-	private final JsonValue sharedState = JsonValue.json(ImmutableMap.of(USERNAME, "oamuser", REALM, "/"));
-	private final TreeContext mockContext = new TreeContext(sharedState, new ExternalRequestContext.Builder().build(),
-			Collections.emptyList());
+	@Mock
+	LegacyFRValidateToken.LegacyFRConfig config;
 
-	@Test
-	public void shouldReturnFalseOutcomeWhenWrongHost() throws Exception {
-		LegacyFRValidateToken passwordNode = node("iPlanetDirectoryPro", "http://wronghost:8080");
-		assertEquals(passwordNode.process(mockContext).outcome, "false");
+	@Mock
+	AnnotatedServiceRegistry serviceRegistry;
+
+	@Mock
+	Realm realm;
+
+	private static final String FALSE_OUTCOME = "false";
+	private static final String LEGACY_COOKIE_NAME = "iPlanetDirectoryPro";
+	private static final String LEGACY_COOKIE_VALUE = "UUiMtSW6MGbqRvs_UeEyBF2x8Tk.*AAJTSQACMDEAAlNLABxaLzhUTlEyaUxtTnpMdzhKZnhRQkpxSmNiZWs9AAR0eXBlAANDVFMAAlMxAAA.*";
+	private static final String GOOD_LEGACY_TOKEN_URI = "http://localhost:8080/openam/json/sessions?tokenId=";
+	private static final String WRONG_LEGACY_TOKEN_URI = "http://wronghost:8080/openam/json/sessions?tokenId=";
+	private final JsonValue sharedState = JsonValue.json(JsonValue.object((JsonValue.field(REALM, "/"))));
+
+	@BeforeMethod
+	private void setup() {
+		initMocks(this);
 	}
 
 	@Test
-	public void shouldReturnFalseOutcomeWhenWrongCredentials() throws Exception {
-		LegacyFRValidateToken passwordNode = node("iPlanetDirectoryPro", "http://wronghost:8080");
-		assertEquals(passwordNode.process(mockContext).outcome, "false");
+	public void shouldReturnFalseOutcomeWhenNoCookie() throws SMSException, SSOException, NodeProcessException {
+
+		given(serviceRegistry.getRealmSingleton(LegacyFRService.class, realm))
+				.willReturn(generateConfigs(GOOD_LEGACY_TOKEN_URI));
+
+		LegacyFRValidateToken node = new LegacyFRValidateToken(realm, config, serviceRegistry);
+
+		assertEquals(FALSE_OUTCOME, node.process(getContextWithoutCookies()).outcome);
+
 	}
 
 	/**
 	 * Given all the correct parameters, the test executes non-mocked method - needs
 	 * up and running IDM instance, or mock
-	 * 
-	 * @throws Exception
+	 *
 	 */
 	@Test
-	public void shouldReturnTrueOutcomeWhenWhenEndpointAndCredentialsAreCorrect() throws Exception {
-		LegacyFRValidateToken passwordNode = node("iPlanetDirectoryPro", "http://localhost:8080");
-		assertEquals(passwordNode.process(mockContext).outcome, "true");
+	public void shouldReturnTrueOutcomeWhenWhenEndpointAndCredentialsAreCorrect()
+			throws SMSException, SSOException, NodeProcessException {
+
+		given(serviceRegistry.getRealmSingleton(LegacyFRService.class, realm))
+				.willReturn(generateConfigs(GOOD_LEGACY_TOKEN_URI));
+
+		LegacyFRValidateToken node = new LegacyFRValidateToken(realm, config, serviceRegistry);
+
+		assertEquals(FALSE_OUTCOME, node.process(getContextWithCookies()).outcome);
 	}
 
-	private LegacyFRValidateToken node(String legacyCookieName, String checkLegacyTokenUri)
-			throws NodeProcessException, HttpApplicationException {
-		return new LegacyFRValidateToken(new LegacyFRValidateToken.LegacyFRConfig() {
+	@Test
+	public void shouldReturnFalseOutcomeWhenWrongHost() throws SMSException, SSOException, NodeProcessException {
+		given(serviceRegistry.getRealmSingleton(LegacyFRService.class, realm))
+				.willReturn(generateConfigs(WRONG_LEGACY_TOKEN_URI));
 
+		LegacyFRValidateToken node = new LegacyFRValidateToken(realm, config, serviceRegistry);
+
+		assertEquals(FALSE_OUTCOME, node.process(getContextWithCookies()).outcome);
+	}
+
+	private Optional<LegacyFRService> generateConfigs(String legacyTokenUri) {
+		LegacyFRService configService = new LegacyFRService() {
+
+			@Override
+			public String legacyEnvURL() {
+				return "";
+			}
+
+			@Override
+			public String legacyLoginUri() {
+				return "";
+			}
+
+			@Override
 			public String legacyCookieName() {
-				return legacyCookieName;
+				return LEGACY_COOKIE_NAME;
 			}
 
+			@Override
 			public String checkLegacyTokenUri() {
-				return checkLegacyTokenUri;
+				return legacyTokenUri;
 			}
-		}, new HttpClientHandler());
+
+		};
+
+		return Optional.of(configService);
 	}
 
+	private TreeContext getContextWithCookies() {
+		return new TreeContext(sharedState, JsonValue.json(""), JsonValue.json(""),
+				new ExternalRequestContext.Builder().cookies(Map.of(LEGACY_COOKIE_NAME, LEGACY_COOKIE_VALUE)).build(),
+				new ArrayList<>(), Optional.of("universalId"));
+	}
+
+	private TreeContext getContextWithoutCookies() {
+		return new TreeContext(sharedState, JsonValue.json(""), JsonValue.json(""),
+				new ExternalRequestContext.Builder().build(), new ArrayList<>(), Optional.of("universalId"));
+	}
 }

@@ -1,5 +1,5 @@
 /***************************************************************************
- *  Copyright 2019 ForgeRock AS
+ *  Copyright 2021 ForgeRock AS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,14 +19,14 @@ import static java.util.Arrays.asList;
 
 import java.util.Map;
 
+import org.forgerock.openam.auth.node.AddAttributesToObjectAttributesNode;
 import org.forgerock.openam.auth.node.LegacyORACreateForgeRockUser;
 import org.forgerock.openam.auth.node.LegacyORALogin;
-import org.forgerock.openam.auth.node.LegacyORAMigrationStatus;
-import org.forgerock.openam.auth.node.LegacyORASetPassword;
 import org.forgerock.openam.auth.node.LegacyORAValidateToken;
 import org.forgerock.openam.auth.node.api.AbstractNodeAmPlugin;
 import org.forgerock.openam.auth.node.api.Node;
 import org.forgerock.openam.plugins.PluginException;
+import org.forgerock.openam.services.OracleService;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -58,7 +58,7 @@ public class LegacyORAPlugin extends AbstractNodeAmPlugin {
 	@Override
 	protected Map<String, Iterable<? extends Class<? extends Node>>> getNodesByVersion() {
 		return ImmutableMap.of(getPluginVersion(), asList(LegacyORACreateForgeRockUser.class, LegacyORALogin.class,
-				LegacyORAMigrationStatus.class, LegacyORASetPassword.class, LegacyORAValidateToken.class));
+				LegacyORAValidateToken.class, AddAttributesToObjectAttributesNode.class));
 	}
 
 	/**
@@ -70,10 +70,25 @@ public class LegacyORAPlugin extends AbstractNodeAmPlugin {
 	 */
 	@Override
 	public void upgrade(String fromVersion) throws PluginException {
-		pluginTools.upgradeAuthNode(LegacyORACreateForgeRockUser.class);
-		pluginTools.upgradeAuthNode(LegacyORALogin.class);
-		pluginTools.upgradeAuthNode(LegacyORAMigrationStatus.class);
-		pluginTools.upgradeAuthNode(LegacyORASetPassword.class);
-		pluginTools.upgradeAuthNode(LegacyORAValidateToken.class);
+		// Services
+//		SSOToken adminToken = AccessController.doPrivileged(AdminTokenAction.getInstance());
+//		if (fromVersion.equals(PluginTools.DEVELOPMENT_VERSION)) {
+//			ServiceManager sm = null;
+//			try {
+//				sm = new ServiceManager(adminToken);
+//				if (sm.getServiceNames().contains("OracleService")) {
+//					sm.removeService("OracleService", "1.0");
+//				}
+//			} catch (SSOException | SMSException e) {
+//				e.printStackTrace();
+//			}
+//		}
+
+		pluginTools.installService(OracleService.class);
+
+		// Nodes
+		pluginTools.installAuthNode(LegacyORACreateForgeRockUser.class);
+		pluginTools.installAuthNode(LegacyORALogin.class);
+		pluginTools.installAuthNode(LegacyORAValidateToken.class);
 	}
 }

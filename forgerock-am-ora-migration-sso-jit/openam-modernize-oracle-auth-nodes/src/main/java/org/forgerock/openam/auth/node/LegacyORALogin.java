@@ -1,5 +1,5 @@
 /***************************************************************************
- *  Copyright 2019 ForgeRock AS
+ *  Copyright 2021 ForgeRock AS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,19 +26,21 @@ import java.util.UUID;
 
 import javax.inject.Inject;
 
-import org.forgerock.openam.annotations.sm.Attribute;
 import org.forgerock.openam.auth.node.api.Action;
 import org.forgerock.openam.auth.node.api.Node;
-import org.forgerock.openam.auth.node.api.NodeProcessException;
 import org.forgerock.openam.auth.node.api.TreeContext;
 import org.forgerock.openam.auth.node.base.AbstractLegacyLoginNode;
 import org.forgerock.openam.auth.node.treehook.LegacyORASessionTreeHook;
+import org.forgerock.openam.core.realms.Realm;
 import org.forgerock.openam.modernize.legacy.ORAAccessClient;
+import org.forgerock.openam.services.OracleService;
+import org.forgerock.openam.sm.AnnotatedServiceRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.assistedinject.Assisted;
-import com.sun.identity.sm.RequiredValueValidator;
+import com.iplanet.sso.SSOException;
+import com.sun.identity.sm.SMSException;
 
 import oracle.security.am.asdk.AccessException;
 
@@ -50,101 +52,59 @@ import oracle.security.am.asdk.AccessException;
 @Node.Metadata(configClass = LegacyORALogin.LegacyORAConfig.class, outcomeProvider = AbstractLegacyLoginNode.OutcomeProvider.class)
 public class LegacyORALogin extends AbstractLegacyLoginNode {
 
-	private Logger LOGGER = LoggerFactory.getLogger(LegacyORALogin.class);
+	private final Logger logger = LoggerFactory.getLogger(LegacyORALogin.class);
 	private final LegacyORAConfig config;
 	private final UUID nodeId;
+	OracleService oracleService;
 
 	/**
 	 * Configuration for this node, as an extension from
 	 * {@link AbstractLegacyLoginNode}
 	 */
 	public interface LegacyORAConfig extends AbstractLegacyLoginNode.Config {
-
-		/**
-		 * Defines the name of the resource accessed. Since the requested resource type
-		 * for this particular example is HTTP, it is legal to prepend a host name and
-		 * port number to the resource name, as in the following example:
-		 * 
-		 * <pre>
-		 * //Example.com:80/resource/index.html
-		 * </pre>
-		 * 
-		 * @return the OAM login endpoint (resource)
-		 */
-		@Attribute(order = 10, validators = { RequiredValueValidator.class })
-		String msResource();
-
-		/**
-		 * Defines the type of resource being requested. Example:
-		 * 
-		 * <pre>
-		 * HTTPS
-		 * </pre>
-		 * 
-		 * @return the type of resource being accessed
-		 */
-		@Attribute(order = 20, validators = { RequiredValueValidator.class })
-		String msProtocol();
-
-		/**
-		 * Defines which is the type of operation to be performed against the resource.
-		 * When the resource type is HTTP, the possible operations are GET and POST
-		 * 
-		 * @return the type of operation to perform
-		 */
-		@Attribute(order = 30, validators = { RequiredValueValidator.class })
-		String msMethod();
-
-		/**
-		 * Defines the domain for which the SSO token obtained from legacy OAM will be
-		 * set
-		 * 
-		 * @return the value for the OAM cookie domain
-		 */
-		@Attribute(order = 40, validators = { RequiredValueValidator.class })
-		String legacyCookieDomain();
-
-		/**
-		 * Defines the path where the OAM ObAccessClient.xml file is configured
-		 * 
-		 * @return the configured path
-		 */
-		@Attribute(order = 50, validators = { RequiredValueValidator.class })
-		String msConfigLocation();
-
 	}
 
 	/**
 	 * Creates a LegacyORALogin node with the provided configuration
-	 * 
-	 * @param config the configuration for this Node.
-	 * @param nodeId the ID of this node, used to bind the
-	 *               {@link LegacyORASessionTreeHook} execution at the end of the
-	 *               tree.
+	 *
+	 * @param realm           the tree's realm
+	 * @param serviceRegistry instance of the tree's serice config.
+	 * @param config          the configuration for this Node.
+	 * @param nodeId          the ID of this node, used to bind the
+	 *                        {@link LegacyORASessionTreeHook} execution at the end
+	 *                        of the tree.
 	 */
 	@Inject
-	public LegacyORALogin(@Assisted LegacyORAConfig config, @Assisted UUID nodeId) {
+	public LegacyORALogin(@Assisted Realm realm, @Assisted LegacyORAConfig config, @Assisted UUID nodeId,
+			AnnotatedServiceRegistry serviceRegistry) {
 		this.config = config;
 		this.nodeId = nodeId;
+		try {
+			oracleService = serviceRegistry.getRealmSingleton(OracleService.class, realm).get();
+		} catch (SSOException | SMSException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
 	 * Main method called when the node is triggered.
 	 */
 	@Override
-	public Action process(TreeContext context) throws NodeProcessException {
+	public Action process(TreeContext context) {
 		String username = context.sharedState.get(USERNAME).asString();
 		String password = context.transientState.get(PASSWORD).asString();
 		String responseCookie = getLegacyCookie(username, password);
+
 		if (responseCookie != null) {
-			LOGGER.info("process(): Successfull login in legacy system.");
+			logger.info("LegacyORALogin::process > Successful login in legacy system.");
 			return goTo(true).putSessionProperty(SESSION_LEGACY_COOKIE, responseCookie)
-					.putSessionProperty(SESSION_LEGACY_COOKIE_DOMAIN, config.legacyCookieDomain())
-					.putSessionProperty(SESSION_LEGACY_COOKIE_NAME, config.legacyCookieName())
+					.putSessionProperty(SESSION_LEGACY_COOKIE_DOMAIN, oracleService.legacyCookieDomain())
+					.putSessionProperty(SESSION_LEGACY_COOKIE_NAME, oracleService.legacyCookieName())
 					.addSessionHook(LegacyORASessionTreeHook.class, nodeId, getClass().getSimpleName())
 					.replaceSharedState(context.sharedState.put(LEGACY_COOKIE_SHARED_STATE_PARAM, responseCookie))
 					.build();
 		} else {
+			logger.info("LegacyORALogin::process > Node outcome: FALSE");
 			return goTo(false).build();
 		}
 	}
@@ -152,7 +112,7 @@ public class LegacyORALogin extends AbstractLegacyLoginNode {
 	/**
 	 * Initializes communication with the legacy IAM and attempts to authenticate
 	 * the user
-	 * 
+	 *
 	 * @param username the username that will be authenticated
 	 * @param password the password of the user
 	 * @return <b>null</b> if no cookie could be found following the authentication
@@ -160,10 +120,10 @@ public class LegacyORALogin extends AbstractLegacyLoginNode {
 	 */
 	private String getLegacyCookie(String username, String password) {
 		try {
-			return ORAAccessClient.getInstance().authenticateUser(username, password, config.msProtocol(),
-					config.msResource(), config.msMethod(), config.msConfigLocation());
+			return ORAAccessClient.getInstance().authenticateUser(username, password, oracleService.msProtocol(),
+					oracleService.msResource(), oracleService.msMethod(), oracleService.msConfigLocation());
 		} catch (AccessException e) {
-			LOGGER.error("getLegacyCookie()::Error getting legacy SSO token: " + e);
+			logger.error("LegacyORALogin::getLegacyCookie > Error getting legacy SSO token: {0}", e);
 		}
 		return null;
 	}

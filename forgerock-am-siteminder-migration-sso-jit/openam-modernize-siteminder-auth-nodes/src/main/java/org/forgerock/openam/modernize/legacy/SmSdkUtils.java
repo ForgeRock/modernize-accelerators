@@ -1,5 +1,5 @@
 /***************************************************************************
- *  Copyright 2020 ForgeRock AS
+ *  Copyright 2021 ForgeRock AS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import java.util.Hashtable;
 import java.util.Map;
 import java.util.Vector;
 
+import org.forgerock.openam.services.SiteminderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,49 +33,42 @@ import com.netegrity.sdk.apiutil.SmApiSession;
 import com.netegrity.sdk.dmsapi.SmDmsObject;
 import com.netegrity.sdk.policyapi.SmObject;
 
+import netegrity.siteminder.javaagent.AgentAPI;
 import netegrity.siteminder.javaagent.Attribute;
 import netegrity.siteminder.javaagent.AttributeList;
 import netegrity.siteminder.javaagent.InitDef;
 import netegrity.siteminder.javaagent.ServerDef;
 
 public final class SmSdkUtils {
+	private static final Logger logger = LoggerFactory.getLogger(SmSdkUtils.class);
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(SmSdkUtils.class);
+	// Provides exclusively static methods. Cannot be instantiated
+	private SmSdkUtils() {
+	}
 
 	/**
-	 * 
 	 * Creates the Siteminder {@link ServerDef}
-	 * 
-	 * @param policyServerIP     siteminder policy server IP
-	 * @param authorizationPort  authorization server port (0 for none)
-	 * @param connectionMin      number of initial connections
-	 * @param connectionMax      maximum number of connections
-	 * @param connectionStep     number of connections to allocate when out of
-	 *                           connections
-	 * @param timeout            connection timeout in seconds
-	 * @param authenticationPort authentication server port (0 for none)
-	 * @param authorizationPort  authorization server port (0 for none)
-	 * @param accountingPort     accounting server port (0 for none)
-	 * 
+	 *
+	 * @param siteminderService the Siteminder service containing all the
+	 *                          configurations for the authentication connection
 	 * @return {@link ServerDef}
 	 */
-	public static ServerDef createServerDefinition(String policyServerIP, int connectionMin, int connectionMax,
-			int connectionStep, int timeout, int authenticationPort, int authorizationPort, int accountingPort) {
+	public static ServerDef createServerDefinition(SiteminderService siteminderService) {
 		ServerDef serverDef = new ServerDef();
-		serverDef.serverIpAddress = policyServerIP;
-		serverDef.connectionMin = connectionMin;
-		serverDef.connectionMax = connectionMax;
-		serverDef.connectionStep = connectionStep;
-		serverDef.timeout = timeout;
-		serverDef.authenticationPort = authenticationPort;
-		serverDef.authorizationPort = authorizationPort;
-		serverDef.accountingPort = accountingPort;
+		serverDef.serverIpAddress = siteminderService.policyServerIP();
+		serverDef.connectionMin = siteminderService.connectionMin();
+		serverDef.connectionMax = siteminderService.connectionMax();
+		serverDef.connectionStep = siteminderService.connectionStep();
+		serverDef.timeout = siteminderService.timeout();
+		serverDef.authenticationPort = siteminderService.authenticationPort();
+		serverDef.authorizationPort = siteminderService.authorizationPort();
+		serverDef.accountingPort = siteminderService.accountingPort();
 		return serverDef;
 	}
 
 	/**
 	 * Creates the Siteminder {@link InitDef}
-	 * 
+	 *
 	 * @param agentName        the name of the web agent
 	 * @param agentSecret      the secret of the web agent
 	 * @param failOver
@@ -83,33 +77,69 @@ public final class SmSdkUtils {
 	 */
 	public static InitDef createInitDefinition(String agentName, String agentSecret, boolean failOver,
 			ServerDef serverDefinition) {
-		InitDef initdef = null;
+		InitDef initdef;
 		initdef = new InitDef(agentName, agentSecret, failOver, serverDefinition);
 		return initdef;
 	}
 
 	/**
+	 * Initializes the current's instance agentAPI
+	 *
+	 * @param webAgentSecret agent secret in string format
+	 * @return the AgentAPI initialized instance or null if initialization failed
+	 */
+	public static AgentAPI initConnectionAgent(SiteminderService siteminderService, String webAgentSecret) {
+		// Initialize AgentAPI
+		AgentAPI agentAPI = new AgentAPI();
+		ServerDef serverDefinition;
+		InitDef initDefinition = new InitDef();
+
+		// Create SM server and init definitions
+		if (Boolean.TRUE.equals(siteminderService.is4xAgent())) {
+			serverDefinition = SmSdkUtils.createServerDefinition(siteminderService);
+			initDefinition = SmSdkUtils.createInitDefinition(siteminderService.webAgentName(), webAgentSecret, false,
+					serverDefinition);
+		} else {
+			logger.info("LegacySMValidateToken::process > Configuring AgentAPI for using a > 4.x web agent.");
+			int configStatus = agentAPI.getConfig(initDefinition, siteminderService.webAgentName(),
+					siteminderService.smHostFilePath());
+			logger.info("LegacySMValidateToken::process > getConfig returned status: {}", configStatus);
+		}
+
+		int retCode = agentAPI.init(initDefinition);
+		if (retCode == AgentAPI.SUCCESS) {
+			logger.info("LegacySMValidateToken::process > SM AgentAPI init successfully");
+		} else {
+			logger.error("LegacySMValidateToken::process > SM AgentAPI init failed with status {}", retCode);
+			agentAPI.unInit();
+			agentAPI = null;
+		}
+
+		return agentAPI;
+	}
+
+	/**
 	 * Displays the user attributes available after a login.
-	 * 
+	 *
 	 * @param attributeList the user attributes list
 	 */
 	@SuppressWarnings("rawtypes")
 	public static void displayAttributes(AttributeList attributeList) {
-		Enumeration enumer = attributeList.attributes();
-		if (!enumer.hasMoreElements()) {
-			LOGGER.info("SmSdkUtils::displayAttributes() > No attributes found");
+		Enumeration enumeration = attributeList.attributes();
+		if (!enumeration.hasMoreElements()) {
+			logger.info("SmSdkUtils::displayAttributes > No attributes found");
 		}
 
-		while (enumer.hasMoreElements()) {
-			Attribute attr = (Attribute) enumer.nextElement();
-			LOGGER.info("SmSdkUtils::displayAttributes() > {}={}", attr.id, new String(attr.value));
+		while (enumeration.hasMoreElements()) {
+			Attribute attr = (Attribute) enumeration.nextElement();
+			String str = new String(attr.value);
+			logger.info("SmSdkUtils::displayAttributes > {}={}", attr.id, str);
 		}
 	}
 
 	/**
-	 * 
 	 * Prints an object retrieved via DMS API.
-	 * 
+	 *
 	 * @param obj    the DMS object retrieved. Can be a user directory, a user, or
 	 *               any other object from the directory.
 	 * @param result the result of the operation that has completed and retrieved
@@ -118,9 +148,9 @@ public final class SmSdkUtils {
 	@SuppressWarnings("rawtypes")
 	public static void printObject(Object obj, final SmApiResult result) {
 		if (!result.isSuccess()) {
-			LOGGER.error("SmSdkUtils::printObject() > STATUS_NOK");
+			logger.error("SmSdkUtils::printObject > STATUS_NOK");
 		} else {
-			LOGGER.info("SmSdkUtils::printObject() > STATUS_OK");
+			logger.info("SmSdkUtils::printObject > STATUS_OK");
 		}
 
 		if (obj != null) {
@@ -139,24 +169,23 @@ public final class SmSdkUtils {
 				Enumeration evalues = ((Hashtable) obj).elements();
 
 				while (evalues.hasMoreElements()) {
-					LOGGER.info("SmSdkUtils::printObject() > {}={}", ekeys.nextElement(), evalues.nextElement());
+					logger.info("SmSdkUtils::printObject > {}={}", ekeys.nextElement(), evalues.nextElement());
 				}
 			} else if (obj instanceof java.util.Vector) {
 				Enumeration evalues = ((Vector) obj).elements();
 
 				while (evalues.hasMoreElements()) {
-					LOGGER.info("SmSdkUtils::printObject() > {}", evalues.nextElement());
+					logger.info("SmSdkUtils::printObject > {}", evalues.nextElement());
 				}
 			}
 		}
 	}
 
 	/**
-	 * 
 	 * Reads the Siteminder user attributes defined as keys in the
 	 * migrationAttributesMap. Creates a new map with the ForgeRock attribute names
 	 * as keys and Siteminder user attribute values.
-	 * 
+	 *
 	 * @param dmsObject              the user object retrieved from DMS
 	 * @param migrationAttributesMap the mapping of attributes configured in the
 	 *                               CreateForgeRockUser node
@@ -166,7 +195,7 @@ public final class SmSdkUtils {
 	@SuppressWarnings("rawtypes")
 	public static Map<String, String> getUserAttributes(Object dmsObject, Map<String, String> migrationAttributesMap,
 			boolean debug) {
-		LOGGER.info("SmSdkUtils::getUserAttributes() > Start");
+		logger.info("SmSdkUtils::getUserAttributes > Start");
 		Map<String, String> attributesMap = new HashMap<>();
 
 		if (dmsObject != null) {
@@ -193,7 +222,7 @@ public final class SmSdkUtils {
 			}
 		}
 		if (debug) {
-			LOGGER.info("SmSdkUtils::getUserAttributes() > End attributesMap: {}", attributesMap);
+			logger.info("SmSdkUtils::getUserAttributes > End attributesMap: {}", attributesMap);
 		}
 		return attributesMap;
 	}
@@ -201,7 +230,7 @@ public final class SmSdkUtils {
 	/**
 	 * Log in as a Siteminder administrator. Part of the process of retrieving a
 	 * user's attributes using the Siteminder DMS API.
-	 * 
+	 *
 	 * @param apiSession      the Siteminder API session
 	 * @param smAdminUser     the Siteminder administrator user
 	 * @param smAdminPassword the Siteminder administrator user password
@@ -216,49 +245,36 @@ public final class SmSdkUtils {
 				return false;
 			}
 		} catch (UnknownHostException uhe) {
-			LOGGER.error("LegacySMCreateForgeRockUser::adminLogin() > UnknownHostException: {}", uhe);
+			logger.error("SmSdkUtils::adminLogin > UnknownHostException: {0}", uhe);
 			return false;
 		} catch (SmApiException apiException) {
-			LOGGER.error("LegacySMCreateForgeRockUser::adminLogin() > SmApiException: {}", apiException);
+			logger.error("SmSdkUtils::adminLogin > SmApiException: {0}", apiException);
 			return false;
 		}
 		return true;
 	}
 
 	/**
-	 * 
 	 * Verifies if the required configuration fields are not empty, for both web
 	 * agent types.
-	 * 
-	 * @param is4xAgent          true if the web agent type is 4.x, false otherwise
-	 * @param smHostFilePath     the path where the SmHost.conf file is located.
-	 *                           Mandatory only if 4.x agent is false
-	 * @param accountingPort     accounting server port (0 for none)
-	 * @param authenticationPort authentication server port (0 for none)
-	 * @param authorizationPort  authorization server port (0 for none)
-	 * @param connectionMin      number of initial connections
-	 * @param connectionMax      maximum number of connections
-	 * @param connectionStep     number of connections to allocate when out of
-	 *                           connections
-	 * @param timeout            connection timeout in seconds
-	 * @param webAgentSecret     the secret id of the AM secret that contains the
-	 *                           web agent shared secret as defined in the
-	 *                           SiteMinder user interface
+	 *
+	 * @param siteminderService the Siteminder service containing all the
+	 *                          configurations for the authentication connection
 	 * @return true if all required parameters for the given agent type are
 	 *         configured, false otherwise
 	 */
-	public static boolean isNodeConfigurationValid(boolean is4xAgent, String smHostFilePath, int accountingPort,
-			int authenticationPort, int authorizationPort, int connectionMin, int connectionMax, int connectionStep,
-			int timeout, String webAgentSecret) {
-		if (is4xAgent) {
-			LOGGER.info(
+	public static boolean isNodeConfigurationValid(SiteminderService siteminderService) {
+		if (Boolean.TRUE.equals(siteminderService.is4xAgent())) {
+			logger.info(
 					"SmSdkUtils::isNodeConfigurationValid() > Found valid configuration for Siteminder web agent 4.x");
-			return accountingPort > 0 && authenticationPort > 0 && authorizationPort > 0 && connectionMin > 0
-					&& connectionMax > 0 && connectionStep > 0 && timeout > 0 && webAgentSecret != null;
+			return siteminderService.accountingPort() > 0 && siteminderService.authenticationPort() > 0
+					&& siteminderService.authorizationPort() > 0 && siteminderService.connectionMin() > 0
+					&& siteminderService.connectionMax() > 0 && siteminderService.connectionStep() > 0
+					&& siteminderService.timeout() > 0 && siteminderService.webAgentPasswordSecretId() != null;
 		} else {
-			LOGGER.info(
+			logger.info(
 					"SmSdkUtils::isNodeConfigurationValid() > Found valid configuration for Siteminder web agent non 4.x");
-			return smHostFilePath != null;
+			return siteminderService.smHostFilePath() != null;
 		}
 
 	}

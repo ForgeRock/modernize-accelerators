@@ -1,5 +1,5 @@
 /***************************************************************************
- *  Copyright 2020 ForgeRock AS
+ *  Copyright 2021 ForgeRock AS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import static org.forgerock.openam.modernize.utils.NodeConstants.SESSION_LEGACY_
 
 import javax.inject.Inject;
 
-import org.forgerock.http.protocol.Request;
 import org.forgerock.http.protocol.Response;
 import org.forgerock.openam.auth.node.api.TreeHook;
 import org.forgerock.openam.auth.node.api.TreeHookException;
@@ -41,7 +40,6 @@ public class LegacySessionTreeHook implements TreeHook {
 
 	private final Session session;
 	private final Response response;
-	private final Request request;
 	private static final Logger LOGGER = LoggerFactory.getLogger(LegacySessionTreeHook.class);
 
 	/**
@@ -49,13 +47,11 @@ public class LegacySessionTreeHook implements TreeHook {
 	 *
 	 * @param session  the session.
 	 * @param response the response.
-	 * @param request  the request.
 	 */
 	@Inject
-	public LegacySessionTreeHook(@Assisted Session session, @Assisted Response response, @Assisted Request request) {
+	public LegacySessionTreeHook(@Assisted Session session, @Assisted Response response) {
 		this.session = session;
 		this.response = response;
-		this.request = request;
 	}
 
 	/**
@@ -65,16 +61,16 @@ public class LegacySessionTreeHook implements TreeHook {
 	 * @throws TreeHookException if an exception occurs.
 	 */
 	@Override
-	public void accept() throws TreeHookException {
-		LOGGER.debug("LegacySessionTreeHook::accept() > Creating legacy cookie tree hook");
+	public void accept() {
+		LOGGER.info("LegacySessionTreeHook::accept > Creating legacy cookie tree hook");
 		String legacyCookie = null;
 		String legacyCookieDomain = null;
 		try {
 			legacyCookie = session.getProperty(LEGACY_COOKIE_SHARED_STATE_PARAM);
 			legacyCookieDomain = session.getProperty(SESSION_LEGACY_COOKIE_DOMAIN);
-			LOGGER.info("LegacySessionTreeHook::accept() > Legacy cookie {}", legacyCookie);
+			LOGGER.info("LegacySessionTreeHook::accept > Legacy cookie {}", legacyCookie);
 		} catch (SessionException e) {
-			LOGGER.error("LegacySessionTreeHook::accept() > Error reading session property {}: {}",
+			LOGGER.error("LegacySessionTreeHook::accept > Error reading session property {}: {}",
 					LEGACY_COOKIE_SHARED_STATE_PARAM, e);
 		}
 		response.getHeaders().add("set-cookie", legacyCookie + "; Path=/" + "; Domain=" + legacyCookieDomain);
