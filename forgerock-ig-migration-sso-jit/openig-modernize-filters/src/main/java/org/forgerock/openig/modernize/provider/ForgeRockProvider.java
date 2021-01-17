@@ -1,5 +1,5 @@
 /***************************************************************************
- *  Copyright 2019 ForgeRock AS
+ *  Copyright 2021 ForgeRock AS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,14 @@
  ***************************************************************************/
 package org.forgerock.openig.modernize.provider;
 
+import static org.forgerock.openig.modernize.utils.FilterConstants.Attributes.PASSWORD;
+import static org.forgerock.openig.modernize.utils.FilterConstants.Attributes.USERNAME;
+import static org.forgerock.openig.modernize.utils.FilterConstants.Headers.APPLICATION_JSON;
+import static org.forgerock.openig.modernize.utils.FilterConstants.Headers.AUTHORIZATION;
+import static org.forgerock.openig.modernize.utils.FilterConstants.Headers.CONTENT_TYPE;
+import static org.forgerock.openig.modernize.utils.FilterConstants.Methods.GET;
+import static org.forgerock.openig.modernize.utils.FilterConstants.Methods.POST;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.text.MessageFormat;
@@ -27,7 +35,6 @@ import org.forgerock.http.protocol.Headers;
 import org.forgerock.http.protocol.Request;
 import org.forgerock.http.protocol.Response;
 import org.forgerock.json.JsonValue;
-import org.forgerock.openig.modernize.common.User;
 import org.forgerock.openig.modernize.impl.LegacyOpenSSOProvider;
 import org.forgerock.util.promise.NeverThrowsException;
 import org.slf4j.Logger;
@@ -38,6 +45,10 @@ public final class ForgeRockProvider {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ForgeRockProvider.class);
 	private static final String QUERY = "?_queryFilter=userName+eq+%22{0}%22";
 
+	private ForgeRockProvider() {
+		throw new IllegalStateException("Instantiation is not allowed");
+	}
+
 	/**
 	 * 
 	 * Method calls the client implementation to intercept the credentials from the
@@ -46,18 +57,15 @@ public final class ForgeRockProvider {
 	 * 
 	 * @param legacyIAMProvider
 	 * 
-	 * @param request                  - ForgeRock HTTP {@link Request}
-	 * @param getUserCredentialsMethod - Method name from the modernize library
-	 * @return {@link User} - An user object with userName and userPassword set.
+	 * @param request           - ForgeRock HTTP {@link Request}
 	 * @throws Exception
 	 * 
 	 */
-	public static User getUserCredentials(LegacyOpenSSOProvider legacyIAMProvider, Request request,
-			String getUserCredentialsMethod) {
+	public static JsonValue getUserCredentials(LegacyOpenSSOProvider legacyIAMProvider, Request request) {
 		try {
 			return legacyIAMProvider.getUserCredentials(request);
 		} catch (Exception e) {
-			LOGGER.error("getUserCredentials()::Exception while reading user's credentials: " + e);
+			LOGGER.error("ForgeRockProvider::getUserCredentials > Error reading user's credentials: ", e);
 		}
 		return null;
 	}
@@ -70,12 +78,7 @@ public final class ForgeRockProvider {
 	 *                                       the user is migrated
 	 * @param userName                       - The userName of the current
 	 *                                       requesting user
-	 * @param openIdmUsernameHeader          - The HTTP header name where to send
-	 *                                       the IDM administrator user
-	 * @param openIdmUsername                - The IDM administrator userName
-	 * @param openIdmPasswordHeader          - The HTTP header name where to send
-	 *                                       the IDM administrator user's password
-	 * @param openIdmPassword                - The IDM administrator password
+	 * @param authorizationToken             - The authorization token
 	 * @param httpClientHandler              - The ForgeRock HTTP client handler
 	 * @return - true if user is migrated, false otherwise
 	 * @throws IOException
@@ -83,20 +86,19 @@ public final class ForgeRockProvider {
 	 * @throws NeverThrowsException
 	 */
 	public static boolean userMigrated(String getUserMigrationStatusEndpoint, String userName,
-			String openIdmUsernameHeader, String openIdmUsername, String openIdmPasswordHeader, String openIdmPassword,
-			HttpClientHandler httpClientHandler) throws IOException, NeverThrowsException, InterruptedException {
-		String encodedQuery = MessageFormat.format(QUERY, "jane.doe");
+			String authorizationToken, HttpClientHandler httpClientHandler)
+			throws IOException, NeverThrowsException, InterruptedException {
+		String encodedQuery = MessageFormat.format(QUERY, userName);
 		String getUserPathWithQuery = getUserMigrationStatusEndpoint + encodedQuery;
-		LOGGER.debug("userMigrated()::Calling endpoint: " + getUserPathWithQuery);
+		LOGGER.debug("ForgeRockProvider::userMigrated > Calling endpoint: {}", getUserPathWithQuery);
 		Request request = new Request();
 		try {
-			request.setMethod("GET").setUri(getUserPathWithQuery);
+			request.setMethod(GET).setUri(getUserPathWithQuery);
 		} catch (URISyntaxException e) {
-			LOGGER.error("userMigrated()::URISyntaxException: " + e);
+			LOGGER.error("ForgeRockProvider::userMigrated > URISyntaxException: ", e);
 		}
-		request.getHeaders().add(openIdmUsernameHeader, openIdmUsername);
-		request.getHeaders().add(openIdmPasswordHeader, openIdmPassword);
-		request.getHeaders().add("Content-Type", "application/json");
+		request.getHeaders().add(CONTENT_TYPE, APPLICATION_JSON);
+		request.getHeaders().add(AUTHORIZATION, authorizationToken);
 		Client client = new Client(httpClientHandler);
 		return userMigrated(client.send(request).getOrThrow());
 	}
@@ -110,12 +112,9 @@ public final class ForgeRockProvider {
 	 * @throws IOException
 	 */
 	private static boolean userMigrated(Response response) throws IOException {
-		LOGGER.debug("userMigrated()::response.getBody(): " + response.getEntity().getJson());
+		LOGGER.debug("ForgeRockProvider::userMigrated > response: {}", response.getEntity());
 		JsonValue entity = JsonValue.json(response.getEntity().getJson());
-		if (entity != null && entity.get("resultCount") != null && entity.get("resultCount").asInteger() > 0) {
-			return true;
-		}
-		return false;
+		return entity != null && entity.get("resultCount") != null && entity.get("resultCount").asInteger() > 0;
 	}
 
 	/**
@@ -123,8 +122,8 @@ public final class ForgeRockProvider {
 	 * Authenticates the user in AM and retrieves the SSO token that will be set on
 	 * the response
 	 * 
-	 * @param                             {@link User} - user object that holds
-	 *                                    credentials for authentication
+	 * @param {@link                      User} - user object that holds credentials
+	 *                                    for authentication
 	 * @param openaAmAuthenticateURL      - the authentication URL for OpenAM
 	 * @param acceptApiVersionHeader      - Accept API Version header name
 	 * @param acceptApiVersionHeaderValue - Accept API version header value
@@ -136,20 +135,19 @@ public final class ForgeRockProvider {
 	 * @throws InterruptedException
 	 * @throws NeverThrowsException
 	 */
-	public static String authenticateUser(User user, String openaAmAuthenticateURL, String acceptApiVersionHeader,
+	public static String authenticateUser(JsonValue user, String openaAmAuthenticateURL, String acceptApiVersionHeader,
 			String acceptApiVersionHeaderValue, String openAmCookieName, HttpClientHandler httpClientHandler)
 			throws NeverThrowsException, InterruptedException, IOException {
 		Response entity = getCallbacks(openaAmAuthenticateURL, acceptApiVersionHeader, acceptApiVersionHeaderValue,
 				httpClientHandler);
 		if (entity != null) {
-			LOGGER.debug("authenticateUser()::response.authenticateUser(): " + entity.getEntity().getJson());
+			LOGGER.debug("ForgeRockProvider::authenticateUser() > response: {}", entity.getEntity().getJson());
 			JsonValue callbacks = JsonValue.json(entity.getEntity().getJson());
-			try {
-				callbacks = createAuthenticationCallbacks(callbacks, user.getUserName(), user.getUserPassword());
-				LOGGER.debug("authenticateUser()::callbacks: " + callbacks);
-			} catch (IOException e) {
-				LOGGER.error("authenticateUser()::Error: " + e);
-			}
+			// Fill in the intercepted user credentials
+			callbacks.get("callbacks").get(0).get("input").get(0).put("value", user.get(USERNAME).asString());
+			callbacks.get("callbacks").get(1).get("input").get(0).put("value", user.get(PASSWORD).asString());
+
+			LOGGER.debug("ForgeRockProvider::authenticateUser > callbacks: {}", callbacks);
 			return getCookie(openaAmAuthenticateURL, callbacks, acceptApiVersionHeader, acceptApiVersionHeaderValue,
 					openAmCookieName, httpClientHandler);
 		}
@@ -160,8 +158,7 @@ public final class ForgeRockProvider {
 	 * 
 	 * Gets the callbacks from first authenticate request in OpenAM
 	 * 
-	 * @param                             openaAmAuthenticateURL- the authentication
-	 *                                    URL for OpenAM
+	 * @param openaAmAuthenticateURL-     the authentication URL for OpenAM
 	 * @param acceptApiVersionHeader      - Accept API Version header name
 	 * @param acceptApiVersionHeaderValue - Accept API version header value
 	 * @param httpClientHandler           - The ForgeRock HTTP client handler
@@ -174,31 +171,14 @@ public final class ForgeRockProvider {
 			throws NeverThrowsException, InterruptedException {
 		Request request = new Request();
 		try {
-			request.setMethod("POST").setUri(openaAmAuthenticateURL);
+			request.setMethod(POST).setUri(openaAmAuthenticateURL);
 		} catch (URISyntaxException e) {
-			LOGGER.error("getCallbacks()::URISyntaxException: " + e);
+			LOGGER.error("ForgeRockProvider::getCallbacks > URISyntaxException: ", e);
 		}
 		request.getHeaders().add(acceptApiVersionHeader, acceptApiVersionHeaderValue);
-		request.getHeaders().add("Content-Type", "application/json");
+		request.getHeaders().add(CONTENT_TYPE, APPLICATION_JSON);
 		Client client = new Client(httpClientHandler);
 		return client.send(request).getOrThrow();
-	}
-
-	/**
-	 * 
-	 * Method that fills in the user credential in the authentication callbacks
-	 * 
-	 * @param callbacks - callbacks needed for authentication
-	 * @param userId    - userName
-	 * @param password  - userPassword
-	 * @return - JSON body callbacks received from OpenAM with credentials set
-	 * @throws IOException
-	 */
-	private static JsonValue createAuthenticationCallbacks(JsonValue callbacks, String userId, String password)
-			throws IOException {
-		callbacks.get("callbacks").get(0).get("input").get(0).put("value", userId);
-		callbacks.get("callbacks").get(1).get("input").get(0).put("value", password);
-		return callbacks;
 	}
 
 	/**
@@ -222,29 +202,29 @@ public final class ForgeRockProvider {
 	 */
 	private static String getCookie(String openaAmAuthenticateURL, JsonValue callbacks, String acceptApiVersionHeader,
 			String acceptApiVersionHeaderValue, String openAmCookieName, HttpClientHandler httpClientHandler)
-			throws NeverThrowsException, InterruptedException, IOException {
+			throws NeverThrowsException, InterruptedException {
 		Request request = new Request();
 		try {
-			request.setMethod("POST").setUri(openaAmAuthenticateURL);
+			request.setMethod(POST).setUri(openaAmAuthenticateURL);
 		} catch (URISyntaxException e) {
-			LOGGER.error("getCookie()::URISyntaxException: " + e);
+			LOGGER.error("ForgeRockProvider::getCookie > URISyntaxException: ", e);
 		}
 		request.setEntity(callbacks);
 		// clearing headers - setting entity on the request adds automatically
 		// content-length which can cause problems in some legacy systems
 		request.getHeaders().clear();
 		request.getHeaders().add(acceptApiVersionHeader, acceptApiVersionHeaderValue);
-		request.getHeaders().add("Content-Type", "application/json");
+		request.getHeaders().add(CONTENT_TYPE, APPLICATION_JSON);
 		Client client = new Client(httpClientHandler);
 		Response response = client.send(request).getOrThrow();
 
 		if (response != null) {
-			LOGGER.debug("getCookie()::response.getStatus(): " + response.getStatus());
+			LOGGER.debug("ForgeRockProvider::getCookie > response status: {}", response.getStatus());
 			Headers responseHeaders = response.getHeaders();
 			Map<String, List<String>> headersMap = responseHeaders.copyAsMultiMapOfStrings();
 			List<String> cookies = headersMap.get("Set-Cookie");
 			String cookie = cookies.stream().filter(x -> x.contains(openAmCookieName)).findFirst().orElse(null);
-			LOGGER.debug("getCookie()::Cookie: " + cookie);
+			LOGGER.debug("ForgeRockProvider::getCookie > Cookie: {}", cookie);
 			return cookie;
 		}
 
@@ -258,85 +238,55 @@ public final class ForgeRockProvider {
 	 * @param user                  {@link User} - An user object with userName and
 	 *                              userPassword set, and extended user profile
 	 *                              attributes
-	 * @param openIdmUsernameHeader - The HTTP header name where to send the IDM
-	 *                              administrator user
-	 * @param openIdmUsername       - The IDM administrator userName
-	 * @param openIdmPasswordHeader - The HTTP header name where to send the IDM
-	 *                              administrator user's password
-	 * @param openIdmPassword       - The IDM administrator password
 	 * @param provisionUserEndpoint - The IDM create user URL
 	 * @param httpClientHandler     - The ForgeRock HTTP client handler
 	 * @throws InterruptedException
 	 * @throws NeverThrowsException
 	 * 
 	 */
-	public static void provisionUser(User user, String openIdmUsernameHeader, String openIdmUsername,
-			String openIdmPasswordHeader, String openIdmPassword, String provisionUserEndpoint,
+	public static void provisionUser(JsonValue user, String authorizationToken, String provisionUserEndpoint,
 			HttpClientHandler httpClientHandler) throws NeverThrowsException, InterruptedException {
-		LOGGER.debug("provisionUser()::Start");
-		JsonValue jsonBody = createProvisioningRequestEntity(user);
+		LOGGER.debug("ForgeRockProvider::provisionUser > Start");
 		Request request = new Request();
 		try {
-			request.setMethod("POST").setUri(provisionUserEndpoint);
+			request.setMethod(POST).setUri(provisionUserEndpoint);
 		} catch (URISyntaxException e) {
-			LOGGER.error("provisionUser()::URISyntaxException: " + e);
+			LOGGER.error("ForgeRockProvider::provisionUser > URISyntaxException: ", e);
 		}
-		request.setEntity(jsonBody);
-		request.getHeaders().add(openIdmUsernameHeader, openIdmUsername);
-		request.getHeaders().add(openIdmPasswordHeader, openIdmPassword);
-		request.getHeaders().add("Content-Type", "application/json");
+		request.setEntity(user);
+		request.getHeaders().add(CONTENT_TYPE, APPLICATION_JSON);
+		request.getHeaders().add(AUTHORIZATION, authorizationToken);
 		Client client = new Client(httpClientHandler);
 		Response response = client.send(request).getOrThrow();
-		LOGGER.debug("provisionUser()::End: " + response.getStatus());
+		LOGGER.debug("ForgeRockProvider::provisionUser > response status: {}", response.getStatus());
 	}
 
 	/**
 	 * 
-	 * Formats the create user request body as accepted by the create user end point
-	 * 
-	 * @param {@link User} - An user object with userName and userPassword set, and
-	 *        extended user profile attributes
-	 * @return - the user profile formatted as JSON
-	 */
-	private static JsonValue createProvisioningRequestEntity(User user) {
-		LOGGER.debug("createProvisioningRequestEntity()::user: " + user);
-		JsonValue value = JsonValue.json(JsonValue.object(JsonValue.field("givenName", user.getUserFirstName()),
-				JsonValue.field("sn", user.getUserLastName()), JsonValue.field("mail", user.getUserEmail()),
-				JsonValue.field("userName", user.getUserName()), JsonValue.field("password", user.getUserPassword())));
-		LOGGER.debug("createProvisioningRequestEntity()::entity: " + value);
-		return value;
-	}
-
-	/**
-	 * 
-	 * Creates an {@link User} object complete with extended user profile attributes
+	 * Creates a user object with the available user profile attributes
 	 * 
 	 * @param response             - The ForgeRock HTTP {@link Response}
 	 * @param user                 - The user before getting the extended user
-	 *                             profile atributes
+	 *                             profile attributes
 	 * @param legacyIAMProvider
 	 * @param getUserProfileMethod - Method name from the modernize library
-	 * @return {@link User} - An user object with userName userPassword, and
-	 *         attributes set
+	 * @return - Aa user object with userName userPassword, and given attributes
 	 */
-	public static User getExtendedUserProfile(Response response, User user, LegacyOpenSSOProvider legacyIAMProvider,
-			String getUserProfileMethod) {
-		return legacyIAMProvider.getExtendedUserAttributes(response, user.getUserName());
+	public static JsonValue getExtendedUserProfile(Response response, JsonValue user,
+			LegacyOpenSSOProvider legacyIAMProvider, Map<String, Object> userMappingAttributes) {
+		return legacyIAMProvider.getExtendedUserAttributes(response, user.get(USERNAME).asString(),
+				userMappingAttributes);
 	}
 
 	/**
 	 * 
 	 * Validate if authentication in Legacy IAM was successful
 	 * 
-	 * @param response                           - The ForgeRock HTTP
-	 *                                           {@link Response}
+	 * @param response          - The ForgeRock HTTP {@link Response}
 	 * @param legacyIAMProvider
-	 * @param validateLegacyAuthenticationMethod - Method name from the modernize
-	 *                                           library
 	 * @return
 	 */
-	public static boolean successfullLegacyAuthentication(Response response, LegacyOpenSSOProvider legacyIAMProvider,
-			String validateLegacyAuthenticationMethod) {
+	public static boolean successfulLegacyAuthentication(Response response, LegacyOpenSSOProvider legacyIAMProvider) {
 		return legacyIAMProvider.validateLegacyAuthResponse(response);
 	}
 

@@ -1,5 +1,5 @@
 /***************************************************************************
- *  Copyright 2019 ForgeRock AS
+ *  Copyright 2021 ForgeRock AS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,16 @@
  ***************************************************************************/
 package org.forgerock.openig.modernize.impl;
 
+import static org.forgerock.openig.modernize.utils.FilterConstants.Attributes.PASSWORD;
+import static org.forgerock.openig.modernize.utils.FilterConstants.Attributes.USERNAME;
+import static org.forgerock.openig.modernize.utils.FilterConstants.Headers.APPLICATION_JSON;
+import static org.forgerock.openig.modernize.utils.FilterConstants.Headers.CONTENT_TYPE;
+import static org.forgerock.openig.modernize.utils.FilterConstants.Methods.GET;
 import static org.forgerock.util.Options.defaultOptions;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -31,14 +37,13 @@ import org.forgerock.http.protocol.Response;
 import org.forgerock.http.protocol.Status;
 import org.forgerock.json.JsonValue;
 import org.forgerock.openig.modernize.LegacyIAMProvider;
-import org.forgerock.openig.modernize.common.User;
 import org.forgerock.util.promise.NeverThrowsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class LegacyOpenSSOProvider implements LegacyIAMProvider {
 
-	private Logger LOGGER = LoggerFactory.getLogger(LegacyOpenSSOProvider.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(LegacyOpenSSOProvider.class);
 	private static ResourceBundle rb = ResourceBundle
 			.getBundle("org.forgerock.openig.modernize.impl.LegacyOpenSSOProvider");
 
@@ -53,40 +58,45 @@ public class LegacyOpenSSOProvider implements LegacyIAMProvider {
 	/**
 	 * {@inheritDoc}
 	 */
-	public User getUserCredentials(Request request) throws Exception {
-		LOGGER.debug("getUserCredentials()::Start");
+	public JsonValue getUserCredentials(Request request) throws Exception {
+		LOGGER.debug("LegacyOpenSSOProvider::getUserCredentials > Start");
 		JsonValue entity = JsonValue.json(request.getEntity().getJson());
+		LOGGER.debug("LegacyOpenSSOProvider::getUserCredentials > Entity: {}", entity);
+		JsonValue userCredentials = JsonValue.json(JsonValue.object());
 		if (entity != null) {
-			User user = new User();
-			user.setUserName(entity.get(rb.getString(CONFIG_CALLBACKS)).get(0).get(rb.getString(CONFIG_CALLBACKS_INPUT))
-					.get(0).get(rb.getString(CONFIG_CALLBACKS_INPUT_VALUE)).asString());
-			user.setUserPassword(
+			userCredentials.add(USERNAME,
+					entity.get(rb.getString(CONFIG_CALLBACKS)).get(0).get(rb.getString(CONFIG_CALLBACKS_INPUT)).get(0)
+							.get(rb.getString(CONFIG_CALLBACKS_INPUT_VALUE)).asString());
+			userCredentials.add(PASSWORD,
 					entity.get(rb.getString(CONFIG_CALLBACKS)).get(1).get(rb.getString(CONFIG_CALLBACKS_INPUT)).get(0)
 							.get(rb.getString(CONFIG_CALLBACKS_INPUT_VALUE)).asString());
-			LOGGER.debug("getUserCredentials()::user: " + user.toString());
-			return user;
+
+			return userCredentials;
 		}
 		LOGGER.error(
-				"getUserCredentials()::End: Something went wrong while intercepting and reading the user credentials.");
+				"LegacyOpenSSOProvider::getUserCredentials > Something went wrong while intercepting and reading the user credentials.");
 		return null;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public User getExtendedUserAttributes(Response response, String userName) {
+	public JsonValue getExtendedUserAttributes(Response response, String userName,
+			Map<String, Object> userAttributesMapping) {
 		String legacyCookie = getLegacyCookie(response.getHeaders().copyAsMultiMapOfStrings(),
 				rb.getString(CONFIG_LEGACY_COOKIE_NAME));
+		LOGGER.debug("LegacyOpenSSOProvider::getExtendedUserAttributes > legacyCookie: {}", legacyCookie);
 		try {
-			return getExtendedUserProfile(userName, legacyCookie);
+			return getExtendedUserProfile(userName, legacyCookie, userAttributesMapping);
 		} catch (NeverThrowsException e) {
-			LOGGER.debug("getExtendedUserAttributes()::NeverThrowsException: " + e);
+			LOGGER.error("LegacyOpenSSOProvider::getExtendedUserAttributes > NeverThrowsException: ", e);
 		} catch (InterruptedException e) {
-			LOGGER.debug("getExtendedUserAttributes()::InterruptedException: " + e);
+			LOGGER.error("LegacyOpenSSOProvider::getExtendedUserAttributes > InterruptedException: ", e);
+			Thread.currentThread().interrupt();
 		} catch (HttpApplicationException e) {
-			LOGGER.debug("getExtendedUserAttributes()::HttpApplicationException: " + e);
+			LOGGER.error("LegacyOpenSSOProvider::getExtendedUserAttributes > HttpApplicationException: ", e);
 		} catch (IOException e) {
-			LOGGER.debug("getExtendedUserAttributes()::IOException: " + e);
+			LOGGER.error("LegacyOpenSSOProvider::getExtendedUserAttributes > IOException: ", e);
 		}
 		return null;
 	}
@@ -95,21 +105,20 @@ public class LegacyOpenSSOProvider implements LegacyIAMProvider {
 	 * {@inheritDoc}
 	 */
 	public boolean validateLegacyAuthResponse(Response response) {
-		LOGGER.debug("validateLegacyAuthResponse()::response.getStatus(): " + response.getStatus());
-		if (response.getStatus().equals(Status.OK)) {
-			if (getLegacyCookie(response.getHeaders().copyAsMultiMapOfStrings(),
-					rb.getString(CONFIG_LEGACY_COOKIE_NAME)) != null) {
-				LOGGER.debug("validateLegacyAuthResponse()::Success");
-				return true;
-			}
+		LOGGER.debug("LegacyOpenSSOProvider::validateLegacyAuthResponse > Legacy authentication response status: {}",
+				response.getStatus());
+		if (response.getStatus().equals(Status.OK) && getLegacyCookie(response.getHeaders().copyAsMultiMapOfStrings(),
+				rb.getString(CONFIG_LEGACY_COOKIE_NAME)) != null) {
+			LOGGER.debug("LegacyOpenSSOProvider::validateLegacyAuthResponse > Success!");
+			return true;
 		}
-		LOGGER.debug("validateLegacyAuthResponse()::Fail");
+		LOGGER.error("validateLegacyAuthResponse()::Fail");
 		return false;
 	}
 
 	/**
 	 * 
-	 * Retrieves the legacy cookie from the reponse headers.
+	 * Retrieves the legacy cookie from the response headers.
 	 * 
 	 * @param responseHeadersMap
 	 * @param legacyIamCookieName
@@ -127,23 +136,27 @@ public class LegacyOpenSSOProvider implements LegacyIAMProvider {
 
 	/**
 	 * 
-	 * Retreieves the user profile attributes from the legacy IAM platform.
+	 * Retrieves the user profile attributes from the legacy IAM platform.
 	 * 
 	 * @param username
 	 * @param cookie
+	 * @param userAttributesMapping - the mapping of attributes as they are in
+	 *                              legacy and how they are in IDM
 	 * @return
 	 * @throws InterruptedException
 	 * @throws NeverThrowsException
 	 * @throws HttpApplicationException
 	 * @throws IOException
 	 */
-	private User getExtendedUserProfile(String username, String cookie)
+	private JsonValue getExtendedUserProfile(String username, String cookie, Map<String, Object> userAttributesMapping)
 			throws NeverThrowsException, InterruptedException, HttpApplicationException, IOException {
 		StringBuilder legacygetUserDetailsEndpoint = new StringBuilder();
 		legacygetUserDetailsEndpoint.append(rb.getString(CONFIG_USER_DETAILS_URL)).append(username);
+		LOGGER.debug("LegacyOpenSSOProvider::getExtendedUserProfile > legacygetUserDetailsEndpoint: {}",
+				legacygetUserDetailsEndpoint);
 		Response responseEntity = callUserDetailsEndpoint(legacygetUserDetailsEndpoint.toString(), cookie);
 		if (responseEntity != null) {
-			return setUserProperties(responseEntity);
+			return setUserProperties(responseEntity, userAttributesMapping);
 		}
 		return null;
 	}
@@ -164,12 +177,12 @@ public class LegacyOpenSSOProvider implements LegacyIAMProvider {
 		HttpClientHandler httpClientHandler = new HttpClientHandler(defaultOptions());
 		Request request = new Request();
 		try {
-			request.setMethod("GET").setUri(legacygetUserDetailsEndpoint);
+			request.setMethod(GET).setUri(legacygetUserDetailsEndpoint);
 		} catch (URISyntaxException e) {
-			LOGGER.error("getuser()::URISyntaxException: " + e);
+			LOGGER.error("LegacyOpenSSOProvider::getuser > URISyntaxException: ", e);
 		}
 		request.getHeaders().add(rb.getString(CONFIG_COOKIE_HEADER), cookie);
-		request.getHeaders().add("Content-Type", "application/json");
+		request.getHeaders().add(CONTENT_TYPE, APPLICATION_JSON);
 		Client client = new Client(httpClientHandler);
 		return client.send(request).getOrThrow();
 	}
@@ -183,14 +196,28 @@ public class LegacyOpenSSOProvider implements LegacyIAMProvider {
 	 * @return
 	 * @throws IOException
 	 */
-	private User setUserProperties(Response responseEntity) throws IOException {
+	private JsonValue setUserProperties(Response responseEntity, Map<String, Object> userAttributesMapping)
+			throws IOException {
+		LOGGER.error("LegacyOpenSSOProvider::setUserProperties > responseEntity: {}", responseEntity.getEntity());
 		JsonValue entity = JsonValue.json(responseEntity.getEntity().getJson());
+
+		JsonValue userAttributes = JsonValue.json(JsonValue.object());
+
 		if (entity != null) {
-			User user = new User();
-			user.setUserFirstName(entity.get("givenName").get(0).asString());
-			user.setUserLastName(entity.get("sn").get(0).asString());
-			user.setUserEmail(entity.get("mail").get(0).asString());
-			return user;
+			Iterator<Map.Entry<String, Object>> itr = userAttributesMapping.entrySet().iterator();
+			LOGGER.error("LegacyOpenSSOProvider::setUserProperties > userAttributesMapping: {}", userAttributesMapping);
+
+			while (itr.hasNext()) {
+				Map.Entry<String, Object> entry = itr.next();
+				String key = entry.getKey();
+				String value = entry.getValue().toString();
+				if (entity.get(key).isList()) {
+					userAttributes.put(value, entity.get(key).get(0).asString());
+				} else {
+					userAttributes.put(value, entity.get(key).asString());
+				}
+			}
+			return userAttributes;
 		}
 		return null;
 	}

@@ -1,5 +1,5 @@
 /***************************************************************************
- *  Copyright 2019 ForgeRock AS
+ *  Copyright 2021 ForgeRock AS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,13 @@
  ***************************************************************************/
 package org.forgerock.openig.modernize.filter;
 
-import static org.forgerock.util.Options.defaultOptions;
+import static org.forgerock.openig.modernize.utils.FilterConstants.Attributes.PASSWORD;
+import static org.forgerock.openig.modernize.utils.FilterConstants.Attributes.USERNAME;
+import static org.forgerock.openig.modernize.utils.FilterConstants.Headers.AUTHORIZATION;
+import static org.forgerock.openig.modernize.utils.FilterConstants.Methods.POST;
 
 import java.io.IOException;
+import java.util.Map;
 
 import org.forgerock.http.Filter;
 import org.forgerock.http.Handler;
@@ -29,15 +33,8 @@ import org.forgerock.http.protocol.Status;
 import org.forgerock.json.JsonValue;
 import org.forgerock.openig.heap.GenericHeaplet;
 import org.forgerock.openig.heap.HeapException;
-import org.forgerock.openig.heap.Name;
-import org.forgerock.openig.modernize.common.User;
 import org.forgerock.openig.modernize.impl.LegacyOpenSSOProvider;
 import org.forgerock.openig.modernize.provider.ForgeRockProvider;
-import org.forgerock.openig.secrets.FileSystemSecretStoreHeaplet;
-import org.forgerock.openig.secrets.SecretsUtils;
-import org.forgerock.secrets.GenericSecret;
-import org.forgerock.secrets.NoSuchSecretException;
-import org.forgerock.secrets.SecretStore;
 import org.forgerock.services.context.Context;
 import org.forgerock.util.promise.NeverThrowsException;
 import org.forgerock.util.promise.Promise;
@@ -47,27 +44,19 @@ import org.slf4j.LoggerFactory;
 
 public class MigrationSsoFilter implements Filter {
 
-	private Logger LOGGER = LoggerFactory.getLogger(MigrationSsoFilter.class);
-
-	private static final String GET_USER_CREDENTIALS_METHOD = "getUserCredentials";
-	private static final String VALIDATE_LEGACY_AUTHENTICATION_METHOD = "validateLegacyAuthResponse";
-	private static final String GET_USER_PROFILE_METHOD = "getExtendedUserAttributes";
+	private static final Logger LOGGER = LoggerFactory.getLogger(MigrationSsoFilter.class);
 
 	private LegacyOpenSSOProvider legacyIAMProvider;
 
 	private String getUserMigrationStatusEndpoint;
 	private String provisionUserEndpoint;
-	private String openIdmUsername;
 	private String openaAmAuthenticateURL;
 	private String openAmCookieName;
-
-	private String openIdmUsernameHeader;
-	private String openIdmPasswordHeader;
 	private String acceptApiVersionHeader;
 	private String acceptApiVersionHeaderValue;
 	private String setCookieHeader;
 
-	private String password;
+	private Map<String, Object> userAttributesMapping;
 
 	private HttpClientHandler httpClientHandler;
 
@@ -76,52 +65,61 @@ public class MigrationSsoFilter implements Filter {
 	 */
 	@Override
 	public Promise<Response, NeverThrowsException> filter(Context context, Request request, Handler next) {
-		String requestMedhod = request.getMethod();
+		String requestMethod = request.getMethod();
 
 		// Authentication calls should only use POST method
-		if (!"post".equalsIgnoreCase(requestMedhod)) {
+		if (!(POST.equalsIgnoreCase(requestMethod) && request.getUri().getPath().contains("authenticate"))) {
 			return next.handle(context, request);
 		}
 
-		// Call the client implementation via Reflection API to retrieve the user's
-		// credentials
-		User user = ForgeRockProvider.getUserCredentials(legacyIAMProvider, request, GET_USER_CREDENTIALS_METHOD);
+		LOGGER.info("MigrationSsoFilter::filter > Started authentication request filtering");
 
-		// If can't retrieve the user's credentials, continue normal authentication in
-		// legacy IAM
+		JsonValue user = ForgeRockProvider.getUserCredentials(legacyIAMProvider, request);
+
+		// continue normal authentication in legacy IAM if no user found
 		if (user == null) {
 			return next.handle(context, request);
 		}
 
-		LOGGER.debug("User: " + user.toString());
+		LOGGER.debug("MigrationSsoFilter::filter > User: {}", user);
 		try {
+
+			String authorizationToken = request.getHeaders().getFirst(AUTHORIZATION);
+			LOGGER.debug("MigrationSsoFilter::filter > obtained token: {}", authorizationToken);
+
 			// Verify if user is already migrated in IDM
-			if (ForgeRockProvider.userMigrated(getUserMigrationStatusEndpoint, user.getUserName(),
-					openIdmUsernameHeader, openIdmUsername, openIdmPasswordHeader, password, httpClientHandler)) {
-				// User is migrated already -> we're logging it in AM and saving the cookie to
-				// set it on the response
-				LOGGER.debug("User is migrated.");
+			if (ForgeRockProvider.userMigrated(getUserMigrationStatusEndpoint, user.get(USERNAME).asString(),
+					authorizationToken, httpClientHandler)) {
+				// User is migrated already -> we're authenticating in AM and saving the cookie
+				// that will be set on the response
+				LOGGER.debug("MigrationSsoFilter::filter > User is migrated - processing migrated user request");
 				return processMigratedAccess(user, next, context, request);
 			} else {
 				// User was not found in IDM, therefore saving the credentials and waiting for
-				// response to determine if authentication was successfull
+				// response to determine if authentication was successful
 				Promise<Response, NeverThrowsException> promise = next.handle(context, request);
 				return promise.thenOnResult(response -> {
 					try {
-						processFirstLogin(response, user);
-					} catch (NeverThrowsException | InterruptedException e) {
-						LOGGER.error("filter()::Error processing first login: " + e);
+						processFirstLogin(response, user, authorizationToken);
+					} catch (NeverThrowsException e) {
+						LOGGER.error("MigrationSsoFilter::filter > NeverThrowsException: ", e);
+					} catch (InterruptedException e) {
+						LOGGER.error("MigrationSsoFilter::filter > InterruptedException: ", e);
+						Thread.currentThread().interrupt();
+					} catch (IOException e) {
+						LOGGER.error("MigrationSsoFilter::filter > IOException: ", e);
 					}
 				});
 			}
 		} catch (Exception e) {
-			LOGGER.error("filter()::Error in main filter method: " + e);
+			LOGGER.error("MigrationSsoFilter::filter > Error in main filter method: ", e);
 		}
 		return next.handle(context, request);
 	}
 
-	private Promise<Response, NeverThrowsException> processMigratedAccess(User user, Handler next, Context context,
+	private Promise<Response, NeverThrowsException> processMigratedAccess(JsonValue user, Handler next, Context context,
 			Request request) throws NeverThrowsException, InterruptedException, IOException {
+
 		String openAmCookie = ForgeRockProvider.authenticateUser(user, openaAmAuthenticateURL, acceptApiVersionHeader,
 				acceptApiVersionHeaderValue, openAmCookieName, httpClientHandler);
 		if (openAmCookie != null) {
@@ -131,7 +129,7 @@ public class MigrationSsoFilter implements Filter {
 			// Wait for response
 			return promise.thenOnResult(response -> processSecondLogin(response, requestCookie));
 		} else {
-			LOGGER.error("Authentication failed. Username or password invalid.");
+			LOGGER.warn("MigrationSsoFilter::filter > Authentication failed. Username or password invalid");
 			Response response = new Response(Status.UNAUTHORIZED);
 			response.setEntity(ForgeRockProvider.createFailedLoginError());
 			return Promises.newResultPromise(response);
@@ -142,35 +140,42 @@ public class MigrationSsoFilter implements Filter {
 	 * 
 	 * Processes first login on the route response. After the user logs in the
 	 * legacy system, this method is triggered and we verify if the authentication
-	 * is successfull, and we get the extended user profile, followed by
-	 * provisioning to IDM
+	 * is successful, and we get the extended user profile, followed by provisioning
+	 * to IDM
 	 * 
 	 * @param response
 	 * @param bindings
 	 * @param user
+	 * @param authorizationToken
 	 * @throws InterruptedException
 	 * @throws NeverThrowsException
+	 * @throws IOException
 	 * 
 	 */
-	private void processFirstLogin(Response response, User user) throws NeverThrowsException, InterruptedException {
-		LOGGER.debug("processFirstLoginWithAttributes()::Received authentication response.");
-		LOGGER.debug("processFirstLoginWithAttributes()::user: " + user.toString());
+	private void processFirstLogin(Response response, JsonValue user, String authorizationToken)
+			throws NeverThrowsException, InterruptedException, IOException {
+		LOGGER.info("MigrationSsoFilter::processFirstLogin > Received authentication response");
 
-		// Verify if authentication is successfull with the client implementation via
-		// Reflection API
-		if (ForgeRockProvider.successfullLegacyAuthentication(response, legacyIAMProvider,
-				VALIDATE_LEGACY_AUTHENTICATION_METHOD)) {
-
-			// Authentication successfull, therefore retrieving extended user profile
-			User extendedUserProfile = ForgeRockProvider.getExtendedUserProfile(response, user, legacyIAMProvider,
-					GET_USER_PROFILE_METHOD);
+		// Verify if authentication is successful
+		if (ForgeRockProvider.successfulLegacyAuthentication(response, legacyIAMProvider)) {
+			// Authentication successful, therefore retrieving extended user profile
+			JsonValue extendedUserProfile = ForgeRockProvider.getExtendedUserProfile(response, user, legacyIAMProvider,
+					userAttributesMapping);
 			if (extendedUserProfile != null) {
-				extendedUserProfile.setUserName(user.getUserName());
-				extendedUserProfile.setUserPassword(user.getUserPassword());
+				extendedUserProfile.add(PASSWORD, user.get(PASSWORD).asString());
 
-				// Provision use in IDM
-				ForgeRockProvider.provisionUser(extendedUserProfile, openIdmUsernameHeader, openIdmUsername,
-						openIdmPasswordHeader, password, provisionUserEndpoint, httpClientHandler);
+				LOGGER.debug("MigrationSsoFilter::processFirstLogin > extendedUserProfile: {}", extendedUserProfile);
+				LOGGER.debug("MigrationSsoFilter::processFirstLogin > Using authorization token: {}",
+						authorizationToken);
+
+				// Provision user in IDM
+				ForgeRockProvider.provisionUser(extendedUserProfile, authorizationToken, provisionUserEndpoint,
+						httpClientHandler);
+
+				// Authenticate the user that was just provisioned
+				String openAmCookie = ForgeRockProvider.authenticateUser(user, openaAmAuthenticateURL,
+						acceptApiVersionHeader, acceptApiVersionHeaderValue, openAmCookieName, httpClientHandler);
+				response.getHeaders().add(setCookieHeader, openAmCookie);
 			}
 		}
 	}
@@ -186,7 +191,7 @@ public class MigrationSsoFilter implements Filter {
 	 * @param cookie
 	 */
 	private void processSecondLogin(Response response, String cookie) {
-		LOGGER.debug("processSecondLogin()::Received authentication response - Setting cookie.");
+		LOGGER.debug("MigrationSsoFilter::processSecondLogin > Received authentication response - Setting cookie");
 		response.getHeaders().add(setCookieHeader, cookie);
 	}
 
@@ -195,9 +200,6 @@ public class MigrationSsoFilter implements Filter {
 	 * object is stored in the heap.
 	 */
 	public static class Heaplet extends GenericHeaplet {
-
-		private Logger LOGGER = LoggerFactory.getLogger(Heaplet.class);
-
 		/**
 		 * Create the filter object in the heap, setting the header name and value for
 		 * the filter, based on the configuration.
@@ -205,52 +207,33 @@ public class MigrationSsoFilter implements Filter {
 		 * @return The filter object.
 		 * @throws HeapException Failed to create the object.
 		 */
-		@SuppressWarnings("unchecked")
+
+		private static final Logger LOGGER = LoggerFactory.getLogger(Heaplet.class);
+
 		@Override
 		public Object create() throws HeapException {
 			MigrationSsoFilter filter = new MigrationSsoFilter();
+			filter.userAttributesMapping = config.get("userAttributesMapping").as(evaluatedWithHeapProperties())
+					.asMap();
 			filter.getUserMigrationStatusEndpoint = config.get("getUserMigrationStatusEndpoint")
 					.as(evaluatedWithHeapProperties()).asString();
 			filter.provisionUserEndpoint = config.get("provisionUserEndpoint").as(evaluatedWithHeapProperties())
 					.asString();
-			filter.openIdmUsername = config.get("openIdmUsername").as(evaluatedWithHeapProperties()).asString();
 			filter.openaAmAuthenticateURL = config.get("openaAmAuthenticateURL").as(evaluatedWithHeapProperties())
 					.asString();
 			filter.openAmCookieName = config.get("openAmCookieName").as(evaluatedWithHeapProperties()).asString();
-			filter.openIdmUsernameHeader = config.get("openIdmUsernameHeader").as(evaluatedWithHeapProperties())
-					.asString();
-			filter.openIdmPasswordHeader = config.get("openIdmPasswordHeader").as(evaluatedWithHeapProperties())
-					.asString();
 			filter.acceptApiVersionHeader = config.get("acceptApiVersionHeader").as(evaluatedWithHeapProperties())
 					.asString();
 			filter.acceptApiVersionHeaderValue = config.get("acceptApiVersionHeaderValue")
 					.as(evaluatedWithHeapProperties()).asString();
 			filter.setCookieHeader = config.get("setCookieHeader").as(evaluatedWithHeapProperties()).asString();
 
-			// initialize HTTP client
-			try {
-				filter.httpClientHandler = new HttpClientHandler(defaultOptions());
-			} catch (HttpApplicationException e1) {
-				throw new HeapException("Cannot initialize HttpClientHander: " + e1);
-			}
-
-			// Load framework impl
 			filter.legacyIAMProvider = new LegacyOpenSSOProvider();
 
-			// Secrets
-			final FileSystemSecretStoreHeaplet heaplet = new FileSystemSecretStoreHeaplet();
-			String passwordSecretId = config.get("openIdmPasswordSecretId").as(evaluatedWithHeapProperties())
-					.asString();
 			try {
-				final SecretStore<GenericSecret> store = (SecretStore<GenericSecret>) heaplet
-						.create(Name.of("MigrationSsoFilter"), config, heap);
-				if (store != null) {
-					String password = SecretsUtils.getPasswordSecretIdOrPassword(heaplet.getSecretService(),
-							JsonValue.json(passwordSecretId), JsonValue.json(passwordSecretId), LOGGER);
-					filter.password = password;
-				}
-			} catch (NoSuchSecretException e) {
-				throw new HeapException("Error reading secret with id " + passwordSecretId + ": " + e);
+				filter.httpClientHandler = new HttpClientHandler();
+			} catch (HttpApplicationException e) {
+				LOGGER.error("Error initializing HttpClientHandler: ", e);
 			}
 
 			return filter;

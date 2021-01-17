@@ -1,5 +1,5 @@
 /***************************************************************************
- *  Copyright 2019 ForgeRock AS
+ *  Copyright 2021 ForgeRock AS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,9 @@ package org.forgerock.openig.modernize;
 
 import org.forgerock.http.protocol.Request;
 import org.forgerock.http.protocol.Response;
-import org.forgerock.openig.modernize.common.User;
+import org.forgerock.json.JsonValue;
+
+import java.util.Map;
 
 public interface LegacyIAMProvider {
 
@@ -49,7 +51,7 @@ public interface LegacyIAMProvider {
 	 * @throws Exception - in case of any error
 	 * 
 	 */
-	User getUserCredentials(Request request) throws Exception;
+	JsonValue getUserCredentials(Request request) throws Exception;
 
 	/**
 	 * 
@@ -59,7 +61,7 @@ public interface LegacyIAMProvider {
 	 * @param userName - The user for which to retrieve the profile attributes
 	 * @return {@link User} - An user object with userName and userPassword set.
 	 */
-	User getExtendedUserAttributes(Response response, String userName);
+	JsonValue getExtendedUserAttributes(Response response, String userName, Map<String, Object> userAttributesMapping);
 
 	/**
 	 * 
