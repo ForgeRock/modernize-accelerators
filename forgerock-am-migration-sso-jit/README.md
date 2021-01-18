@@ -287,7 +287,7 @@ Any changes you need to make to adapt to a specific legacy system can be done in
 <b>Solution:</b> Check the nodes <b>@Attribute(order = number)</b> annotations. This can happen if two or more properties in the same node, have the same <b>order = number</b>.
 
 ## 7. Known issues
-+ N/A
++ N/A 
 
 ## 8. License
 
