@@ -142,7 +142,7 @@ The section below shows an example for a FileSystemSecretStore configuration.
   }
 ```
 
-On the IG instance filesystem, create the directory path configured in the directory field. 
+On the IG instance filesystem, create the directory path configured in the directory field and add the needed secrets. 
 
 ### 3.2. Routes
 
@@ -194,15 +194,15 @@ The route provided with this toolkit serves as an example of implementation. The
 Filter Class: /openig-modernize-filters/src/main/java/org/forgerock/openig/modernize/filter/MigrationSsoFilter.java
 ```
 
-Configuration                      | Example                                                                        | Description
----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-getUserMigrationStatusEndpoint     | https://openidm.example.com/openidm/managed/user | This represents the user endpoint from ForgeRock IDM, with a query action.
-provisionUserEndpoint              | https://openidm.example.com/openidm/managed/user?_action=create                    | This represents the user endpoint from ForgeRock IDM, with a create action.
-openaAmAuthenticateURL             | https://openam.example.com/openam/json/{{realm}}/authenticate                           | The ForgeRock OpenAM authenticate endpoint.
-openAmCookieName                   | iPlanetDirectoryPro                                                            | The ForgeRock OpenAM cookie name.
-acceptApiVersionHeader             | Accept-API-Version                                                             | The Accept-API-Version header name
-acceptApiVersionHeaderValue        | resource=2.0, protocol=1.0                                                     | The Accept-API-Version version used.
-setCookieHeader                    | Set-Cookie                                                                     | The Set-Cookie header name.
+| Configuration                      | Example                                                                        | Description
+| ---------------------------------- | ------------------------------------------------------------------------------ | --------------------------------------------------------------------------- |
+| getUserMigrationStatusEndpoint     | https://openidm.example.com/openidm/managed/user                               | This represents the user endpoint from ForgeRock IDM, with a query action.  |
+| provisionUserEndpoint              | https://openidm.example.com/openidm/managed/user?_action=create                | This represents the user endpoint from ForgeRock IDM, with a create action. |
+| openaAmAuthenticateURL             | https://openam.example.com/openam/json/{{realm}}/authenticate                  | The ForgeRock OpenAM authenticate endpoint. |
+| openAmCookieName                   | iPlanetDirectoryPro                                                            | The ForgeRock OpenAM cookie name. |
+| acceptApiVersionHeader             | Accept-API-Version                                                             | The Accept-API-Version header name |
+| acceptApiVersionHeaderValue        | resource=2.0, protocol=1.0                                                     | The Accept-API-Version version used. |
+| setCookieHeader                    | Set-Cookie                                                                     | The Set-Cookie header name. |
 
 
 <br>
