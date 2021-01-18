@@ -223,7 +223,7 @@ To set your custom authentication tree as the default authentication tree inside
 
 + Demo video - [building the tree](https://github.com/ForgeRock/modernize-accelerators/blob/develop/forgerock-am-ora-migration-sso-jit/video/Oracle%20-%20Building%20The%20Tree.mp4) 
 
-![oracleMigrationSsoTree](images/oracleMigrationSsoTree.png)
+![oracleMigrationSsoTree](images/oracleMigrationSsoTree.PNG)
 
 #### 3.3.2. Alternative - Importing the Tree With Amster
 
