@@ -354,7 +354,7 @@ Configuration File: /src/main/resources/org/forgerock/openam/services/Siteminder
 | Configuration                  | Example                                                            | Description
 | -------------------------------|--------------------------------------------------------------------|-----------------------------------------------------------------------------------------------
 | Legacy cookie name        | SMSESSION            | The name of the SSO token expected by the Siteminder application                                                                                                   |
-| Policy server IP          | 96.67.149.166        | The Siteminder Policy server IP address                                                                                                                            |
+| Policy server IP          | 96.67.148.232        | The Siteminder Policy server IP address                                                                                                                            |
 | Accounting port           | 44441                | Siteminder Accounting server port (0 for none).                                                                                                                    |
 | Authentication port       | 44442                | Siteminder Authentication server port (0 for none).                                                                                                                |
 | Authorization port        | 44443                | Siteminder Authorization server port (0 for none).                                                                                                                 |
@@ -362,18 +362,18 @@ Configuration File: /src/main/resources/org/forgerock/openam/services/Siteminder
 | Maximum connections       | 20                   | Maximum number of connections for Siteminder SDK.                                                                                                                  |
 | Connection step           | 2                    | Number of connections to allocate when out of connections.                                                                                                         |
 | Timeout                   | 60                   | Siteminder SDK Connection timeout in seconds.                                                                                                                      |
-| Web agent name            | iisagent             | The agent name. This name must match the agent name provided to the Policy Server. The agent name is not case sensitive.                                           |
-| Web agent secret id       | iisagentsecretid             | The secret id of the AM secret that contains the web agent shared secret as defined in the SiteMinder user interface (case sensitive).                             |
+| Web agent name            | agent             | The agent name. This name must match the agent name provided to the Policy Server. The agent name is not case sensitive.                                           |
+| Web agent secret id       | agentsecretid             | The secret id of the AM secret that contains the web agent shared secret as defined in the SiteMinder user interface (case sensitive).                             |
 | Is 4x Web agent           | true/false - on/off  | True if the "Is 4x Web Agent" check box is active on the Siteminder Web Agent.                                                                                     |
 | SM Host File Path         | /path/to/SmHost.conf | Location on the AM instance, where the Siteminder web agent SmHost.conf file is located. Mandatory if "Is 4x Web agent" configuration is set to false (disabled).  |
-| Protected resource        | /sales                | The name of the resource to check -- for example, /sales.                                                                                                          |
+| Protected resource        | /protectedresource                | The name of the resource to check -- for example, /sales.                                                                                                          |
 | Protected resource action | GET                  | The action to check for the protected resource -- for example, GET.                                                                                                |
 | Debug switch              | true/false - on/off  | Activate for additional debug information.                                                                                                                         |
-| Legacy cookie domain      | modernize.com  | The domain on which the legacy cookie must be set so it will be visible by Siteminder SSO 
-| SiteMinder DMS administrator          | siteminder                     | Distinguished name of the administrator which has rights to read the directory which holds the user entries.                                                       |
+| Legacy cookie domain      | example.com  | The domain on which the legacy cookie must be set so it will be visible by Siteminder SSO 
+| SiteMinder DMS administrator          | siteminderadmin                     | Distinguished name of the administrator which has rights to read the directory which holds the user entries.                                                       |
 | SiteMinder DMS administrator password | siteminderadminsecretid               | Secret id for the password of the DMS administrator logging in to retrieve user attributes from the user directory.                                                |
 | SM User directory                     | ad               | Name of the Siteminder user directory                                                                                                                              |
-| SM user directory root                | dc=kapstone,dc=com         | The user directory root search base                                                                                                                                |
+| SM user directory root                | dc=company,dc=com         | The user directory root search base                                                                                                                                |
 | SM username attribute                 | samaccountname              | The username attribute used to search for a user, given it's username.                                                                                             |
 | SM user object class                  | user                        | The object class used to define the users          
 
