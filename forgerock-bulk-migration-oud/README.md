@@ -21,7 +21,7 @@ This toolkit implements one-way synchronization from an external Legacy OUD user
 	- Both inbound mappings and outbound mappings can be extended for the specific customer scenarios;
 	- The sample source connector is LDAPv3 but may be adapted in the customer context.
 
-```
+
 System	| Type                | Name                 	          	| Description
 --------|---------------------|---------------------------------------- | --------------------------------------------------------------------------------------------------------
 IDM	| Managed Object      | managed.json			  	| Enhanced user object definition that brings several other typical attributes in the IDM definition
@@ -32,7 +32,7 @@ IDM	| Mapping             | sync.json			  	| Source mapping set for IDM User man
 IDM	| Mapping             | sync.json			  	| Source mapping set for IDM Group managed object to Forgerock Directory Server
 IDM	| Connector           | provisioner.openicf-legacyOUD.json	| Source connector that pulls user identities from Legacy OUD (LDAPv3 connector)
 IDM	| Connector           | provisioner.openicf-ldap.json      	| Target connector that pushes identity information inside Forgerock Directory Server (LDAPv3 connector)
-```
+
 
 ## 2. Getting the repository
 
@@ -52,43 +52,43 @@ The mappings and configuration provided with this toolkit serves as an example o
 
 + [managed.json](openidm-modernize-config/conf/managed.json)
 
-```
+
 Configuration               	| Change type          		| Description
 ------------------------------- | ----------------------------- | ---------------------------------------------------------------------------------------------------
 User Managed Object		| Update                   	| The existing IDM User managed object was extended with some attributes OUD specific
 Group Managed Object		| New				| A new IDM managed object was created in order to store the OUD groups	
-```
+
 
 + [provisioner.openicf-legacyOUD.json](openidm-modernize-config/conf/provisioner.openicf-legacyOUD.json)
 
-```
+
 Configuration               	| Change type          		| Description
 ------------------------------- | ----------------------------- | --------------------------------------------------------------------------------------------------------------
 LDAPv3 OUD Connector		| New                   	| A new LDAPv3 Connector that connects to the OUD repository for retrieving user and group information
-```
+
 
 + [provisioner.openicf-ldap.json](openidm-modernize-config/conf/provisioner.openicf-ldap.json)
 
-```
+
 Configuration               	| Change type          		| Description
 ------------------------------- | ----------------------------- | --------------------------------------------------------------------------------------------------------------
 LDAPv3 Forgerock DS Connector	| Update               		| A new LDAPv3 Connector that connects to the Forgerock DS repository for pushing the user and group information
-```
+
 
 + [sync.json](openidm-modernize-config/conf/sync.json)
 
-```
+
 Configuration               	| Change type			| Description
 ------------------------------- | ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------
 Mapping OUD Ldap -> IDM User   	| New				| A new mapping definition was created in order to map the target OUD user attributes to the IDM User managed object ones
 Mapping OUD Ldap -> IDM Group  	| New				| A new mapping definition was created in order to map the target OUD group attributes to the IDM Group managed object ones
 Mapping IDM User -> Forgerock DS| Update			| The existing mapping was updated in order to pass to the Forgerock DS the additional user attributes OUD specific
 Mapping IDM Group -> Forgerock 	| New				| A new mapping was created in order to pass to the Forgerock DS the group atributes that were previously reconciled from OUD
-```
+
 
 
 ### 3.2. Install config files
-+ <b>Important note:</b> The assets presented below are built based on OpenIDM version 6.5.2.
++ <b>Important note:</b> The assets presented below are built based on OpenIDM version 7.0.1.
 
 Before copying the config files (under /conf location on the github repository, you should change accordingly all the properties inside them):
 + connection details to the <b>OUD repository</b>
@@ -108,17 +108,16 @@ You can use passwords in DS/OpenDJ that are taken from Legacy OUD (SSHA512 algor
     $ ./dsconfig set-password-policy-prop --policy-name "Default Password Policy" --port 4444 --bindDN "cn=Directory Manager" --bindPassword password --advanced --set allow-pre-encoded-passwords:true --trustAll --no-prompt
 
 
-
 ## 4. Extending & Customizing
 
-### 4.1. Extending the OUD connector with other attributes and configuration
-Please see the ForgeRock [documentation](https://backstage.forgerock.com/docs/idm/6.5/connector-reference/#ldap-connector-config) for information about how to create and update a generic LDAPv3 connector.
+### 4.1. Extending the Legacy IAM connector with other attributes and configuration
+Please see the ForgeRock [documentation](https://backstage.forgerock.com/docs/idm/7/connector-reference/chap-ldap.html#ldap-connector-config) for information about how to create and update a generic LDAPv3 connector.
 
-### 4.2. Extendind the mapping
-Please see the ForgeRock [documentation](https://backstage.forgerock.com/docs/idm/6.5/integrators-guide/#chap-synchronization) for information about how to create and update a mapping.
+### 4.2. Extending the mapping
+Please see the ForgeRock [documentation](https://backstage.forgerock.com/docs/idm/7/synchronization-guide/mapping-resources.html) for information about how to create and update a mapping.
 
 ### 4.3. Schedule reconciliation
-Please see the ForgeRock [documentation](https://backstage.forgerock.com/docs/idm/6.5/integrators-guide/#chap-scheduler-conf) for information about how to create and update a mapping.
+Please see the ForgeRock [documentation](https://backstage.forgerock.com/docs/idm/7/synchronization-guide/configuring-sync-schedule.html#configuring-sync-schedule) for information about how to create and update a mapping.
 
 
 ## 5. Troubleshooting Common Problems
@@ -133,7 +132,7 @@ This project is licensed under the Apache License, Version 2.0. The following te
 
 ```
 /***************************************************************************
- *  Copyright 2019 ForgeRock AS
+ *  Copyright 2021 ForgeRock AS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
