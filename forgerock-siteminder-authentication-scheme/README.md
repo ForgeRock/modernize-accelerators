@@ -43,7 +43,7 @@ Set the following environment variables:
 For example your environment variables should look like this:
 
 ```
-JAVA_HOME=/usr/jdk/jdk-1.8
+JAVA_HOME=/usr/jdk/jdk1.8.0_131
 MAVEN_HOME=/opt/apache-maven-3.6.3
 MAVEN_OPTS='-Xmx2g -Xms2g -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=512m'
 ```
@@ -81,6 +81,39 @@ mvn package
 
 ## 3. Installing the authentication scheme on the Siteminder policy server
 
-+ Log into the CA Policy Server Admin UI and perform the following tasks:
-    + Create a custom authentication scheme as shown on the next picture. Note the “debug” parameter should be removed in production.
+### 3.1. Log into the CA Policy Server Admin UI and perform the following tasks:
++ Create a custom authentication scheme as shown on the next picture. Note the “debug” parameter should be removed in production.
 	![Step1](images/Step1.png)
+
+### 3.2. Create a new realm and assign this authentication scheme to it
++ The realm can be created in an existing Domain or added to a new Domain. In this new realm create a new rule as shown. Note it is recommended that you use a dedicated webserver instance and agent for this integration. However you can use an existing one also keeping in mind that the protected resource (path) is created in either case as illustrated in step 3.5.
+	![Step2](images/Step2.png)
+
+### 3.3. Add a new Rule
+	![Step3](images/Step3.png)
+
+### 3.4. Create a Domain Policy
++ Make sure you configure the same user repository as the one OpenAM is pointing to or that the two disparate repositories are synchronized.
+	![Step4](images/Step4.png)
+
+### 3.5. Create <apache-docroot>/openam/login.html
+
+### 3.6. Add the openam-auth-siteminder-x.x.x.jar file and json-xxxxxxxx.jar (from json.org) to the policy server's “java.class.path” in config/JVMOptions.txt:
++ -Djava.class.path=/zroot/ca/siteminder/resources:/zroot/ca/siteminder/config/properties:/zroot/ca/siteminder/bin/jars/smbootstrap.jar:/zroot/ca/siteminder/bin/jars/openam-auth-siteminder-1.0.0-SNAPSHOT.jar:/zrot/ca/siteminder/bin/jars/json-20160810.jar
+
+## 4. Troubleshooting
+
++ <b>Problem</b>: Smps log - [SmJavaAPI.cpp:639][ERROR][sm-JavaApi-00670]SmJavaAPI: Unable to get a JVM environment
+<b>Solution</b>: There are a few reasons for this error but in this particular case it was due to incorrect JDK path setting to just “/usr”. Hence smjavaapi was not able to find the appropriate libjvm.so. Ensure that in ca_ps_env.ksh proper path is defined. For example NETE_JDK_ROOT="/zroot/orcl/jdk1.8.0_131" NETE_JRE_ROOT="/zroot/orcl/jdk1.8.0_131/jre"
+
++ <b>Problem</b>: Smps log - [SmAuthServer.cpp:339][ERROR][sm-Server-02940] Failed to query authentication scheme 'openam-authn-scheme'
+<b>Solution</b>: If your authentication scheme is defined in the wrong domain or is not associated with the correct realm, you will see this error.
+
++ <b>Problem</b>: Agent log - [sm-AgentFramework-00520] LLA: SiteMinder Agent Api function failed - 'Sm_AgentApi_IsProtectedEx' returned '-1'.
+<b>Solution</b>: If this is the last line that you see in the smps.log when the custom auth scheme debugging is enabled, it means that the openam client sdk is missing libraries from the classpath in JVMOptions.txt.
+
++ <b>Problem</b>: SiteMinder debug log file of openam - TransactionId[e94de590-c5ca-4d10-9cc6-54dc379da7b0-75095]ERROR: SMSessionUtils.createSmSession()Siteminder authentication unsuccesful,user=wahmed, response=404
+<b>Solution</b>: Ensure that you have the login.html file in the web server’s docroot/openam/login.html directory or any other path of your choice to which the SiteMinder Policy Realm is pointing to.
+
++ <b>Problem</b>: CoreSystem debug log file of openam - Caused by: java.lang.NoClassDefFoundError: Could not initialize class com.ca.siteminder.sdk.agentapi.connection.SmAgentApiConnection
+<b>Solution</b>: https://docops.ca.com/ca-single-sign-on/12-52-sp1/en/programming/programming-in-java/agent-api-guidance-for-java#AgentAPIGuidanceforJava-ImplementthePureJavaAgentAPI
