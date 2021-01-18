@@ -295,7 +295,7 @@ Configuration File: /src/main/resources/org/forgerock/openam/services/LegacyFRSe
 <br>
 
 ## 5. Extending & Customizing
-Any changes you need to make to adapt to a specific legacy system can be done in the provided sample nodes. To do so, you first need to import the project you downloaded - /forgerock-am-migration-sso-jit/openam-modernize-auth-nodes from GitHub. The node classes and additional files are described in <b>Chapter 3.2 - Tree Nodes</b>.
+Any changes you need to make to adapt to a specific legacy system can be done in the provided sample nodes. To do so, you first need to import the project you downloaded - /forgerock-am-migration-sso-jit/openam-modernize-auth-nodes from GitHub. The node classes and additional files are described in <b>Chapter 3.3 - Tree nodes and services</b>.
 + <b>Example</b>: To add or remove additional profile attributes, the node <b>CreateUser</b> can be updated. In the method <b>process</b>, you can retrieve additional attributes from the legacy profile details call. You can then map them to the request body in the <b>createProvisioningRequestEntity()</b> method.
 
 ## 6. Troubleshooting Common Problems
