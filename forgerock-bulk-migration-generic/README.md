@@ -21,7 +21,7 @@ This toolkit implements one-way synchronization from an external legacy IAM user
 	- Both inbound mappings and outbound mappings can be extended for the specific customer scenarios;
 	- The sample source connector is LDAPv3 but may be adapted in the customer context.
 
-```
+
 System	| Type                | Name                 	          	| Description
 --------|---------------------|---------------------------------------- | --------------------------------------------------------------------------------------------------------
 IDM	| Managed Object      | managed.json			  	| Enhanced user object definition that brings several other typical attributes in the IDM definition
@@ -32,7 +32,7 @@ IDM	| Mapping             | sync.json			  	| Source mapping set for IDM User man
 IDM	| Mapping             | sync.json			  	| Source mapping set for IDM Group managed object to Forgerock Directory Server
 IDM	| Connector           | provisioner.openicf-legacyIAM.json	| Source connector that pulls user identities from Legacy IAM (LDAPv3 connector)
 IDM	| Connector           | provisioner.openicf-ldap.json      	| Target connector that pushes identity information inside Forgerock Directory Server (LDAPv3 connector)
-```
+
 
 ## 2. Getting the repository
 
@@ -52,39 +52,39 @@ The mappings and configuration provided with this toolkit serves as an example o
 
 + [managed.json](openidm-modernize-config/conf/managed.json)
 
-```
+
 Configuration               	| Change type          		| Description
 ------------------------------- | ----------------------------- | ---------------------------------------------------------------------------------------------------
 User Managed Object		| Update                   	| The existing IDM User managed object was extended with some attributes Legacy IAM specific
 Group Managed Object		| Update				| The existing IDM Group managed object was extended with some attributes Legacy IAM specific
-```
+
 
 + [provisioner.openicf-legacyIAM.json](openidm-modernize-config/conf/provisioner.openicf-legacyIAM.json)
 
-```
+
 Configuration               	| Change type          		| Description
 ------------------------------- | ----------------------------- | --------------------------------------------------------------------------------------------------------------
 LDAPv3 IAM Connector		| Update                   	| The existing connector was extended with some attributes and mappings
-```
+
 
 + [provisioner.openicf-ldap.json](openidm-modernize-config/conf/provisioner.openicf-ldap.json)
 
-```
+
 Configuration               	| Change type          		| Description
 ------------------------------- | ----------------------------- | --------------------------------------------------------------------------------------------------------------
 LDAPv3 Forgerock DS Connector	| Update               		| Updated configuration properties of the connector, containing modifications for the credentials and base contexts
-```
+
 
 + [sync.json](openidm-modernize-config/conf/sync.json)
 
-```
+
 Configuration               	| Change type			| Description
 ------------------------------- | ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------
 Mapping IAM Ldap -> IDM User   	| New				| A new mapping definition was created in order to map the target Legacy IAM user attributes to the IDM User managed object ones
 Mapping IAM Ldap -> IDM Group  	| New				| A new mapping definition was created in order to map the target Legacy IAM group attributes to the IDM Group managed object ones
 Mapping IDM User -> Forgerock DS| Update			| The existing mapping was updated in order to pass to the Forgerock DS the additional user attributes Legacy IAM specific
 Mapping IDM Group -> Forgerock 	| New				| A new mapping was created in order to pass to the Forgerock DS the group atributes that were previously reconciled from Legacy IAM
-```
+
 
 
 ### 3.2. Install config files
@@ -132,7 +132,7 @@ This project is licensed under the Apache License, Version 2.0. The following te
 
 ```
 /***************************************************************************
- *  Copyright 2019 ForgeRock AS
+ *  Copyright 2021 ForgeRock AS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
