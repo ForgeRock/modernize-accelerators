@@ -33,13 +33,13 @@ ForgeRock understands the customer needs to speed up migration design decisions 
 | AM       | Node                 | Legacy-SM-Set Password                                  | Updates the Forgerock IDM managed user object with the password captured and stored in the shared state                                               |
 | AM       | Tree Hook            | LegacySessionTreeHook                                   | Manages cookies if a successful login is performed into Siteminder by the tree                                                                        |
 | AM       | Authentication Tree  | siteminderMigrationSsoTree                              | Implements the migration login and bi-directional SSO                                                                                                 |
-| AM       | Custom Nodes         | openam-modernize-siteminder-auth-nodes-1.0-SNAPSHOT.jar | Custom AM nodes that are used in the migration authentication tree                                                                                    |
+| AM       | Service              | SiteminderService                                       | Siteminder Service holds all the configurations related to the Siteminder legacy platform                                                             |
 
 
 ## 2. Building The Source Code
 
 + <b>Important notes:</b> 
-    + The assets presented in this package are built based on AM version 6.5.2.3. 
+    + The assets presented in this package are built based on AM version 7.0.1.
 	+ This package was tested with a Siteminder Web Agent version 4.x. Web agent 5.x was not fully tested on a dedicated environment and the package can be unstable for this type of agent.
 
 Follow these instructions to build the project from the command line. Make sure that you have all the prerequisites installed correctly before starting.
@@ -52,10 +52,9 @@ Follow these instructions to build the project from the command line. Make sure 
 
 You will need the following software to build the code:
 
-
 | Software               | Required Version |
 | ---------------------- | ---------------- |
-| Java Development Kit   | 1.8 and above    |
+| Java Development Kit   | 11.0 and above   |
 | Maven                  | 3.1.0 and above  |
 | Git                    | 1.7.6 and above  |
 
@@ -68,7 +67,7 @@ Set the following environment variables:
 For example your environment variables should look like this:
 
 ```
-JAVA_HOME=/usr/jdk/jdk1.8.0_201
+JAVA_HOME=/usr/jdk/jdk-11.0.9
 MAVEN_HOME=/opt/apache-maven-3.6.3
 MAVEN_OPTS='-Xmx2g -Xms2g -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=512m'
 ```
@@ -148,16 +147,16 @@ For example, "openam-modernize-siteminder-auth-nodes-1.0.0-SNAPSHOT.jar".
 ### 2.4. Adding the Library to the AM WAR File
 
 + Download and unzip the AM WAR file from ForgeRock Backstage:
-[https://backstage.forgerock.com/downloads/browse/am/latest](https://backstage.forgerock.com/downloads/browse/am/latest)
+[https://backstage.forgerock.com/downloads/browse/am/latest](https://backstage.forgerock.com/downloads/browse/am/featured)
 
 ```
-mkdir ROOT && cd ROOT
-jar -xf ~/Downloads/AM-6.5.2.3.war
+mkdir openam && cd openam
+jar -xf ~/Downloads/AM-7.0.1.war
 ```
 
-<b>Note:</b> It is not recommended to use the ROOT context, as shown in this example. The name of the folder should be changed to match your application context - e.g. <b>openam</b>
+<b>Note:</b> It is not recommended to use the openam context, as shown in this example. The name of the folder should be changed to match your application context - e.g. <b>openam</b>
 
-+ Copy the newly generated JAR file to the /ROOT/WEB-INF/lib directory:
++ Copy the newly generated JAR file to the /openam/WEB-INF/lib directory:
 
 ```
 cp ~/openam-modernize-siteminder-auth-nodes-<nextversion>-SNAPSHOT.jar WEB-INF/lib
@@ -166,10 +165,10 @@ cp ~/openam-modernize-siteminder-auth-nodes-<nextversion>-SNAPSHOT.jar WEB-INF/l
 + Rebuild the WAR file: 
 
 ```
-jar -cf ../ROOT.war *
+jar -cf ../openam.war *
 ```
 
-+ To see the nodes included in the JAR file, you must copy and deploy the ROOT.war file in the container in which AM is deployed.
++ To see the nodes included in the JAR file, you must copy and deploy the openam.war file in the container in which AM is deployed.
 
 ## 3. Configuration
 
@@ -185,7 +184,7 @@ The configurations below must be done on the Siteminder enivornment, to make sur
 ### 3.2. Configuring Secret Stores
 
 The passwords used in the toolkit authentication tree nodes must be saved in secret stores for security reasons. 
-The toolkit uses AM secret stores as described in the ForgeRock [documentation](https://backstage.forgerock.com/docs/am/6.5/maintenance-guide/#configure-secret-stores).
+The toolkit uses AM secret stores as described in the ForgeRock [documentation](https://backstage.forgerock.com/docs/am/7/security-guide/configure-secret-stores.html#configure-secret-stores).
 
 #### 3.2.1. To Configure a File System Secret Volume Store
 
@@ -215,10 +214,9 @@ The toolkit uses AM secret stores as described in the ForgeRock [documentation](
 	![secretStore](images/secretFilesystem.png)
 
 
-
 ### 3.3. Authentication Tree
 
-For information about how to create authentication trees, refer to the ForgeRock [documentation](https://backstage.forgerock.com/docs/am/6.5/authentication-guide/index.html#sec-configure-authentication-trees).
+For information about how to create authentication trees, refer to the ForgeRock [documentation](https://backstage.forgerock.com/docs/am/7/authentication-guide/about-authentication-trees.html#configure-authentication-trees).
 
 To set your custom authentication tree as the default authentication tree inside a realm, navigate to 'Authentication' > 'Settings'. Then, in the 'Core' tab, select your custom authentication tree in the 'Organization Authentication Configuration' field. 
 
@@ -231,7 +229,7 @@ To set your custom authentication tree as the default authentication tree inside
 
 #### 3.3.2. Alternative - Importing the Tree With Amster
 
-The SSO toolkit also comes with a tree in Amster-export format. You can import this tree into other AM servers. For information about how to import Amster resources, refer to the [documentation](https://backstage.forgerock.com/docs/amster/6.5/user-guide/#sec-usage-import).
+The SSO toolkit also comes with a tree in Amster-export format. You can import this tree into other AM servers. For information about how to import Amster resources, refer to the [documentation](https://backstage.forgerock.com/docs/amster/7/user-guide/amster-import-config.html).
 
 The tree export and its nodes can be found in the folder: 
 
@@ -242,7 +240,7 @@ The tree export and its nodes can be found in the folder:
 In this example the tree was created and exported in the root realm, but as a best practice, you should never use the root realm. If you choose to import the siteminderMigrationSsoTree using Amster, please make sure to replace the realm property with your own value in the amster-export resources provided.
 
 
-### 3.4. Tree Nodes
+### 3.4. Tree Nodes and services
 
 A node is the core abstraction within an authentication tree. Trees are made up of nodes, which can modify the shared state and request input from the user via callbacks.
 
@@ -254,51 +252,14 @@ Node Class: /src/main/java/org/forgerock/openam/auth/node/LegacySMValidateToken.
 Configuration File: /src/main/resources/org/forgerock/openam/auth/node/LegacySMValidateToken.properties
 ```
 
-| Configuration             | Example              | Description                                                                                                                                                        |
-| ------------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Legacy cookie name        | SMSESSION            | The name of the SSO token expected by the Siteminder application                                                                                                   |
-| Policy server IP          | 96.65.144.165        | The Siteminder Policy server IP address                                                                                                                            |
-| Accounting port           | 44441                | Siteminder Accounting server port (0 for none).                                                                                                                    |
-| Authentication port       | 44442                | Siteminder Authentication server port (0 for none).                                                                                                                |
-| Authorization port        | 44442                | Siteminder Authorization server port (0 for none).                                                                                                                 |
-| Minimum connections       | 2                    | Number of initial connections for Siteminder SDK.                                                                                                                  |
-| Maximum connections       | 20                   | Maximum number of connections for Siteminder SDK.                                                                                                                  |
-| Connection step           | 2                    | Number of connections to allocate when out of connections.                                                                                                         |
-| Timeout                   | 60                   | Siteminder SDK Connection timeout in seconds.                                                                                                                      |
-| Web agent name            | webagent             | The agent name. This name must match the agent name provided to the Policy Server. The agent name is not case sensitive.                                           |
-| Web agent secret id       | secretId             | The secret id of the AM secret that contains the web agent shared secret as defined in the SiteMinder user interface (case sensitive).                             |
-| Is 4x Web agent           | true/false - on/off  | True if the "Is 4x Web Agent" check box is active on the Siteminder Web Agent.                                                                                     |
-| SM Host File Path         | /path/to/SmHost.conf | Location on the AM instance, where the Siteminder web agent SmHost.conf file is located. Mandatory if "Is 4x Web agent" configuration is set to false (disabled).  |
-| Protected resource        | /sales                | The name of the resource to check -- for example, /sales.                                                                                                          |
-| Protected resource action | GET                  | The action to check for the protected resource -- for example, GET.                                                                                                |
-| Debug switch              | true/false - on/off  | Activate for additional debug information.                                                                                                                         |
-
-
 <br>
 
-#### 3.4.2. Legacy-SM-Migration Status
-Custom node provided in the SSO toolkit. Checks ForgeRock IDM to determine whether a user is already migrated by calling the default ForgeRock IDM managed object API. This node is generic, and does not need to be customized for specific legacy IAM vendor implementations.
-
-```
-Node Class: /src/main/java/org/forgerock/openam/auth/node/LegacySMMigrationStatus.java
-Configuration File: /src/main/resources/org/forgerock/openam/auth/node/LegacySMMigrationStatus.properties
-```
-
-| Configuration          | Example                     | Description                                                                                                                                      |
-| ---------------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| IDM user endpoint      | https://openidm.example.com | Protocol and host for the IDM application. Full URL is built by adding query parameters in the node's backend.                                   |
-| IDM administrator user | idmAdmin                    | The IDM admin user used to query the IDM user endpoint                                                                                           |
-| IDM Password Secret ID | openidmadminpass            | The IDM admin password secret ID. The secret from the file system with this ID must contain the value of the password for the IDM administrator. |
-
-
-<br>
-
-#### 3.4.3. Page Node
+#### 3.4.2. Page Node
 Default page node in ForgeRock IAM used to capture user credentials. This node is generic, and does not need to be customized for specific legacy CA SiteMinder implementations.
 
 <br>
 
-#### 3.4.4. Legacy-SM-Create FR User
+#### 3.4.3. Legacy-SM-Create FR User
 Custom node provided in the SSO toolkit. Provisions the user in ForgeRock IAM by calling the default ForgeRock IDM-managed object API. This node is generic one, and does not need to be customized for specific legacy CA SiteMinder implementations. The nodes uses the following shared state attributes: 
 
 ```
@@ -306,44 +267,19 @@ Node Class: /src/main/java/org/forgerock/openam/auth/node/LegacySMCreateForgeRoc
 Configuration File: /src/main/resources/org/forgerock/openam/auth/node/LegacySMCreateForgeRockUser.properties
 ```
 
-| Configuration                         | Example                     | Description                                                                                                                                                        |
-| ------------------------------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| IDM User Endpoint                     | https://openidm.example.com | Protocol and host for the IDM application. Full URL is built by adding query parameters in the node's backend.                                                     |
-| IDM Admin User                        | idmAdmin                    | The IDM admin user used to query the IDM user endpoint                                                                                                             |
-| IDM Password Secret ID                | openidmadminpass            | The IDM admin password secret ID. The secret from the file system with this ID must contain the value of the password for the IDM administrator user               |
-| Set Password Reset                    | true/false - on/off         | Switch used to determine if the node is used in a scenario that cannot migrate the user password. Set to true if the password can't be migrated.                   |
-| Policy server IP                      | 96.65.144.165               | The Siteminder Policy server IP address                                                                                                                            |
-| Accounting port                       | 44441                       | Siteminder Accounting server port (0 for none).                                                                                                                    |
-| Authentication port                   | 44442                       | Siteminder Authentication server port (0 for none).                                                                                                                |
-| Authorization port                    | 44442                       | Siteminder Authorization server port (0 for none).                                                                                                                 |
-| Minimum connections                   | 2                           | Number of initial connections for Siteminder SDK.                                                                                                                  |
-| Maximum connections                   | 20                          | Maximum number of connections for Siteminder SDK.                                                                                                                  |
-| Connection step                       | 2                           | Number of connections to allocate when out of connections.                                                                                                         |
-| Timeout                               | 60                          | Siteminder SDK Connection timeout in seconds.                                                                                                                      |
-| Web agent name                        | webagent                    | The agent name. This name must match the agent name provided to the Policy Server. The agent name is not case sensitive.                                           |
-| Web agent secret id                   | secretId                    | The secret id of the AM secret that contains the web agent shared secret as defined in the SiteMinder user interface (case sensitive).                             |
-| Is 4x Web agent                       | true/false - on/off         | True if the "Is 4x Web Agent" check box is active on the Siteminder Web Agent.                                                                                     |
-| SM Host File Path                     | /path/to/SmHost.conf        | Location on the AM instance, where the Siteminder web agent SmHost.conf file is located. Mandatory if "Is 4x Web agent" configuration is set to false (disabled).  |
-| Protected resource                    | sales                       | The name of the resource to check -- for example, /sales.                                                                                                          |
-| Protected resource action             | GET                         | The action to check for the protected resource -- for example, GET.                                                                                                |
-| Debug switch                          | true/false - on/off         | Activate for additional debug information.                                                                                                                         |
-| Migration attributes mapping          | Map<String,String>          | A map which should hold as keys the name of the SiteMinder user attributes, and as values their equivalent name in the ForgeRock IDM database.                     |
-| SiteMinder DMS administrator          | smadmin                     | Distinguished name of the administrator which has rights to read the directory which holds the user entries.                                                       |
-| SiteMinder DMS administrator password | adminSecretId               | Secret id for the password of the DMS administrator logging in to retrieve user attributes from the user directory.                                                |
-| SM User directory                     | userdirectory               | Name of the Siteminder user directory                                                                                                                              |
-| SM user directory root                | dc=mycompany,dc=com         | The user directory root search base                                                                                                                                |
-| SM username attribute                 | samaccountname              | The username attribute used to search for a user, given it's username.                                                                                             |
-| SM user object class                  | user                        | The object class used to define the users                                                                                                                          |
-
+| Configuration          | Example                                                            |Description
+| ---------------------- | -------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------
+| Attribute Names Mapping   | Map<String,String>   | A map which should hold as keys the name of the legacy IAM user attributes, and as values their equivalent name in the ForgeRock IDM database.   |
+| Set Password Reset        | true/false - on/off  | Switch used to determine if the node is used in a scenario that cannot migrate the user password. Set to true if the password can't be migrated. |
 
 <br>
 
-#### 3.4.5. Data Store Decision
+#### 3.4.4. Data Store Decision
 Default credentials validation node in ForgeRock IAM. This node is generic, and does not need to be customized for specific legacy IAM vendor implementations.
 
 <br>
 
-#### 3.4.6. Legacy-SM-Login
+#### 3.4.5. Legacy-SM-Login
 Custom node provided in the SSO toolkit. Validates the credentials (username and password) entered by the user against the legacy IAM system via an SDK/API call. The default node uses a POST API call with the username and password fetched from the shared state. The URL is configurable. The node expects a successful response of 200 OK and a specific cookie to be present in the response; the cookie name is configurable. The node is vendor-specific and is flexible enough to be tailored for each vendor.
 
 ```
@@ -351,50 +287,101 @@ Node Class: /src/main/java/org/forgerock/openam/auth/node/LegacySMLogin.java
 Configuration File: /src/main/resources/org/forgerock/openam/auth/node/LegacySMLogin.properties
 ```
 
+<br>
+
+#### 3.4.6. Add Attributes To Object Attributes
+Custom node provided in the SSO toolkit. Takes the attributes given as keys from the Shared state and adds them to the user Object attributes corresponding to the values of the map.
+
+```
+Node Class: /src/main/java/org/forgerock/openam/auth/node/utils/AddAttributesToObjectAttributesNode.java
+Configuration File: /src/main/resources/org/forgerock/openam/auth/node/utils/AddAttributesToObjectAttributesNode.properties
+```
+
 | Configuration             | Example              | Description                                                                                                                                                        |
 | ------------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| List of attributes        | Map<String, String>            | A map which should hold as keys the name of the SiteMinder user attributes, and as values their equivalent name in the ForgeRock IDM database.                                                                                                   |
+
+<br>
+
+#### 3.4.7. Username Collector
+Default username collection node in ForgeRock IAM. This node is generic, and does not need to be customized for specific legacy IAM vendor implementations.
+
+<br>
+
+#### 3.4.8. Password Collector
+Default password collection node in ForgeRock IAM. This node is generic, and does not need to be customized for specific legacy IAM vendor implementations.
+
+#### 3.4.9. Identify Existing User
+Default user identification node in ForgeRock IAM, which checks if a user is present in the IDM database or not.
+
+| Configuration             | Example              | Description                                                                                                                                                        |
+| ------------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Identifier        | userName            | The IDM attribute used to save existing value in sharedState for log in purposes.                                                                                                   |
+| Identity Attribute        | userName            | The attribute used to retrieve an existing user.                                                                                                   |
+
+<br>
+
+#### 3.3.10. Create Object Node
+The Create Object node is used to create a new object in IDM based on information collected during an auth tree flow. Any managed object attributes that are marked as required in IDM will need to be collected during the auth tree flow in order for the new object to be created. This node requires IDM rsFilter integration to function.
+
+| Configuration             | Example              | Description                                                                                                                                                        |
+| ------------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Identity Resource        | managed/user            | The identity resource in IDM that this node will create. This is used to aid node input requirement declaration. Must match identity resource of the current tree.                                                                                                   |
+
+<br>
+
+#### 3.3.11. Patch Object Node
+The Patch Object node is used to update attributes in an existing managed object in IDM. This node requires IDM rsFilter integration to function.
+
+| Configuration             | Example              | Description                                                                                                                                                        |
+| ------------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Patch as Object           | true/false - on/off  | Whether the patch should be done as object or client. Defaults to false, which represents the oauth client.                                                                                     |
+| Ignored Fields        | List<String>            | Fields from sharedState that should be ignored as part of patch. If empty, all fields are attempted as part of the patch.                                                                                                   |
+| Identity Resource        | managed/user            | The identity resource in IDM that this node will patch. This is used to aid node input requirement declaration. Must match identity resource of the current tree.                                                                                                   |
+| Identity Attribute        | userName            | The attribute used to identify the the object in IDM.      
+
+<br>
+
+#### 3.4.12. Oracle Service
+Siteminder Service holds all the configurations related to the legacy OAM platform
+
+![SiteminderService](images/SiteminderService.png)
+
+```
+Service Class: /src/main/java/org/forgerock/openam/services/SiteminderService.java
+Configuration File: /src/main/resources/org/forgerock/openam/services/SiteminderService.properties
+```
+| Configuration                  | Example                                                            | Description
+| -------------------------------|--------------------------------------------------------------------|-----------------------------------------------------------------------------------------------
 | Legacy cookie name        | SMSESSION            | The name of the SSO token expected by the Siteminder application                                                                                                   |
-| Policy server IP          | 96.65.144.165        | The Siteminder Policy server IP address                                                                                                                            |
+| Policy server IP          | 96.67.149.166        | The Siteminder Policy server IP address                                                                                                                            |
 | Accounting port           | 44441                | Siteminder Accounting server port (0 for none).                                                                                                                    |
 | Authentication port       | 44442                | Siteminder Authentication server port (0 for none).                                                                                                                |
-| Authorization port        | 44442                | Siteminder Authorization server port (0 for none).                                                                                                                 |
+| Authorization port        | 44443                | Siteminder Authorization server port (0 for none).                                                                                                                 |
 | Minimum connections       | 2                    | Number of initial connections for Siteminder SDK.                                                                                                                  |
 | Maximum connections       | 20                   | Maximum number of connections for Siteminder SDK.                                                                                                                  |
 | Connection step           | 2                    | Number of connections to allocate when out of connections.                                                                                                         |
 | Timeout                   | 60                   | Siteminder SDK Connection timeout in seconds.                                                                                                                      |
-| Web agent name            | webagent             | The agent name. This name must match the agent name provided to the Policy Server. The agent name is not case sensitive.                                           |
-| Web agent secret id       | secretId             | The secret id of the AM secret that contains the web agent shared secret as defined in the SiteMinder user interface (case sensitive).                             |
+| Web agent name            | iisagent             | The agent name. This name must match the agent name provided to the Policy Server. The agent name is not case sensitive.                                           |
+| Web agent secret id       | iisagentsecretid             | The secret id of the AM secret that contains the web agent shared secret as defined in the SiteMinder user interface (case sensitive).                             |
 | Is 4x Web agent           | true/false - on/off  | True if the "Is 4x Web Agent" check box is active on the Siteminder Web Agent.                                                                                     |
 | SM Host File Path         | /path/to/SmHost.conf | Location on the AM instance, where the Siteminder web agent SmHost.conf file is located. Mandatory if "Is 4x Web agent" configuration is set to false (disabled).  |
-| Protected resource        | sales                | The name of the resource to check -- for example, /sales.                                                                                                          |
+| Protected resource        | /sales                | The name of the resource to check -- for example, /sales.                                                                                                          |
 | Protected resource action | GET                  | The action to check for the protected resource -- for example, GET.                                                                                                |
 | Debug switch              | true/false - on/off  | Activate for additional debug information.                                                                                                                         |
-| Legacy cookie domain      | .domain.example.com  | The domain on which the legacy cookie must be set so it will be visible by Siteminder SSO                                                                          |
-
+| Legacy cookie domain      | modernize.com  | The domain on which the legacy cookie must be set so it will be visible by Siteminder SSO 
+| SiteMinder DMS administrator          | siteminder                     | Distinguished name of the administrator which has rights to read the directory which holds the user entries.                                                       |
+| SiteMinder DMS administrator password | siteminderadminsecretid               | Secret id for the password of the DMS administrator logging in to retrieve user attributes from the user directory.                                                |
+| SM User directory                     | ad               | Name of the Siteminder user directory                                                                                                                              |
+| SM user directory root                | dc=kapstone,dc=com         | The user directory root search base                                                                                                                                |
+| SM username attribute                 | samaccountname              | The username attribute used to search for a user, given it's username.                                                                                             |
+| SM user object class                  | user                        | The object class used to define the users          
 
 <br>
 
-#### 3.4.7. Legacy-SM-Set Password
-Custom node provided in the SSO toolkit. Provisions the user password in ForgeRock IAM by calling the default ForgeRock IDM managed object API. This node is generic, and does not need to be customized for specific legacy IAM vendor implementations.
-
-```
-Node Class: /src/main/java/org/forgerock/openam/auth/node/LegacySMSetPassword.java
-Configuration File: /src/main/resources/org/forgerock/openam/auth/node/LegacySMSetPassword.properties
-```
-
-| Configuration          | Example                     | Description                                                                                                                                           |
-| ---------------------- | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| IDM User Endpoint      | https://openidm.example.com | Protocol and host for the IDM application. Full URL is built by adding query parameters in the node's backend.                                        |
-| IDM Admin User         | idmAdmin                    | The IDM admin user used to query the IDM user endpoint                                                                                                |
-| IDM Password Secret ID | openidmadminpass            | The IDM admin password secret ID. The secret from the file system with this ID must contain the value of the password for the IDM administrator user. |
-
-
 ## 4. Scenarios
 
-
 + Demo video - [testing the main tree scenarios](https://github.com/ForgeRock/modernize-accelerators/blob/master/forgerock-am-siteminder-migration-sso-jit/video/Siteminder%20-%20Testing%20The%20Tree.mp4)
-
-
 
 ### 4.1. Scenario 1 - The user has a valid legacy Siteminder SSO token in the browser, and accesses the authentication tree
 - The user (not previously migrated) authenticates first to the legacy Siteminder protected resource.
@@ -434,7 +421,7 @@ Configuration File: /src/main/resources/org/forgerock/openam/auth/node/LegacySMS
 <br>
 
 ## 5. Extending and Customizing
-Any changes you need to make to adapt to a specific legacy system can be done in the provided sample nodes. To make changes, start by importing the project you downloaded from GitHub (/forgerock-am-siteminder-migration-sso-jit/openam-modernize-siteminder-auth-nodes) in your preferred IDE. The node classes and additional files are described in <b>Chapter 3.3 - Tree Nodes</b>.
+Any changes you need to make to adapt to a specific legacy system can be done in the provided sample nodes. To make changes, start by importing the project you downloaded from GitHub (/forgerock-am-siteminder-migration-sso-jit/openam-modernize-siteminder-auth-nodes) in your preferred IDE. The node classes and additional files are described in <b>Chapter 3.4 - Tree Nodes and services</b>.
 
 ## 6. Troubleshooting Common Problems
 + <b>Problem:</b> Changes in configuration don't show up in the AM console after deployment.<br>
@@ -455,7 +442,7 @@ This project is licensed under the Apache License, Version 2.0. The following te
 
 ```
 /***************************************************************************
- *  Copyright 2020 ForgeRock AS
+ *  Copyright 2021 ForgeRock AS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

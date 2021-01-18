@@ -31,7 +31,7 @@ ForgeRock understands the customer needs to speed up migration design decisions 
 | AM      | Node                | Add Attributes To Object Attributes                 | Adds attributes to OBJECT_ATTRIBUTES on shared state and transient state                                                                          |
 | AM      | Tree Hook           | LegacyORASessionTreeHook                            | Manages cookies if a successful login is performed into OAM11G by the tree |
 | AM      | Authentication Tree | OAMmigration                              | Implements the migration login and bi-directional SSO |
-| AM      | Service             | OracleService                  | Legacy ForgeRock Service holds all the configurations related to the OAM11G legacy platform
+| AM      | Service             | OracleService                  | Oracle Service holds all the configurations related to the OAM11G legacy platform
 
 ## 2. Building The Source Code
 
@@ -66,6 +66,8 @@ JAVA_HOME=/usr/jdk/jdk-11.0.9
 MAVEN_HOME=/opt/apache-maven-3.6.3
 MAVEN_OPTS='-Xmx2g -Xms2g -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=512m'
 ```
+
+Note: You need access to the ForgeRock private-releases maven repository, and your maven build should point to the settings.xml file downloaded with your backstage account. For more information regarding getting access to the ForgeRock protected repositories, see this [knowledge article](https://backstage.forgerock.com/knowledge/kb/article/a74096897)
 
 #### 2.1.2. External libraries
 
@@ -256,10 +258,10 @@ Node Class: /src/main/java/org/forgerock/openam/auth/node/LegacyORACreateForgeRo
 Configuration File: /src/main/resources/org/forgerock/openam/auth/node/LegacyORACreateForgeRockUser.properties
 ```
 
-Configuration          | Example                                                            |Description
----------------------- | -------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------
-Profile details URL    | <<proto>>://<<host>>/oic_rest/rest/userprofile/people/             | The endpoint used to get the profile attributes from the legacy IAM
-Set Password Reset     | true/false - on/off                                                | Switch used to determine if the node is used in a scenario that cannot migrate the user password. Set to true if the password can't be migrated.
+| Configuration          | Example                                                            |Description
+| ---------------------- | -------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------
+| Attribute Names Mapping   | Map<String,String>   | A map which should hold as keys the name of the legacy IAM user attributes, and as values their equivalent name in the ForgeRock IDM database.   |
+| Set Password Reset        | true/false - on/off  | Switch used to determine if the node is used in a scenario that cannot migrate the user password. Set to true if the password can't be migrated. |
 
 <br>
 
@@ -310,14 +312,35 @@ Default user identification node in ForgeRock IAM, which checks if a user is pre
 
 <br>
 
-#### 3.4.10. Oracle Service
+#### 3.3.10. Create Object Node
+The Create Object node is used to create a new object in IDM based on information collected during an auth tree flow. Any managed object attributes that are marked as required in IDM will need to be collected during the auth tree flow in order for the new object to be created. This node requires IDM rsFilter integration to function.
+
+| Configuration             | Example              | Description                                                                                                                                                        |
+| ------------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Identity Resource        | managed/user            | The identity resource in IDM that this node will create. This is used to aid node input requirement declaration. Must match identity resource of the current tree.                                                                                                   |
+
+<br>
+
+#### 3.3.11. Patch Object Node
+The Patch Object node is used to update attributes in an existing managed object in IDM. This node requires IDM rsFilter integration to function.
+
+| Configuration             | Example              | Description                                                                                                                                                        |
+| ------------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Patch as Object           | true/false - on/off  | Whether the patch should be done as object or client. Defaults to false, which represents the oauth client.                                                                                     |
+| Ignored Fields        | List<String>            | Fields from sharedState that should be ignored as part of patch. If empty, all fields are attempted as part of the patch.                                                                                                   |
+| Identity Resource        | managed/user            | The identity resource in IDM that this node will patch. This is used to aid node input requirement declaration. Must match identity resource of the current tree.                                                                                                   |
+| Identity Attribute        | userName            | The attribute used to identify the the object in IDM.      
+
+<br>
+
+#### 3.4.12. Oracle Service
 Oracle Service holds all the configurations related to the legacy OAM platform
 
 ![OracleService](images/OracleService.png)
 
 ```
 Service Class: /src/main/java/org/forgerock/openam/services/OracleService.java
-Configuration File: /src/main/resources/org/forgerock/openam/services/OracleService.zproperties
+Configuration File: /src/main/resources/org/forgerock/openam/services/OracleService.properties
 ```
 | Configuration                  | Example                                                            | Description
 | -------------------------------|--------------------------------------------------------------------|-----------------------------------------------------------------------------------------------
@@ -395,7 +418,7 @@ This project is licensed under the Apache License, Version 2.0. The following te
 
 ```
 /***************************************************************************
- *  Copyright 2019 ForgeRock AS
+ *  Copyright 2021 ForgeRock AS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

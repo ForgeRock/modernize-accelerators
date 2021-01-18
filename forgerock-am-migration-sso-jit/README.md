@@ -67,6 +67,8 @@ MAVEN_HOME=/opt/apache-maven-3.6.3
 MAVEN_OPTS='-Xmx2g -Xms2g -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=512m'
 ```
 
+Note: You need access to the ForgeRock private-releases maven repository, and your maven build should point to the settings.xml file downloaded with your backstage account. For more information regarding getting access to the ForgeRock protected repositories, see this [knowledge article](https://backstage.forgerock.com/knowledge/kb/article/a74096897)
+
 #### 2.1.2. Reverse proxy
 
 Usually all components are deployed under the same domain, but if your legacy IAM is under another domain than the ForgeRock applications, you will need a reverse proxy in front of both legacy and ForgeRock. This will ensure all the cookies will be seen between applications from the same domain, otherwise SSO can't be achieved.
@@ -99,7 +101,7 @@ For example, "openam-modernize-auth-nodes-1.0.0-SNAPSHOT.jar".
 ### 2.4. Adding the Library to the AM WAR File
 
 + Download and unzip the AM.war file from ForgeRock BackStage:
-[https://backstage.forgerock.com/downloads/browse/am/latest](https://backstage.forgerock.com/downloads/browse/am/latest)
+[https://backstage.forgerock.com/downloads/browse/am/latest](https://backstage.forgerock.com/downloads/browse/am/featured)
 
 ```
 mkdir openam && cd openam
@@ -273,7 +275,7 @@ Legacy ForgeRock Service holds all the configurations related to the legacy IAM 
 
 ```
 Service Class: /src/main/java/org/forgerock/openam/services/LegacyFRService.java
-Configuration File: /src/main/resources/org/forgerock/openam/services/LegacyFRService.zproperties
+Configuration File: /src/main/resources/org/forgerock/openam/services/LegacyFRService.properties
 ```
 | Configuration             | Example                                                                                                               | Description                                                             |
 | ------------------------- | --------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- | 
