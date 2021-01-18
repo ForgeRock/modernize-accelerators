@@ -23,13 +23,12 @@ System                           | Type                | Name                   
 ---------------------------------|---------------------|------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------
 Interface                        | Java class          | LegacyIAMProvider.java             | the main interface provided for implementing the migration components
 Interface implementation example | Java class          | LegacyOpenSSOProvider.java         | Example implementation of the main interface
-IG                               | jar library         | openig-modernize-filters           | The IG project holding the migration filter which use the implementation of the main interface
 IG                               | Route               | migration-assets-authentication    | A route that covers the authentication endpoint
 ```
 
 ## 2. Building The Source Code
 
-+ <b>Important note:</b> The assets presented below are built based over OpenIG version 6.5.1.
++ <b>Important note:</b> The assets presented below are built based over OpenIG version 7.0.1.
 
 In order to build the project from the command line, follow the steps presented below. Make sure that you have all the prerequisites installed correctly before starting.
 
@@ -37,13 +36,12 @@ In order to build the project from the command line, follow the steps presented 
 
 You will need the following software to build the code:
 
-```
 Software               | Required Version
 ---------------------- | ----------------
-Java Development Kit   | 1.8 and above
+Java Development Kit   | 11.0 and above
 Maven                  | 3.1.0 and above
 Git                    | 1.7.6 and above
-```
+
 The following environment variables should be set:
 
 - `JAVA_HOME` - points to the location of the version of Java that Maven will use.
@@ -53,7 +51,7 @@ The following environment variables should be set:
 For example, your environment variables should look similar to this:
 
 ```
-JAVA_HOME=/usr/jdk/jdk1.8.0_201
+JAVA_HOME=/usr/jdk/jdk-11.0.9
 MAVEN_HOME=/opt/apache-maven-3.6.3
 MAVEN_OPTS='-Xmx2g -Xms2g -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=512m'
 ```
@@ -109,19 +107,19 @@ For example, "openig-modernize-filters-1.0-SNAPSHOT.jar".
 
 ```
 https://backstage.forgerock.com/downloads/browse/ig/latest
-mkdir ROOT && cd ROOT
-jar -xf ~/Downloads/IG-6.5.1.war
+mkdir ig && cd ig
+jar -xf ~/Downloads/IG-7.0.1.war
 ```
 
-+ Copy the jar file containing the IG filters: `cp ~/openig-modernize-filters-<nextversion>-SNAPSHOT.jar WEB-INF/lib` in the /ROOT/WEB-INF/lib folder.
++ Copy the jar file containing the IG filters: `cp ~/openig-modernize-filters-<nextversion>-SNAPSHOT.jar WEB-INF/lib` in the /ig/WEB-INF/lib folder.
 
 + Rebuild the WAR file: 
 
 ```
-jar -cf ../ROOT.war *
+jar -cf ../ig.war *
 ```
 
-+ Copy and deploy the ROOT.war file in the container in which IG is deployed.
++ Copy and deploy the ig.war file in the container in which IG is deployed.
 
 ## 3. Configuration
 
@@ -171,47 +169,51 @@ The route provided with this toolkit serves as an example of implementation. The
 - Filter config example:
 ```
 {
-  "name": "MigrationSsoFilter",
-  "type": "MigrationSsoFilter",
-  "config": {
-	"getUserMigrationStatusEndpoint": "${idmHost}/openidm/managed/user",
-	"provisionUserEndpoint": "${idmHost}/openidm/managed/user?_action=create",
-	"openIdmPasswordSecretId": "openidmadminpass",
-	"openIdmUsername": "openidm-admin",
-	"openaAmAuthenticateURL": "${amHost}/json/realms/root/authenticate",
-	"openAmCookieName": "iPlanetDirectoryPro",
-	"openIdmUsernameHeader": "X-OpenIDM-Username",
-	"openIdmPasswordHeader": "X-OpenIDM-Password",
-	"acceptApiVersionHeader": "Accept-API-Version",
-	"acceptApiVersionHeaderValue": "resource=2.0, protocol=1.0",
-	"setCookieHeader": "Set-Cookie",
-	"directory": "${openig.baseDirectory.path}/secrets"
-  }
-}
+        "name" : "MigrationSsoFilter",
+        "type" : "MigrationSsoFilter",
+        "config" : {
+          "userAttributesMapping" : {
+            "username" : "userName",
+            "givenName" : "givenName",
+            "cn" : "cn",
+            "sn" : "sn",
+            "mail" : "mail"
+          },
+          "getUserMigrationStatusEndpoint" : "https://openidm.example.com/openidm/managed/user",
+          "provisionUserEndpoint" : "https://openidm.example.com/openidm/managed/user?_action=create",
+          "openaAmAuthenticateURL" : "https://openam.example.com/openam/json/{{realm}}/authenticate",
+          "openAmCookieName" : "iPlanetDirectoryPro",
+          "acceptApiVersionHeader" : "Accept-API-Version",
+          "acceptApiVersionHeaderValue" : "resource=2.0, protocol=1.0",
+          "setCookieHeader" : "Set-Cookie"
+        }
+      }
 ```
 
 ```
 Filter Class: /openig-modernize-filters/src/main/java/org/forgerock/openig/modernize/filter/MigrationSsoFilter.java
+```
 
 Configuration                      | Example                                                                        | Description
 ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-getUserMigrationStatusEndpoint     | <<proto>>://<<idmHost>>/openidm/managed/user?_queryFilter=userName+eq+\"{0}\"" | This represents the user endpoint from ForgeRock IDM, with a query action.
-provisionUserEndpoint              | <<proto>>://<<idmHost>>/openidm/managed/user?_action=create                    | This represents the user endpoint from ForgeRock IDM, with a create action.
-openIdmPassword                    | openidm-admin                                                                  | The openidm admin user password.
-openIdmUsername                    | openidm-admin                                                                  | The openidm admin user name.
-openaAmAuthenticateURL             | <<proto>>://<<amHost>>/json/realms/root/authenticate                           | The ForgeRock OpenAM authenticate endpoint.
+getUserMigrationStatusEndpoint     | https://openidm.example.com/openidm/managed/user | This represents the user endpoint from ForgeRock IDM, with a query action.
+provisionUserEndpoint              | https://openidm.example.com/openidm/managed/user?_action=create                    | This represents the user endpoint from ForgeRock IDM, with a create action.
+openaAmAuthenticateURL             | https://openam.example.com/openam/json/{{realm}}/authenticate                           | The ForgeRock OpenAM authenticate endpoint.
 openAmCookieName                   | iPlanetDirectoryPro                                                            | The ForgeRock OpenAM cookie name.
-openIdmUsernameHeader              | X-OpenIDM-Username                                                             | The header name used to send the openidm admin user name.
-openIdmPasswordHeader              | X-OpenIDM-Password                                                             | The header name used to send the openidm admin user password.
 acceptApiVersionHeader             | Accept-API-Version                                                             | The Accept-API-Version header name
 acceptApiVersionHeaderValue        | resource=2.0, protocol=1.0                                                     | The Accept-API-Version version used.
 setCookieHeader                    | Set-Cookie                                                                     | The Set-Cookie header name.
-```
+
 
 <br>
 
 - <b>HeaderFilter-ChangeHostFilter</b> - Out of the box filter that comes with the IG application. This filter is used to remove and add new headers on the HTTP request or response.
 
+<br>
+
+- <b>ClientCredentialsOAuth2ClientFilter</b> - Authenticates OAuth 2.0 clients by using the client's OAuth 2.0 credentials to obtain an access_token from an authorization server, and injecting the access_token into the inbound request as a Bearer Authorization header. For this toolkit it's used to obtain the token needed by the MigrationSsoFilter to call IDM to check if a user is migrated, or to create a new user.
+
+<br>
 
 ## 4. Extending & Customizing
 Any changes you need to make to adapt to a specific legacy system can be done in the provided sample project. To do so, you first need to import the project you downloaded - https://github.com/ForgeRock/modernize-accelerators/tree/develop/forgerock-ig-migration-sso-jit from GitHub.
@@ -228,7 +230,7 @@ This project is licensed under the Apache License, Version 2.0. The following te
 
 ```
 /***************************************************************************
- *  Copyright 2019 ForgeRock AS
+ *  Copyright 2021 ForgeRock AS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
