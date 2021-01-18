@@ -378,7 +378,6 @@ Configuration File: /src/main/resources/org/forgerock/openam/services/OracleServ
 
 ## 5. Extending and Customizing
 Any changes you need to make to adapt to a specific legacy system can be done in the provided sample nodes. To make changes, start by importing the project you downloaded from GitHub (/forgerock-am-ora-migration-sso-jit/openam-modernize-oracle-auth-nodes) in your preferred IDE. The node classes and additional files are described in <b>Chapter 3.4 - Tree Nodes and services</b>.
-+ <b>Example</b>: To add or remove additional profile attributes, the node <b>Legacy-ORA-Create FR User</b> can be updated. In the method <b>process</b>, you can retrieve additional attributes from the legacy profile details call. Then you can map them on the request body from the <b>createProvisioningRequestEntity()</b> method.
 
 ## 6. Troubleshooting Common Problems
 + <b>Problem:</b> Changes in configuration don't show up in the AM console after deployment.<br>
