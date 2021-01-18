@@ -4,24 +4,34 @@
             "target" : "managed/Group",
             "source" : "system/LegacyIAM/group",
             "name" : "LegacyIAM_to_IDMGroupObject",
+            "consentRequired" : false,
             "icon" : null,
             "displayName" : "LegacyIAM_to_IDMGroupObject",
             "properties" : [
                 {
-                    "source" : "cn",
-                    "target" : "cn"
+                    "target" : "uniqueMember",
+                    "source" : "uniqueMember"
                 },
                 {
-                    "source" : "description",
-                    "target" : "description"
+                    "target" : "cn",
+                    "source" : "cn"
                 },
                 {
-                    "source" : "displayName",
-                    "target" : "displayName"
+                    "target" : "description",
+                    "source" : "description"
                 },
                 {
-                    "source" : "uniqueMember",
-                    "target" : "uniqueMember"
+                    "target" : "dn",
+                    "source" : "__NAME__"
+                },
+                {
+                    "target" : "displayName",
+                    "transform" : {
+                        "type" : "text/javascript",
+                        "globals" : { },
+                        "source" : "source.cn[0];"
+                    },
+                    "source" : ""
                 }
             ],
             "policies" : [
@@ -83,7 +93,6 @@
             "target" : "managed/user",
             "source" : "system/LegacyIAM/account",
             "name" : "LegacyIAM_to_IDMUserObject",
-            "icon" : null,
             "displayName" : "LegacyIAM_to_IDMUserObject",
             "properties" : [
                 {
@@ -100,7 +109,7 @@
                 },
                 {
                     "target" : "accountStatus",
-                    "source" : "inetUserStatus"								 
+                    "source" : "inetUserStatus"
                 },
                 {
                     "source" : "sn",
@@ -167,7 +176,7 @@
                 },
                 {
                     "target" : "uniqueId",
-                    "source" : "uniqueId"											 
+                    "source" : "uniqueId"
                 },
                 {
                     "target" : "passwordSha512",
@@ -233,6 +242,7 @@
             "target" : "system/ldap/group",
             "source" : "managed/Group",
             "name" : "managedGroup_systemLdapGroup",
+            "consentRequired" : false,
             "icon" : null,
             "displayName" : "managedGroup_systemLdapGroup",
             "properties" : [
@@ -247,6 +257,10 @@
                 {
                     "source" : "uniqueMember",
                     "target" : "uniqueMember"
+                },
+                {
+                    "target" : "dn",
+                    "source" : "dn"
                 }
             ],
             "policies" : [
@@ -302,18 +316,16 @@
                     "action" : "CREATE",
                     "situation" : "ABSENT"
                 }
-            ],
-            "onCreate" : {
-                "type" : "text/javascript",
-                "globals" : { },
-                "source" : "target.dn = 'cn=' + source.cn + ',ou=groups,&{userstore.basecontext}';"
-            }
+            ]
         },
         {
-            "name" : "managedUser_systemLdapAccounts",
-            "source" : "managed/user",
             "target" : "system/ldap/account",
-            "links" : "systemLdapAccounts_managedUser",
+            "source" : "managed/user",
+            "name" : "managedUser_systemLdapAccounts",
+			"links" : "systemLdapAccounts_managedUser",
+            "consentRequired" : false,
+            "icon" : null,
+            "displayName" : "managedUser_systemLdapAccounts",
             "onCreate" : {
                 "type" : "text/javascript",
                 "globals" : { },
@@ -380,7 +392,7 @@
                         "globals" : { },
                         "source" : "source.lockoutTime != null ?  '<InvalidPassword><InvalidCount>' + \n  source.loginTryCount + '</InvalidCount><LastInvalidAt>' +\n  '0' + '</LastInvalidAt><LockedoutAt>' +\n  '0' + '</LockedoutAt><ActualLockoutDuration>0</ActualLockoutDuration>' +\n  '<NoOfTimesLocked>1</NoOfTimesLocked></InvalidPassword>' : null"
                     },
-                    "source" : ""								   
+                    "source" : ""
                 },
                 {
                     "target" : "userPassword",
@@ -448,9 +460,12 @@
             ]
         },
         {
-            "name" : "systemLdapAccounts_managedUser",
-            "source" : "system/ldap/account",
             "target" : "managed/user",
+            "source" : "system/ldap/account",
+            "name" : "systemLdapAccounts_managedUser",
+            "consentRequired" : false,
+            "icon" : null,
+            "displayName" : "systemLdapAccounts_managedUser",
             "properties" : [
                 {
                     "source" : "cn",

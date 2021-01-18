@@ -1,17 +1,18 @@
 {
     "connectorRef" : {
         "bundleName" : "org.forgerock.openicf.connectors.ldap-connector",
-        "bundleVersion" : "[1.4.0.0,1.5.0.0)",
+        "bundleVersion" : "1.5.5.0",
         "connectorName" : "org.identityconnectors.ldap.LdapConnector"
     },
     "configurationProperties" : {
         "host" : "&{userstore.host}",
-        "port" : 1389,
-        "ssl" : false,
+        "port" : 50636,
+        "ssl" : true,
         "principal" : "cn=Directory Manager",
         "credentials" : "&{userstore.password}",
         "baseContexts" : [
-            "ou=people,&{userstore.basecontext}"
+            "ou=people,&{userstore.basecontext}",
+            "ou=groups,&{userstore.basecontext}"
         ],
         "accountSearchFilter" : null,
         "accountSynchronizationFilter" : null,
@@ -48,14 +49,14 @@
             "uid"
         ],
         "groupMemberAttribute" : "uniqueMember",
-									   
         "usePagedResultControl" : true,
         "blockSize" : 100,
         "uidAttribute" : "entryUUID",
         "maintainLdapGroupMembership" : false,
         "respectResourcePasswordPolicyChangeAfterReset" : false,
         "baseContextsToSynchronize" : [
-            "ou=people,&{userstore.basecontext}"
+            "ou=people,&{userstore.basecontext}",
+            "ou=groups,&{userstore.basecontext}"
         ]
     },
     "resultsHandlerConfig" : {
@@ -137,7 +138,6 @@
                     "nativeType" : "string",
                     "flags" : [
                         "PASSWORD"
-												 
                     ],
                     "runAsUser" : false,
                     "required" : false
