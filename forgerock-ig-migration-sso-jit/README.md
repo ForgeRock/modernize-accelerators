@@ -18,13 +18,13 @@ The framework can be easily extended to support migrations from any legacy IAM p
 Bidirectional SSO capability between legacy IAM and ForgeRock IAM helps minimize risk and time to market in complex migration projects.
 ForgeRock understands customers' needs to speed up migration design decisions and cut implementation time, and is thus delivering the following assets as part of the Migration Accelerators:
 
-```
+
 System                           | Type                | Name                               | Description
 ---------------------------------|---------------------|------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------
 Interface                        | Java class          | LegacyIAMProvider.java             | the main interface provided for implementing the migration components
 Interface implementation example | Java class          | LegacyOpenSSOProvider.java         | Example implementation of the main interface
 IG                               | Route               | migration-assets-authentication    | A route that covers the authentication endpoint
-```
+
 
 ## 2. Building The Source Code
 
@@ -124,9 +124,9 @@ jar -cf ../ig.war *
 ## 3. Configuration
 
 ### 3.1. Secrets
-The password that is used in the toolkit, must be saved in a secret store for security reasons.
+If you have any passwords that you need in the service to service context, they must be saved in a secret store for security reasons.
 
-The section below shows the FileSystemSecretStore configuration from [migration-assets-authentication-route.json](https://github.com/ForgeRock/modernize-accelerators/blob/develop/forgerock-ig-migration-sso-jit/openig-modernize-routes/migration-assets-authentication-route.json)
+The section below shows an example for a FileSystemSecretStore configuration.
 
 ```
 "secrets": {
@@ -142,7 +142,7 @@ The section below shows the FileSystemSecretStore configuration from [migration-
   }
 ```
 
-On the IG instance filesystem, create the directory path configured in the directory field. Put the file containing the IDM admin user password secret in the path configured in the directory field. In this example the file is named <b>openidmadminpass</b> and must be configured in the <b>openIdmPasswordSecretId</b> field in the MigrationSsoFilter filter config - See section 3.2.
+On the IG instance filesystem, create the directory path configured in the directory field. 
 
 ### 3.2. Routes
 
