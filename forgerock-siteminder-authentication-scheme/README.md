@@ -104,16 +104,16 @@ mvn package
 ## 4. Troubleshooting
 
 + <b>Problem</b>: Smps log - [SmJavaAPI.cpp:639][ERROR][sm-JavaApi-00670]SmJavaAPI: Unable to get a JVM environment
-<b>Solution</b>: There are a few reasons for this error but in this particular case it was due to incorrect JDK path setting to just “/usr”. Hence smjavaapi was not able to find the appropriate libjvm.so. Ensure that in ca_ps_env.ksh proper path is defined. For example NETE_JDK_ROOT="/zroot/orcl/jdk1.8.0_131" NETE_JRE_ROOT="/zroot/orcl/jdk1.8.0_131/jre"
+<br><b>Solution</b>: There are a few reasons for this error but in this particular case it was due to incorrect JDK path setting to just “/usr”. Hence smjavaapi was not able to find the appropriate libjvm.so. Ensure that in ca_ps_env.ksh proper path is defined. For example NETE_JDK_ROOT="/zroot/orcl/jdk1.8.0_131" NETE_JRE_ROOT="/zroot/orcl/jdk1.8.0_131/jre"
 
 + <b>Problem</b>: Smps log - [SmAuthServer.cpp:339][ERROR][sm-Server-02940] Failed to query authentication scheme 'openam-authn-scheme'
-<b>Solution</b>: If your authentication scheme is defined in the wrong domain or is not associated with the correct realm, you will see this error.
+<br><b>Solution</b>: If your authentication scheme is defined in the wrong domain or is not associated with the correct realm, you will see this error.
 
 + <b>Problem</b>: Agent log - [sm-AgentFramework-00520] LLA: SiteMinder Agent Api function failed - 'Sm_AgentApi_IsProtectedEx' returned '-1'.
-<b>Solution</b>: If this is the last line that you see in the smps.log when the custom auth scheme debugging is enabled, it means that the openam client sdk is missing libraries from the classpath in JVMOptions.txt.
+<br><b>Solution</b>: If this is the last line that you see in the smps.log when the custom auth scheme debugging is enabled, it means that the openam client sdk is missing libraries from the classpath in JVMOptions.txt.
 
 + <b>Problem</b>: SiteMinder debug log file of openam - TransactionId[e94de590-c5ca-4d10-9cc6-54dc379da7b0-75095]ERROR: SMSessionUtils.createSmSession()Siteminder authentication unsuccesful,user=wahmed, response=404
-<b>Solution</b>: Ensure that you have the login.html file in the web server’s docroot/openam/login.html directory or any other path of your choice to which the SiteMinder Policy Realm is pointing to.
+<br><b>Solution</b>: Ensure that you have the login.html file in the web server’s docroot/openam/login.html directory or any other path of your choice to which the SiteMinder Policy Realm is pointing to.
 
 + <b>Problem</b>: CoreSystem debug log file of openam - Caused by: java.lang.NoClassDefFoundError: Could not initialize class com.ca.siteminder.sdk.agentapi.connection.SmAgentApiConnection
-<b>Solution</b>: https://docops.ca.com/ca-single-sign-on/12-52-sp1/en/programming/programming-in-java/agent-api-guidance-for-java#AgentAPIGuidanceforJava-ImplementthePureJavaAgentAPI
+<br><b>Solution</b>: https://docops.ca.com/ca-single-sign-on/12-52-sp1/en/programming/programming-in-java/agent-api-guidance-for-java#AgentAPIGuidanceforJava-ImplementthePureJavaAgentAPI
