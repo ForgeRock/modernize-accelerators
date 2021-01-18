@@ -342,7 +342,7 @@ The Patch Object node is used to update attributes in an existing managed object
 
 <br>
 
-#### 3.4.12. Oracle Service
+#### 3.4.12. Siteminder Service
 Siteminder Service holds all the configurations related to the legacy OAM platform
 
 ![SiteminderService](images/SiteminderService.png)
