@@ -23,22 +23,19 @@ ForgeRock understands the customer needs to speed up migration design decisions 
 - Password synchronization capabilities inside the Authentication Tree
 - Flex option allowing the extension of the Authentication Tree and Nodes for OAM Legacy system
 
-```
-System  | Type                | Name                                                | Description
---------| --------------------|-----------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------
-AM      | Node                | Legacy-ORA-Validate Token                           | Retrieves a token from an existing cookie, validates the token against OAM11G and provides as output in the shared state the username and outcome
-AM      | Node                | Legacy-ORA-Migration Status                         | Searches in Forgerock IDM the user identity based on the username from the shared state
-AM      | Node                | Legacy-ORA-Create FR User                           | Calls the Forgerock IDM API to provision the managed user
-AM      | Node                | Legacy-ORA-Login                                    | Based on the username and password from the shared state, executes the OAM11G login method call
-AM      | Node                | Legacy-ORA-Set Password                             | Updates the Forgerock IDM managed user object with the password captured and stored in the shared state
-AM      | Tree Hook           | LegacyORASessionTreeHook                            | Manages cookies if a successful login is performed into OAM11G by the tree
-AM      | Authentication Tree | oracleMigrationSsoTree                              | Implements the migration login and bi-directional SSO
-AM      | Custom Nodes        | openam-modernize-oracle-auth-nodes-1.0-SNAPSHOT.jar | Custom AM nodes that are used in the migration authentication tree
-```
+| System  | Type                | Name                                                | Description |
+| ------- | ------------------- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| AM      | Node                | Legacy-ORA-Validate Token                           | Retrieves a token from an existing cookie, validates the token against OAM11G and provides as output in the shared state the username and outcome |
+| AM      | Node                | Legacy-ORA-Create FR User                           | Executes the OAM11G get user information call and adds the user's details on OBJECT_ATTRIBUTES on shared state and transient state                |
+| AM      | Node                | Legacy-ORA-Login                                    | Based on the username and password from the shared state, executes the OAM11G login method call                                                   |
+| AM      | Node                | Add Attributes To Object Attributes                 | Adds attributes to OBJECT_ATTRIBUTES on shared state and transient state                                                                          |
+| AM      | Tree Hook           | LegacyORASessionTreeHook                            | Manages cookies if a successful login is performed into OAM11G by the tree |
+| AM      | Authentication Tree | OAMmigration                              | Implements the migration login and bi-directional SSO |
+| AM      | Custom Nodes        | openam-modernize-oracle-auth-nodes-1.0-SNAPSHOT.jar | Custom AM nodes that are used in the migration authentication tree |
 
 ## 2. Building The Source Code
 
-+ <b>Important note:</b> The assets presented below are built based on AM version 6.5.2.
++ <b>Important note:</b> The assets presented below are built based on AM version 7.0.1.
 
 Follow these instructions to build the project from the command line. Make sure that you have all the prerequisites installed correctly before starting.
 
@@ -50,13 +47,12 @@ Follow these instructions to build the project from the command line. Make sure 
 
 You will need the following software to build the code:
 
-```
 Software               | Required Version
 ---------------------- | ----------------
-Java Development Kit   | 1.8 and above
+Java Development Kit   | 11.0 and above
 Maven                  | 3.1.0 and above
 Git                    | 1.7.6 and above
-```
+
 Set the following environment variables:
 
 - `JAVA_HOME` - points to the location of the version of Java that Maven will use.
@@ -66,7 +62,7 @@ Set the following environment variables:
 For example your environment variables should look like this:
 
 ```
-JAVA_HOME=/usr/jdk/jdk1.8.0_201
+JAVA_HOME=/usr/jdk/jdk-11.0.9
 MAVEN_HOME=/opt/apache-maven-3.6.3
 MAVEN_OPTS='-Xmx2g -Xms2g -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=512m'
 ```
@@ -140,14 +136,14 @@ For example, "openam-modernize-oracle-auth-nodes-1.0.0-SNAPSHOT.jar".
 ### 2.4. Adding the Library to the AM WAR File
 
 + Download and unzip the AM WAR file from ForgeRock Backstage:
-[https://backstage.forgerock.com/downloads/browse/am/latest](https://backstage.forgerock.com/downloads/browse/am/latest)
+[https://backstage.forgerock.com/downloads/browse/am/latest](https://backstage.forgerock.com/downloads/browse/am/featured)
 
 ```
-mkdir ROOT && cd ROOT
-jar -xf ~/Downloads/AM-6.5.2.war
+mkdir openam && cd openam
+jar -xf ~/Downloads/AM-7.0.1.war
 ```
 
-+ Copy the newly generated JAR file to the /ROOT/WEB-INF/lib directory:
++ Copy the newly generated JAR file to the /openam/WEB-INF/lib directory:
 
 ```
 cp ~/openam-modernize-oracle-auth-nodes-<nextversion>-SNAPSHOT.jar WEB-INF/lib
@@ -156,10 +152,10 @@ cp ~/openam-modernize-oracle-auth-nodes-<nextversion>-SNAPSHOT.jar WEB-INF/lib
 + Rebuild the WAR file: 
 
 ```
-jar -cf ../ROOT.war *
+jar -cf ../openam.war *
 ```
 
-+ To see the nodes included in the JAR file, you must copy and deploy the ROOT.war file in the container in which AM is deployed.
++ To see the nodes included in the JAR file, you must copy and deploy the openam.war file in the container in which AM is deployed.
 
 ## 3. Configuration
 
@@ -180,8 +176,8 @@ To generate an access client configuration file, follow the instructions below:
 
 ### 3.2. Configuring Secret Stores
 
-The passwords used in the toolkit authentication tree nodes must be saved in secret stores for security reasons. 
-The toolkit uses AM secret stores as described in the ForgeRock [documentation](https://backstage.forgerock.com/docs/am/6.5/maintenance-guide/#configure-secret-stores).
+The passwords used in the toolkit authentication tree nodes should be saved in secret stores for security reasons. 
+If you need to save any secrets, you can configure secret stores as described in the ForgeRock [documentation](https://backstage.forgerock.com/docs/am/7/security-guide/configure-secret-stores.html#configure-secret-stores).
 
 #### 3.2.1. To Configure a File System Secret Volume Store
 
@@ -207,14 +203,9 @@ The toolkit uses AM secret stores as described in the ForgeRock [documentation](
     + AM console configuration:
 	![secretStore](images/secretStore.png)
 
-    + Filesystem secret id:<br>
-	![secretStore](images/secretFilesystem.png)
-
-
-
 ### 3.3. Authentication Tree
 
-For information about how to create authentication trees, refer to the ForgeRock [documentation](https://backstage.forgerock.com/docs/am/6.5/authentication-guide/index.html#sec-configure-authentication-trees).
+For information about how to create authentication trees, refer to the ForgeRock [documentation](https://backstage.forgerock.com/docs/am/7/authentication-guide/about-authentication-trees.html#configure-authentication-trees).
 
 To set your custom authentication tree as the default authentication tree inside a realm, navigate to 'Authentication' > 'Settings'. Then, in the 'Core' tab, select your custom authentication tree in the 'Organization Authentication Configuration' field. 
 
@@ -227,7 +218,7 @@ To set your custom authentication tree as the default authentication tree inside
 
 #### 3.3.2. Alternative - Importing the Tree With Amster
 
-The SSO toolkit also comes with a tree in Amster-export format. You can import this tree into other AM servers. For information about how to import Amster resources, refer to the [documentation](https://backstage.forgerock.com/docs/amster/6.5/user-guide/#sec-usage-import).
+The SSO toolkit also comes with a tree in Amster-export format. You can import this tree into other AM servers. For information about how to import Amster resources, refer to the [documentation](https://backstage.forgerock.com/docs/amster/7/user-guide/amster-import-config.html).
 
 The tree export and its nodes can be found in the folder: 
 
@@ -238,7 +229,7 @@ The tree export and its nodes can be found in the folder:
 In this example the tree was created and exported in the root realm, but as a best practice, you should never use the root realm. If you choose to import the oracleMigrationSsoTree using Amster, please make sure to replace the realm property with your own value in the amster-export resources provided.
 
 
-### 3.4. Tree Nodes
+### 3.4. Tree Nodes and services
 
 A node is the core abstraction within an authentication tree. Trees are made up of nodes, which can modify the shared state and request input from the user via callbacks.
 
@@ -248,92 +239,98 @@ Custom node provided in the SSO toolkit. Detects if an existing legacy token exi
 ```
 Node Class: /src/main/java/org/forgerock/openam/auth/node/LegacyORAValidateToken.java
 Configuration File: /src/main/resources/org/forgerock/openam/auth/node/LegacyORAValidateToken.properties
-
-Configuration                  | Example                                                            | Description
--------------------------------|--------------------------------------------------------------------|-----------------------------------------------------------------------------------------
-Legacy cookie name             | iPlanetDirectoryPro                                                | The name of the SSO token expected by Oracle OAM
-Oracle configuration location  | /path/to/config/oblix/lib/ObAccessClient.xml                       | The endpoint used by the legacy iAM system to verify if an SSO token is valid
-Naming attribute               | cn                                                                 | The attribute name from the OAM user identity that contains the username value
 ```
 
 <br>
 
-#### 3.4.2. Legacy-ORA-Migration Status
-Custom node provided in the SSO toolkit. Checks ForgeRock IDM to determine whether a user is already migrated by calling the default ForgeRock IDM managed object API. This node is generic, and does not need to be customized for specific legacy IAM vendor implementations.
-
-```
-Node Class: /src/main/java/org/forgerock/openam/auth/node/LegacyORAMigrationStatus.java
-Configuration File: /src/main/resources/org/forgerock/openam/auth/node/LegacyORAMigrationStatus.properties
-
-Configuration          | Example                                                            | Description
----------------------- | -------------------------------------------------------------------|--------------------------------------------------------------------------------
-IDM user endpoint      | <<proto>>://<<host>>                                               | Protocol and host for the IDM application. Full URL is built by adding query parameters in the node's backend.
-IDM administrator user | idmAdmin                                                           | The IDM admin user used to query the IDM user endpoint
-IDM Password Secret ID | openidmadminpass                                                   | The IDM admin password secret ID. The secret from the file system with this ID must contain the value of the password for the IDM administrator.
-```
-
-<br>
-
-#### 3.4.3. Page Node
+#### 3.4.2. Page Node
 Default page node in ForgeRock IAM used to capture user credentials. This node is generic, and does not need to be customized for specific legacy IAM vendor implementations.
 
 <br>
 
-#### 3.4.4. Legacy-ORA-Create FR User
+#### 3.4.3. Legacy-ORA-Create FR User
 Custom node provided in the SSO toolkit. Provisions the user in ForgeRock IAM by calling the default ForgeRock IDM-managed object API. This node is generic one, and does not need to be customized for specific legacy IAM vendor implementations. The nodes uses the following shared state attributes: 
 
 ```
 Node Class: /src/main/java/org/forgerock/openam/auth/node/LegacyORACreateForgeRockUser.java
 Configuration File: /src/main/resources/org/forgerock/openam/auth/node/LegacyORACreateForgeRockUser.properties
+```
 
 Configuration          | Example                                                            |Description
 ---------------------- | -------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------
 Profile details URL    | <<proto>>://<<host>>/oic_rest/rest/userprofile/people/             | The endpoint used to get the profile attributes from the legacy IAM
-IDM User Endpoint      | <<proto>>://<<host>>                                               | Protocol and host for the IDM application. Full URL is built by adding query parameters in the node's backend.
-IDM Admin User         | idmAdmin                                                           | The IDM admin user used to query the IDM user endpoint
-IDM Password Secret ID | openidmadminpass                                                   | The IDM admin password secret ID. The secret from the file system with this ID must contain the value of the password for the IDM administrator user
 Set Password Reset     | true/false - on/off                                                | Switch used to determine if the node is used in a scenario that cannot migrate the user password. Set to true if the password can't be migrated.
-```
 
 <br>
 
-#### 3.4.5. Data Store Decision
+#### 3.4.4. Data Store Decision
 Default credentials validation node in ForgeRock IAM. This node is generic, and does not need to be customized for specific legacy IAM vendor implementations.
 
 <br>
 
-#### 3.4.6. Legacy-ORA-Login
+#### 3.4.5. Legacy-ORA-Login
 Custom node provided in the SSO toolkit. Validates the credentials (username and password) entered by the user against the legacy IAM system via an SDK/API call. The default node uses a POST API call with the username and password fetched from the shared state. The URL is configurable. The node expects a successful response of 200 OK and a specific cookie to be present in the response; the cookie name is configurable. The node is vendor-specific and is flexible enough to be tailored for each vendor. The Oracle plugin will provide a custom implementation for this Node using the Oracle Access Client SDK.
 
 ```
 Node Class: /src/main/java/org/forgerock/openam/auth/node/LegacyORALogin.java
 Configuration File: /src/main/resources/org/forgerock/openam/auth/node/LegacyORALogin.properties
-
-Configuration                  | Example                                                            | Description
--------------------------------|--------------------------------------------------------------------|-----------------------------------------------------------------------------------------------
-Login endpoint                 | //<<host>>:<<port>>/oam/server/obrareq.cgi                         | The requested, protected HTTP resource for login, in the format required by the Oracle SDK
-Login endpoint protocol        | http                                                               | The protocol accepted by the requested resource
-Login endpoint method          | GET                                                                | The HTTP operation that will be performed against the requested resource
-Legacy cookie domain           | .domain.example.com                                                | The domain on which the legacy cookie must be set so it will be visible by OAM SSO
-Legacy cookie name             | iPlanetDirectoryPro                                                | The name of the SSO token expected by Oracle OAM
-Oracle configuration location  | /path/to/config/oblix/lib/ObAccessClient.xml                       | The endpoint used by the Legacy IAM to determine whether an SSO token is valid
 ```
 
 <br>
 
-#### 3.4.7. Legacy-ORA-Set Password
-Custom node provided in the SSO toolkit. Provisions the user password in ForgeRock IAM by calling the default ForgeRock IDM managed object API. This node is generic, and does not need to be customized for specific legacy IAM vendor implementations.
+#### 3.4.6. Add Attributes To Object Attributes
+Custom node provided in the SSO toolkit. Takes the attributes given as keys from the Shared state and adds them to the user Object attributes corresponding to the values of the map.
 
 ```
-Node Class: /src/main/java/org/forgerock/openam/auth/node/LegacyORASetPassword.java
-Configuration File: /src/main/resources/org/forgerock/openam/auth/node/LegacyORASetPassword.properties
-
-Configuration          | Example                                                                           | Description
----------------------- | ----------------------------------------------------------------------------------|---------------------------------------------------------------------
-IDM User Endpoint      | <<proto>>://<<host>>                                                              | Protocol and host for the IDM application. Full URL is built by adding query parameters in the node's backend.
-IDM Admin User         | idmAdmin                                                                          | The IDM admin user used to query the IDM user endpoint
-IDM Password Secret ID | openidmadminpass                                                                  | The IDM admin password secret ID. The secret from the file system with this ID must contain the value of the password for the IDM administrator user.
+Node Class: /src/main/java/org/forgerock/openam/auth/node/utils/AddAttributesToObjectAttributesNode.java
+Configuration File: /src/main/resources/org/forgerock/openam/auth/node/utils/AddAttributesToObjectAttributesNode.properties
 ```
+
+| Configuration             | Example              | Description                                                                                                                                                        |
+| ------------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| List of attributes        | Map<String, String>            | A map which should hold as keys the name of the SiteMinder user attributes, and as values their equivalent name in the ForgeRock IDM database.                                                                                                   |
+
+<br>
+
+#### 3.4.7. Username Collector
+Default username collection node in ForgeRock IAM. This node is generic, and does not need to be customized for specific legacy IAM vendor implementations.
+
+<br>
+
+#### 3.4.8. Password Collector
+Default password collection node in ForgeRock IAM. This node is generic, and does not need to be customized for specific legacy IAM vendor implementations.
+
+#### 3.4.9. Identify Existing User
+Default user identification node in ForgeRock IAM, which checks if a user is present in the IDM database or not.
+
+| Configuration             | Example              | Description                                                                                                                                                        |
+| ------------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Identifier        | userName            | The IDM attribute used to save existing value in sharedState for log in purposes.                                                                                                   |
+| Identity Attribute        | userName            | The attribute used to retrieve an existing user.                                                                                                   |
+
+<br>
+
+#### 3.4.10. Oracle Service
+Oracle Service holds all the configurations related to the legacy OAM platform
+
+![OracleService](images/OracleService.png)
+
+```
+Service Class: /src/main/java/org/forgerock/openam/services/OracleService.java
+Configuration File: /src/main/resources/org/forgerock/openam/services/OracleService.zproperties
+```
+| Configuration                  | Example                                                            | Description
+| -------------------------------|--------------------------------------------------------------------|-----------------------------------------------------------------------------------------------
+| Profile details URL            | <<proto>>://<<host>>/oic_rest/rest/userprofile/people/             | The endpoint used to get the profile attributes from the legacy IAM
+| Login endpoint                 | //<<host>>:<<port>>/oam/server/obrareq.cgi                         | The requested, protected HTTP resource for login, in the format required by the Oracle SDK
+| Login endpoint protocol        | http                                                               | The protocol accepted by the requested resource
+| Login endpoint method          | GET                                                                | The HTTP operation that will be performed against the requested resource
+| Legacy cookie domain           | .domain.example.com                                                | The domain on which the legacy cookie must be set so it will be visible by OAM SSO
+| Legacy cookie name             | iPlanetDirectoryPro                                                | The name of the SSO token expected by Oracle OAM
+| Oracle configuration location  | /path/to/config/oblix/lib/ObAccessClient.xml                       | The endpoint used by the Legacy IAM to determine whether an SSO token is valid
+| Naming attribute               | cn                                                                 | The attribute name from the OAM user identity that contains the username value
+
+<br>
 
 ## 4. Scenarios
 
@@ -380,7 +377,7 @@ IDM Password Secret ID | openidmadminpass                                       
 <br>
 
 ## 5. Extending and Customizing
-Any changes you need to make to adapt to a specific legacy system can be done in the provided sample nodes. To make changes, start by importing the project you downloaded from GitHub (/forgerock-am-ora-migration-sso-jit/openam-modernize-oracle-auth-nodes) in your preferred IDE. The node classes and additional files are described in <b>Chapter 3.3 - Tree Nodes</b>.
+Any changes you need to make to adapt to a specific legacy system can be done in the provided sample nodes. To make changes, start by importing the project you downloaded from GitHub (/forgerock-am-ora-migration-sso-jit/openam-modernize-oracle-auth-nodes) in your preferred IDE. The node classes and additional files are described in <b>Chapter 3.4 - Tree Nodes and services</b>.
 + <b>Example</b>: To add or remove additional profile attributes, the node <b>Legacy-ORA-Create FR User</b> can be updated. In the method <b>process</b>, you can retrieve additional attributes from the legacy profile details call. Then you can map them on the request body from the <b>createProvisioningRequestEntity()</b> method.
 
 ## 6. Troubleshooting Common Problems

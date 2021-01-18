@@ -139,7 +139,7 @@ For example, "openam-modernize-oracle-auth-nodes-1.0.0-SNAPSHOT.jar".
 ### 2.4. Adding the Library to the AM WAR File
 
 + Download and unzip the AM WAR file from ForgeRock Backstage:
-[https://backstage.forgerock.com/downloads/browse/am/latest](https://backstage.forgerock.com/downloads/browse/am/latest)
+[https://backstage.forgerock.com/downloads/browse/am/latest](https://backstage.forgerock.com/downloads/browse/am/featured)
 
 ```
 mkdir ROOT && cd ROOT

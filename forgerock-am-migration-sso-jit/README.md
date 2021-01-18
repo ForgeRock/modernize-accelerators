@@ -102,11 +102,11 @@ For example, "openam-modernize-auth-nodes-1.0.0-SNAPSHOT.jar".
 [https://backstage.forgerock.com/downloads/browse/am/latest](https://backstage.forgerock.com/downloads/browse/am/latest)
 
 ```
-mkdir ROOT && cd ROOT
+mkdir openam && cd openam
 jar -xf ~/Downloads/AM-6.5.2.2.war
 ```
 
-+ Copy the newly generated JAR file to the /ROOT/WEB-INF/lib folder:
++ Copy the newly generated JAR file to the /openam/WEB-INF/lib folder:
 
 ```
 cp ~/openam-modernize-auth-nodes-<nextversion>-SNAPSHOT.jar WEB-INF/lib
@@ -115,17 +115,37 @@ cp ~/openam-modernize-auth-nodes-<nextversion>-SNAPSHOT.jar WEB-INF/lib
 + Rebuild the WAR file: 
 
 ```
-jar -cf ../ROOT.war *
+jar -cf ../openam.war *
 ```
 
-+ In order for you to see the nodes included in the JAR file you built previously, you must copy and deploy the ROOT.war file on the container in which AM is deployed.
++ In order for you to see the nodes included in the JAR file you built previously, you must copy and deploy the openam.war file on the container in which AM is deployed.
 
 ## 3. Configuration
 
 ### 3.1. Configuring Secret Stores
 
-The passwords used in the toolkit authentication tree nodes must be saved in secret stores for security reasons. 
-The toolkit uses AM secret stores as described in the ForgeRock [documentation](https://backstage.forgerock.com/docs/am/6.5/maintenance-guide/#configure-secret-stores).
+The passwords used in the toolkit authentication tree nodes should be saved in secret stores for security reasons. 
+If you need to save any secrets, you can configure secret stores as described in the ForgeRock [documentation](https://backstage.forgerock.com/docs/am/7/security-guide/configure-secret-stores.html#configure-secret-stores).
+
+#### 3.1.1. To Configure a File System Secret Volume Store
+
++ To configure a global file system secret volume store:
+    + Navigate to Configure > Secret Stores.
++ To configure a realm file system secret volume store:
+    + Navigate to Realms > Realm Name > Secret Stores.
++ Select the store you want to modify.
++ Enter the directory file name in the Directory field. This directory must be available to all AM instances; for example, by converting it to a shared filesystem, or by creating and maintaining it and its files across instances.
++ (Optional) Enter a suffix to add to the name of each secret in the File suffix field. For example, .txt.
++ Select one of the following from the Value format drop-down list:
+    + Plain Text: the secret is provided in UTF-8 encoded text. <b>This type of secret is used in this toolkit example</b>.
+    + Base64 encoded: the secret is provided in Base64 encoded binary values.
+    + Encrypted text: the plain text secrets are encrypted using AM's encryption key, found at Deployment > Servers > Security > Encryption.
+    + Encrypted Base64 encoded: the Base64 encoded binary values are encrypted using AM's encryption key.
+    + Encrypted HMAC key: the Base64 encoded binary representation of the HMAC key is encrypted using AM's encryption key.
+    + BASE64_HMAC_KEY: the Base64 encoded binary representation of the HMAC key. 
++ Save your changes.
++ On the AM instance's file system, create the directory path configured in the Directory field when the secret store was created.
++ Add all the files containing the secrets into the directory.
 
 ### 3.2. Authentication Tree
 
@@ -218,15 +238,31 @@ This is the default node for credential validation in ForgeRock IAM. This node i
 #### 3.3.7. Identify Existing User
 This node verifies a user exists based on an identifying attribute, such as an email address, then makes the value of a specified attribute available in a tree's shared state. In this case the node is used to determine if a user is already migrated in IDM. This node requires IDM rsFilter integration to function.
 
+| Configuration             | Example              | Description                                                                                                                                                        |
+| ------------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Identifier        | userName            | The IDM attribute used to save existing value in sharedState for log in purposes.                                                                                                   |
+| Identity Attribute        | userName            | The attribute used to retrieve an existing user.          
+
 <br>
 
 #### 3.3.8. Create Object Node
 The Create Object node is used to create a new object in IDM based on information collected during an auth tree flow. Any managed object attributes that are marked as required in IDM will need to be collected during the auth tree flow in order for the new object to be created. This node requires IDM rsFilter integration to function.
 
+| Configuration             | Example              | Description                                                                                                                                                        |
+| ------------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Identity Resource        | managed/user            | The identity resource in IDM that this node will create. This is used to aid node input requirement declaration. Must match identity resource of the current tree.                                                                                                   |
+
 <br>
 
 #### 3.3.9. Patch Object Node
 The Patch Object node is used to update attributes in an existing managed object in IDM. This node requires IDM rsFilter integration to function.
+
+| Configuration             | Example              | Description                                                                                                                                                        |
+| ------------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Patch as Object           | true/false - on/off  | Whether the patch should be done as object or client. Defaults to false, which represents the oauth client.                                                                                     |
+| Ignored Fields        | List<String>            | Fields from sharedState that should be ignored as part of patch. If empty, all fields are attempted as part of the patch.                                                                                                   |
+| Identity Resource        | managed/user            | The identity resource in IDM that this node will patch. This is used to aid node input requirement declaration. Must match identity resource of the current tree.                                                                                                   |
+| Identity Attribute        | userName            | The attribute used to identify the the object in IDM.      
 
 <br>
 
