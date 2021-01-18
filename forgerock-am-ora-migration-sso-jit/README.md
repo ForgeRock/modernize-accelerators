@@ -31,7 +31,7 @@ ForgeRock understands the customer needs to speed up migration design decisions 
 | AM      | Node                | Add Attributes To Object Attributes                 | Adds attributes to OBJECT_ATTRIBUTES on shared state and transient state                                                                          |
 | AM      | Tree Hook           | LegacyORASessionTreeHook                            | Manages cookies if a successful login is performed into OAM11G by the tree |
 | AM      | Authentication Tree | OAMmigration                              | Implements the migration login and bi-directional SSO |
-| AM      | Custom Nodes        | openam-modernize-oracle-auth-nodes-1.0-SNAPSHOT.jar | Custom AM nodes that are used in the migration authentication tree |
+| AM      | Service             | OracleService                  | Legacy ForgeRock Service holds all the configurations related to the OAM11G legacy platform
 
 ## 2. Building The Source Code
 
