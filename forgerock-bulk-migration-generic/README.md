@@ -12,7 +12,7 @@ With custom schema being used by Legacy IAM systems (custom object classes, cust
 ## 1. Contents
 The following assets have been included in the Migration Accelerators for this purpose:
 	- A template for LDAPv3 to LDAPv3 user reconciliation from Legacy IAM to ForgeRock DS;
-	- Mapping for common group information: common name, description, displayName, uniqueMember;
+	- Mapping for common group information: common name, description, displayName, uniqueMember, owner, seeAlso, businessCategory;
 	- Mapping for common identity information: UID, password, common name, group membership, status, mail, telephone number, given name, last name, department details, description, employee details, last login, account locked features, number of wrong attempts.
 
 ### 1.1. Assets Included
@@ -56,7 +56,7 @@ The mappings and configuration provided with this toolkit serves as an example o
 Configuration               	| Change type          		| Description
 ------------------------------- | ----------------------------- | ---------------------------------------------------------------------------------------------------
 User Managed Object		| Update                   	| The existing IDM User managed object was extended with some attributes Legacy IAM specific
-Group Managed Object		| New				| A new IDM managed object was created in order to store the Legacy IAM groups	
+Group Managed Object		| Update				| The existing IDM Group managed object was extended with some attributes Legacy IAM specific
 ```
 
 + [provisioner.openicf-legacyIAM.json](openidm-modernize-config/conf/provisioner.openicf-legacyIAM.json)
@@ -64,7 +64,7 @@ Group Managed Object		| New				| A new IDM managed object was created in order t
 ```
 Configuration               	| Change type          		| Description
 ------------------------------- | ----------------------------- | --------------------------------------------------------------------------------------------------------------
-LDAPv3 IAM Connector		| New                   	| A new LDAPv3 Connector that connects to the Legacy IAM repository for retrieving user and group information
+LDAPv3 IAM Connector		| Update                   	| The existing connector was extended with some attributes and mappings
 ```
 
 + [provisioner.openicf-ldap.json](openidm-modernize-config/conf/provisioner.openicf-ldap.json)
@@ -72,7 +72,7 @@ LDAPv3 IAM Connector		| New                   	| A new LDAPv3 Connector that con
 ```
 Configuration               	| Change type          		| Description
 ------------------------------- | ----------------------------- | --------------------------------------------------------------------------------------------------------------
-LDAPv3 Forgerock DS Connector	| Update               		| A new LDAPv3 Connector that connects to the Forgerock DS repository for pushing the user and group information
+LDAPv3 Forgerock DS Connector	| Update               		| Updated configuration properties of the connector, containing modifications for the credentials and base contexts
 ```
 
 + [sync.json](openidm-modernize-config/conf/sync.json)
@@ -111,13 +111,13 @@ You can use passwords in DS/OpenDJ that are taken from Legacy OAM (SSHA512 algor
 ## 4. Extending & Customizing
 
 ### 4.1. Extending the Legacy IAM connector with other attributes and configuration
-Please see the ForgeRock [documentation](https://backstage.forgerock.com/docs/idm/6.5/connector-reference/#ldap-connector-config) for information about how to create and update a generic LDAPv3 connector.
+Please see the ForgeRock [documentation](https://backstage.forgerock.com/docs/idm/7/connector-reference/chap-ldap.html#ldap-connector-config) for information about how to create and update a generic LDAPv3 connector.
 
-### 4.2. Extendind the mapping
-Please see the ForgeRock [documentation](https://backstage.forgerock.com/docs/idm/6.5/integrators-guide/#chap-synchronization) for information about how to create and update a mapping.
+### 4.2. Extending the mapping
+Please see the ForgeRock [documentation](https://backstage.forgerock.com/docs/idm/7/synchronization-guide/mapping-resources.html) for information about how to create and update a mapping.
 
 ### 4.3. Schedule reconciliation
-Please see the ForgeRock [documentation](https://backstage.forgerock.com/docs/idm/6.5/integrators-guide/#chap-scheduler-conf) for information about how to create and update a mapping.
+Please see the ForgeRock [documentation](https://backstage.forgerock.com/docs/idm/7/synchronization-guide/configuring-sync-schedule.html#configuring-sync-schedule) for information about how to create and update a mapping.
 
 
 ## 5. Troubleshooting Common Problems
