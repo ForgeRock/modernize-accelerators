@@ -1,17 +1,32 @@
 {
     "connectorRef" : {
         "bundleName" : "org.forgerock.openicf.connectors.ldap-connector",
-        "bundleVersion" : "[1.4.0.0,1.5.0.0)",
+        "bundleVersion" : "1.5.5.0",
         "connectorName" : "org.identityconnectors.ldap.LdapConnector"
     },
     "configurationProperties" : {
-        "host" : "&{userstore.host}",
-        "port" : 1389,
-        "ssl" : false,
+        "host" : "localhost",
+        "port" : 50636,
+        "ssl" : true,
         "principal" : "cn=Directory Manager",
-        "credentials" : "&{userstore.password}",
+        "credentials" : {
+            "$crypto" : {
+                "type" : "x-simple-encryption",
+                "value" : {
+                    "cipher" : "AES/CBC/PKCS5Padding",
+                    "stableId" : "openidm-sym-default",
+                    "salt" : "Zbpfpw8RhGqelGm/KHXBVg==",
+                    "data" : "o1EPSvGqDeUMjfERnYKqJg==",
+                    "keySize" : 16,
+                    "purpose" : "idm.config.encryption",
+                    "iv" : "gOpiDmCd7r2n5YlmiCXWWw==",
+                    "mac" : "ybleIVezQ2y0/l+vnoDsZw=="
+                }
+            }
+        },
         "baseContexts" : [
-            "ou=people,&{userstore.basecontext}"
+            "ou=people,dc=openam,dc=forgerock,dc=org",
+            "ou=groups,dc=openam,dc=forgerock,dc=org"
         ],
         "accountSearchFilter" : null,
         "accountSynchronizationFilter" : null,
@@ -54,7 +69,8 @@
         "maintainLdapGroupMembership" : false,
         "respectResourcePasswordPolicyChangeAfterReset" : false,
         "baseContextsToSynchronize" : [
-            "ou=people,&{userstore.basecontext}"
+            "ou=people,dc=openam,dc=forgerock,dc=org",
+            "ou=groups,dc=openam,dc=forgerock,dc=org"
         ]
     },
     "resultsHandlerConfig" : {
@@ -135,7 +151,7 @@
                     "nativeName" : "userPassword",
                     "nativeType" : "string",
                     "flags" : [
-                        "PASSWORD"												 
+                        "PASSWORD"
                     ],
                     "runAsUser" : false,
                     "required" : false

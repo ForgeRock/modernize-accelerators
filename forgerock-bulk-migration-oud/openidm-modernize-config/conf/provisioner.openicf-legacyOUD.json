@@ -1,7 +1,7 @@
 {
     "connectorRef" : {
         "displayName" : "LDAP Connector",
-        "bundleVersion" : "1.4.8.0",
+        "bundleVersion" : "1.5.5.0",
         "systemType" : "provisioner.openicf",
         "bundleName" : "org.forgerock.openicf.connectors.ldap-connector",
         "connectorName" : "org.identityconnectors.ldap.LdapConnector"
@@ -39,6 +39,10 @@
         "objectClassesToSynchronize" : [
             "inetOrgPerson"
         ],
+        "baseContextsToSynchronize" : [
+            "ou=users,ou=enterprise,dc=miami",
+            "ou=groups,ou=enterprise,dc=miami"
+        ],
         "attributesToSynchronize" : [ ],
         "changeNumberAttribute" : "changeNumber",
         "modifiersNamesToFilterOut" : [ ],
@@ -48,12 +52,12 @@
                 "value" : {
                     "cipher" : "AES/CBC/PKCS5Padding",
                     "stableId" : "openidm-sym-default",
-                    "salt" : "G7xfAT7REtOOnDTydJyovw==",
-                    "data" : "FxwTIRAnG0/6oZ/MoW7myw==",
+                    "salt" : "3Y1VZU/VMoxz35LUVuUhFA==",
+                    "data" : "uH39GrFxHzlxTb3+ntLLkQ==",
                     "keySize" : 16,
                     "purpose" : "idm.config.encryption",
-                    "iv" : "1J17b4Y/jnM+m0k5JLenFw==",
-                    "mac" : "ADK1xTs8oerqolLZrLemjQ=="
+                    "iv" : "wJxuAnI7oLXlq+ZffH+6JQ==",
+                    "mac" : "SWrGnyXuo8GMOHz2Psf0Og=="
                 }
             }
         },
@@ -68,9 +72,10 @@
         "privateKeyAlias" : null,
         "ssl" : false,
         "maintainPosixGroupMembership" : false,
+        "checkAliveMinInterval" : 60,
         "groupSearchFilter" : null,
         "referralsHandling" : "follow",
-        "host" : "&{ouduserstore.host}",
+        "host" : "ec2-107-23-96-14.compute-1.amazonaws.com",
         "maintainLdapGroupMembership" : false,
         "resetSyncToken" : "never",
         "vlvSortAttribute" : "uid",
@@ -79,22 +84,21 @@
             "whenChanged"
         ],
         "baseContexts" : [
-            "ou=users,&{ouduserstore.basecontext}",
-            "ou=groups,&{ouduserstore.basecontext}"
+            "ou=users,ou=enterprise,dc=miami",
+            "ou=groups,ou=enterprise,dc=miami"
         ],
         "hostNameVerification" : false,
         "blockSize" : "100",
         "groupObjectClasses" : [
             "top",
-            "groupOfUniqueNames",
-            "orclGroup"
+            "groupOfUniqueNames"
         ],
         "accountUserNameAttributes" : [
             "uid",
             "cn"
         ],
         "failover" : [ ],
-        "port" : "&{ouduserstore.port}",
+        "port" : "1389",
         "convertADIntervalToISO8601" : [
             "pwdLastSet",
             "accountExpires",
@@ -105,25 +109,20 @@
         "passwordAttribute" : "userPassword",
         "useDNSSRVRecord" : false,
         "getGroupMemberId" : false,
+        "lastCheckAlive" : 1607957801793,
         "startTLS" : false,
         "allowTreeDelete" : false,
         "respectResourcePasswordPolicyChangeAfterReset" : false,
         "uidAttribute" : "entryUUID",
-        "principal" : "&{ouduserstore.principal}",
+        "principal" : "cn=Directory Manager",
         "accountObjectClasses" : [
             "top",
             "person",
             "organizationalPerson",
-            "inetOrgPerson",
-            "oblixOrgPerson",
-            "oblixPersonPwdPolicy",
-            "OIMPersonPwdPolicy",
-            "orclIDXPerson",
-            "orcluser",
-            "orcluserV2"
+            "inetOrgPerson"
         ],
         "alternateKeyStoreType" : null,
-        "passwordHashAlgorithm" : "SSHA",
+        "passwordHashAlgorithm" : null,
         "alternateKeyStore" : null,
         "authType" : "simple",
         "connectionTimeout" : 30000,
@@ -132,12 +131,7 @@
         "usePagedResultControl" : false,
         "useOldADGUIDFormat" : false,
         "sendCAUDTxId" : false,
-        "gssapiLoginContext" : null,
-        "passwordAttributeToSynchronize" : "passwordSha512",											
-        "baseContextsToSynchronize" : [
-            "ou=users,&{ouduserstore.basecontext}",
-            "ou=groups,&{ouduserstore.basecontext}"
-        ]
+        "gssapiLoginContext" : null
     },
     "enabled" : true,
     "objectTypes" : {
@@ -280,7 +274,7 @@
                     "type" : "string",
                     "nativeName" : "orclGUID",
                     "nativeType" : "string",
-                    "required" : false									   
+                    "required" : false
                 },
                 "userPassword" : {
                     "type" : "string",
@@ -322,7 +316,10 @@
                 "__NAME__" : {
                     "type" : "string",
                     "nativeName" : "__NAME__",
-                    "nativeType" : "string"
+                    "nativeType" : "string",
+                    "flags" : [ ],
+                    "required" : false,
+                    "runAsUser" : false
                 },
                 "orclIsVisible" : {
                     "type" : "string",
@@ -336,13 +333,23 @@
                     "required" : false
                 },
                 "cn" : {
-                    "type" : "string",
+                    "type" : "array",
+                    "items" : {
+                        "type" : "string",
+                        "nativeType" : "string"
+                    },
                     "nativeName" : "cn",
                     "nativeType" : "string",
-                    "required" : true
+                    "required" : false,
+                    "flags" : [ ],
+                    "runAsUser" : false
                 },
                 "description" : {
-                    "type" : "string",
+                    "type" : "array",
+                    "items" : {
+                        "type" : "string",
+                        "nativeType" : "string"
+                    },
                     "nativeName" : "description",
                     "nativeType" : "string",
                     "required" : false

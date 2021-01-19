@@ -4,6 +4,7 @@
             "target" : "managed/Group",
             "source" : "system/LegacyOUD/group",
             "name" : "LegacyOUD_to_IDMGroupObject",
+            "consentRequired" : false,
             "icon" : null,
             "displayName" : "LegacyOUD_to_IDMGroupObject",
             "properties" : [
@@ -22,6 +23,10 @@
                 {
                     "source" : "uniqueMember",
                     "target" : "uniqueMember"
+                },
+                {
+                    "target" : "dn",
+                    "source" : "__NAME__"
                 }
             ],
             "policies" : [
@@ -83,6 +88,7 @@
             "target" : "managed/user",
             "source" : "system/LegacyOUD/account",
             "name" : "LegacyOUD_to_IDMUserObject",
+            "consentRequired" : false,
             "icon" : null,
             "displayName" : "LegacyOUD_to_IDMUserObject",
             "properties" : [
@@ -232,9 +238,10 @@
             ]
         },
         {
-            "target" : "system/ldap/group",
             "source" : "managed/Group",
+            "target" : "system/ldap/group",
             "name" : "managedGroup_systemLdapGroup",
+            "consentRequired" : false,
             "icon" : null,
             "displayName" : "managedGroup_systemLdapGroup",
             "properties" : [
@@ -249,6 +256,15 @@
                 {
                     "source" : "uniqueMember",
                     "target" : "uniqueMember"
+                },
+                {
+                    "target" : "dn",
+                    "transform" : {
+                        "type" : "text/javascript",
+                        "globals" : { },
+                        "source" : "\"cn=\" + source.cn[0].toLowerCase() + \",ou=groups,dc=openam,dc=forgerock,dc=org\";"
+                    },
+                    "source" : ""
                 }
             ],
             "policies" : [
@@ -304,22 +320,20 @@
                     "action" : "CREATE",
                     "situation" : "ABSENT"
                 }
-            ],
-            "onCreate" : {
-                "type" : "text/javascript",
-                "globals" : { },
-                "source" : "target.dn = 'cn=' + source.cn + ',ou=groups,&{userstore.basecontext}';"
-            }
+            ]
         },
         {
-            "name" : "managedUser_systemLdapAccounts",
-            "source" : "managed/user",
             "target" : "system/ldap/account",
-            "links" : "systemLdapAccounts_managedUser",
+            "source" : "managed/user",
+            "name" : "managedUser_systemLdapAccounts",
+            "links" : "systemLdapAccount_managedUser",
+            "consentRequired" : false,
+            "icon" : null,
+            "displayName" : "managedUser_systemLdapAccounts",
             "onCreate" : {
                 "type" : "text/javascript",
                 "globals" : { },
-                "source" : "target.dn = 'uid=' + source.userName + ',ou=people,&{userstore.basecontext}';"
+                "source" : "target.dn = 'uid=' + source.userName + ',ou=people,dc=openam,dc=forgerock,dc=org';"
             },
             "properties" : [
                 {
@@ -356,15 +370,6 @@
                     "target" : "mail"
                 },
                 {
-								   
-												   
-										
-															
-					  
-											  
-											 
-				  
-				 
                     "source" : "telephoneNumber",
                     "target" : "telephoneNumber",
                     "condition" : {
@@ -459,9 +464,12 @@
             ]
         },
         {
-            "name" : "systemLdapAccounts_managedUser",
-            "source" : "system/ldap/account",
             "target" : "managed/user",
+            "source" : "system/ldap/account",
+            "name" : "systemLdapAccount_managedUser",
+            "consentRequired" : false,
+            "icon" : null,
+            "displayName" : "systemLdapAccount_managedUser",
             "properties" : [
                 {
                     "source" : "cn",
@@ -494,6 +502,10 @@
                 {
                     "source" : "inetuserstatus",
                     "target" : "accountStatus"
+                },
+                {
+                    "target" : "password",
+                    "source" : "userPassword"
                 }
             ],
             "policies" : [

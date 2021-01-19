@@ -4,11 +4,10 @@
             "name" : "user",
             "onCreate" : {
                 "type" : "text/javascript",
-                "source" : "require('onCreateUser').setDefaultFields(object);require('onCreateUser').emailUser(object);"
+                "source" : "require('onCreateUser').setDefaultFields(object);"
             },
             "onUpdate" : {
                 "type" : "text/javascript",
-                "globals" : { },
                 "source" : "require('onUpdateUser').preserveLastSync(object, oldObject, request);"
             },
             "postDelete" : {
@@ -39,7 +38,10 @@
                                     ]
                                 }
                             }
-                        ]
+                        ],
+                        "title" : null,
+                        "isVirtual" : false,
+                        "deleteQueryConfig" : false
                     },
                     "userName" : {
                         "title" : "Username",
@@ -48,15 +50,11 @@
                         "type" : "string",
                         "searchable" : true,
                         "userEditable" : true,
-                        "minLength" : 1,
                         "usageDescription" : null,
                         "isPersonal" : true,
                         "policies" : [
                             {
-                                "policyId" : "unique"
-                            },
-                            {
-                                "policyId" : "no-internal-user-conflict"
+                                "policyId" : "valid-username"
                             },
                             {
                                 "policyId" : "cannot-contain-characters",
@@ -65,16 +63,29 @@
                                         "/"
                                     ]
                                 }
+                            },
+                            {
+                                "policyId" : "minimum-length",
+                                "params" : {
+                                    "minLength" : 1
+                                }
+                            },
+                            {
+                                "policyId" : "maximum-length",
+                                "params" : {
+                                    "maxLength" : 255
+                                }
                             }
-                        ]
+                        ],
+                        "isVirtual" : false,
+                        "deleteQueryConfig" : false
                     },
                     "password" : {
                         "title" : "Password",
                         "description" : "Password",
                         "type" : "string",
-                        "viewable" : true,
-                        "searchable" : true,
-                        "minLength" : null,
+                        "viewable" : false,
+                        "searchable" : false,
                         "userEditable" : true,
                         "encryption" : {
                             "purpose" : "idm.password.encryption"
@@ -83,8 +94,38 @@
                         "isProtected" : true,
                         "usageDescription" : null,
                         "isPersonal" : false,
-                        "policies" : [ ],
-                        "isVirtual" : false
+                        "policies" : [
+                            {
+                                "policyId" : "minimum-length",
+                                "params" : {
+                                    "minLength" : 8
+                                }
+                            },
+                            {
+                                "policyId" : "at-least-X-capitals",
+                                "params" : {
+                                    "numCaps" : 1
+                                }
+                            },
+                            {
+                                "policyId" : "at-least-X-numbers",
+                                "params" : {
+                                    "numNums" : 1
+                                }
+                            },
+                            {
+                                "policyId" : "cannot-contain-others",
+                                "params" : {
+                                    "disallowedFields" : [
+                                        "userName",
+                                        "givenName",
+                                        "sn"
+                                    ]
+                                }
+                            }
+                        ],
+                        "isVirtual" : false,
+                        "deleteQueryConfig" : false
                     },
                     "givenName" : {
                         "title" : "First Name",
@@ -94,7 +135,23 @@
                         "searchable" : true,
                         "userEditable" : true,
                         "usageDescription" : null,
-                        "isPersonal" : true
+                        "isPersonal" : true,
+                        "policies" : [
+                            {
+                                "policyId" : "minimum-length",
+                                "params" : {
+                                    "minLength" : 1
+                                }
+                            },
+                            {
+                                "policyId" : "maximum-length",
+                                "params" : {
+                                    "maxLength" : 255
+                                }
+                            }
+                        ],
+                        "isVirtual" : false,
+                        "deleteQueryConfig" : false
                     },
                     "sn" : {
                         "title" : "Last Name",
@@ -104,7 +161,23 @@
                         "searchable" : true,
                         "userEditable" : true,
                         "usageDescription" : null,
-                        "isPersonal" : true
+                        "isPersonal" : true,
+                        "policies" : [
+                            {
+                                "policyId" : "minimum-length",
+                                "params" : {
+                                    "minLength" : 1
+                                }
+                            },
+                            {
+                                "policyId" : "maximum-length",
+                                "params" : {
+                                    "maxLength" : 255
+                                }
+                            }
+                        ],
+                        "isVirtual" : false,
+                        "deleteQueryConfig" : false
                     },
                     "mail" : {
                         "title" : "Email Address",
@@ -118,8 +191,16 @@
                         "policies" : [
                             {
                                 "policyId" : "valid-email-address-format"
+                            },
+                            {
+                                "policyId" : "maximum-length",
+                                "params" : {
+                                    "maxLength" : 255
+                                }
                             }
-                        ]
+                        ],
+                        "isVirtual" : false,
+                        "deleteQueryConfig" : false
                     },
                     "description" : {
                         "title" : "Description",
@@ -129,7 +210,21 @@
                         "searchable" : true,
                         "userEditable" : true,
                         "usageDescription" : null,
-                        "isPersonal" : false
+                        "isPersonal" : false,
+                        "policies" : [
+                            {
+                                "policyId" : "minimum-length",
+                                "params" : {
+                                    "minLength" : 1
+                                }
+                            },
+                            {
+                                "policyId" : "maximum-length",
+                                "params" : {
+                                    "maxLength" : 255
+                                }
+                            }
+                        ]
                     },
                     "accountStatus" : {
                         "title" : "Status",
@@ -139,7 +234,21 @@
                         "searchable" : true,
                         "userEditable" : false,
                         "usageDescription" : null,
-                        "isPersonal" : false
+                        "isPersonal" : false,
+                        "policies" : [
+                            {
+                                "policyId" : "minimum-length",
+                                "params" : {
+                                    "minLength" : 1
+                                }
+                            },
+                            {
+                                "policyId" : "maximum-length",
+                                "params" : {
+                                    "maxLength" : 255
+                                }
+                            }
+                        ]
                     },
                     "telephoneNumber" : {
                         "type" : "string",
@@ -149,7 +258,21 @@
                         "userEditable" : true,
                         "pattern" : "^\\+?([0-9\\- \\(\\)])*$",
                         "usageDescription" : null,
-                        "isPersonal" : true
+                        "isPersonal" : true,
+                        "policies" : [
+                            {
+                                "policyId" : "minimum-length",
+                                "params" : {
+                                    "minLength" : 1
+                                }
+                            },
+                            {
+                                "policyId" : "maximum-length",
+                                "params" : {
+                                    "maxLength" : 255
+                                }
+                            }
+                        ]
                     },
                     "postalAddress" : {
                         "type" : "string",
@@ -158,16 +281,21 @@
                         "viewable" : true,
                         "userEditable" : true,
                         "usageDescription" : null,
-                        "isPersonal" : true
-                    },
-                    "address2" : {
-                        "type" : "string",
-                        "title" : "Address 2",
-                        "description" : "Address 2",
-                        "viewable" : true,
-                        "userEditable" : true,
-                        "usageDescription" : null,
-                        "isPersonal" : true
+                        "isPersonal" : true,
+                        "policies" : [
+                            {
+                                "policyId" : "minimum-length",
+                                "params" : {
+                                    "minLength" : 1
+                                }
+                            },
+                            {
+                                "policyId" : "maximum-length",
+                                "params" : {
+                                    "maxLength" : 255
+                                }
+                            }
+                        ]
                     },
                     "city" : {
                         "type" : "string",
@@ -176,7 +304,21 @@
                         "viewable" : true,
                         "userEditable" : true,
                         "usageDescription" : null,
-                        "isPersonal" : false
+                        "isPersonal" : false,
+                        "policies" : [
+                            {
+                                "policyId" : "minimum-length",
+                                "params" : {
+                                    "minLength" : 1
+                                }
+                            },
+                            {
+                                "policyId" : "maximum-length",
+                                "params" : {
+                                    "maxLength" : 255
+                                }
+                            }
+                        ]
                     },
                     "postalCode" : {
                         "type" : "string",
@@ -185,7 +327,21 @@
                         "viewable" : true,
                         "userEditable" : true,
                         "usageDescription" : null,
-                        "isPersonal" : false
+                        "isPersonal" : false,
+                        "policies" : [
+                            {
+                                "policyId" : "minimum-length",
+                                "params" : {
+                                    "minLength" : 1
+                                }
+                            },
+                            {
+                                "policyId" : "maximum-length",
+                                "params" : {
+                                    "maxLength" : 255
+                                }
+                            }
+                        ]
                     },
                     "country" : {
                         "type" : "string",
@@ -194,7 +350,21 @@
                         "viewable" : true,
                         "userEditable" : true,
                         "usageDescription" : null,
-                        "isPersonal" : false
+                        "isPersonal" : false,
+                        "policies" : [
+                            {
+                                "policyId" : "minimum-length",
+                                "params" : {
+                                    "minLength" : 1
+                                }
+                            },
+                            {
+                                "policyId" : "maximum-length",
+                                "params" : {
+                                    "maxLength" : 255
+                                }
+                            }
+                        ]
                     },
                     "stateProvince" : {
                         "type" : "string",
@@ -203,7 +373,21 @@
                         "viewable" : true,
                         "userEditable" : true,
                         "usageDescription" : null,
-                        "isPersonal" : false
+                        "isPersonal" : false,
+                        "policies" : [
+                            {
+                                "policyId" : "minimum-length",
+                                "params" : {
+                                    "minLength" : 1
+                                }
+                            },
+                            {
+                                "policyId" : "maximum-length",
+                                "params" : {
+                                    "maxLength" : 255
+                                }
+                            }
+                        ]
                     },
                     "roles" : {
                         "description" : "Provisioning Roles",
@@ -350,17 +534,6 @@
                                             "name"
                                         ]
                                     }
-                                },
-                                {
-                                    "path" : "managed/role",
-                                    "label" : "Role",
-                                    "conditionalAssociationField" : "condition",
-                                    "query" : {
-                                        "queryFilter" : "true",
-                                        "fields" : [
-                                            "name"
-                                        ]
-                                    }
                                 }
                             ]
                         }
@@ -421,12 +594,13 @@
                         "viewable" : false,
                         "returnByDefault" : true,
                         "isVirtual" : true,
+                        "queryConfig" : {
+                            "referencedRelationshipFields" : [
+                                "roles"
+                            ]
+                        },
                         "usageDescription" : null,
                         "isPersonal" : false,
-                        "onRetrieve" : {
-                            "type" : "text/javascript",
-                            "source" : "require('roles/effectiveRoles').calculateEffectiveRoles(object, 'roles');"
-                        },
                         "items" : {
                             "type" : "object",
                             "title" : "Effective Roles Items"
@@ -439,13 +613,17 @@
                         "viewable" : false,
                         "returnByDefault" : true,
                         "isVirtual" : true,
+                        "queryConfig" : {
+                            "referencedRelationshipFields" : [
+                                "roles",
+                                "assignments"
+                            ],
+                            "referencedObjectFields" : [
+                                "*"
+                            ]
+                        },
                         "usageDescription" : null,
                         "isPersonal" : false,
-                        "onRetrieve" : {
-                            "type" : "text/javascript",
-                            "file" : "roles/effectiveAssignments.js",
-                            "effectiveRolesPropName" : "effectiveRoles"
-                        },
                         "items" : {
                             "type" : "object",
                             "title" : "Effective Assignments Items"
@@ -546,41 +724,52 @@
                         "usageDescription" : null,
                         "isPersonal" : false,
                         "items" : {
-                            "type" : "array",
-                            "title" : "Consented Mappings Items",
-                            "items" : {
-                                "type" : "object",
-                                "title" : "Consented Mappings Item",
-                                "properties" : {
-                                    "mapping" : {
-                                        "title" : "Mapping",
-                                        "description" : "Mapping",
-                                        "type" : "string",
-                                        "viewable" : true,
-                                        "searchable" : true,
-                                        "userEditable" : true
-                                    },
-                                    "consentDate" : {
-                                        "title" : "Consent Date",
-                                        "description" : "Consent Date",
-                                        "type" : "string",
-                                        "viewable" : true,
-                                        "searchable" : true,
-                                        "userEditable" : true
-                                    }
+                            "type" : "object",
+                            "title" : "Consented Mapping",
+                            "properties" : {
+                                "mapping" : {
+                                    "title" : "Mapping",
+                                    "description" : "Mapping",
+                                    "type" : "string",
+                                    "viewable" : true,
+                                    "searchable" : true,
+                                    "userEditable" : true
                                 },
-                                "order" : [
-                                    "mapping",
-                                    "consentDate"
-                                ],
-                                "required" : [
-                                    "mapping",
-                                    "consentDate"
-                                ]
-                            }
+                                "consentDate" : {
+                                    "title" : "Consent Date",
+                                    "description" : "Consent Date",
+                                    "type" : "string",
+                                    "viewable" : true,
+                                    "searchable" : true,
+                                    "userEditable" : true
+                                }
+                            },
+                            "order" : [
+                                "mapping",
+                                "consentDate"
+                            ],
+                            "required" : [
+                                "mapping",
+                                "consentDate"
+                            ]
                         },
                         "returnByDefault" : false,
                         "isVirtual" : false
+                    },
+                    "cn" : {
+                        "title" : "Common Name",
+                        "description" : "Common Name",
+                        "type" : "string",
+                        "viewable" : false,
+                        "searchable" : false,
+                        "userEditable" : false,
+                        "scope" : "private",
+                        "isPersonal" : true,
+                        "isVirtual" : true,
+                        "onStore" : {
+                            "type" : "text/javascript",
+                            "source" : "object.cn || (object.givenName + ' ' + object.sn)"
+                        }
                     },
                     "forcePasswordReset" : {
                         "title" : "Force Password Reset",
@@ -652,20 +841,6 @@
                         "searchable" : true,
                         "userEditable" : true
                     },
-                    "cn" : {
-                        "title" : "Full Name",
-                        "type" : "string",
-                        "viewable" : true,
-                        "searchable" : true,
-                        "userEditable" : true
-                    },
-                    "employeeNumber" : {
-                        "title" : "Employee Number",
-                        "type" : "string",
-                        "viewable" : true,
-                        "searchable" : true,
-                        "userEditable" : true
-                    },
                     "uniqueId" : {
                         "title" : "Unique Id",
                         "type" : "string",
@@ -679,26 +854,16 @@
                         "viewable" : true,
                         "searchable" : true,
                         "userEditable" : true,
-                        "description" : null,
+						"description" : null,
                         "minLength" : null,
                         "isVirtual" : false
                     },
                     "groups" : {
                         "title" : "Groups",
-                        "type" : "array",
+                        "type" : "string",
                         "viewable" : true,
-                        "searchable" : false,
-                        "userEditable" : true,
-                        "items" : {
-                            "type" : "string"
-                        }
-					  
-								  
-											  
-										  
-										  
-											
-											 
+                        "searchable" : true,
+                        "userEditable" : true
                     }
                 },
                 "order" : [
@@ -712,7 +877,6 @@
                     "accountStatus",
                     "telephoneNumber",
                     "postalAddress",
-                    "address2",
                     "city",
                     "postalCode",
                     "country",
@@ -727,6 +891,7 @@
                     "kbaInfo",
                     "preferences",
                     "consentedMappings",
+                    "cn",
                     "forcePasswordReset",
                     "departmentNumber",
                     "displayName",
@@ -737,18 +902,11 @@
                     "lastSuccessfulLogin",
                     "lockoutTime",
                     "loginTryCount",
-                    "cn",
-                    "employeeNumber",
                     "uniqueId",
                     "passwordSha512",
                     "groups"
                 ],
-                "required" : [
-                    "userName",
-                    "givenName",
-                    "sn",
-                    "mail"
-                ]
+                "required" : [ ]
             },
             "meta" : {
                 "property" : "_meta",
@@ -758,7 +916,9 @@
                     "lastChanged"
                 ]
             },
-            "notifications" : { }
+            "notifications" : {
+                "property" : "_notifications"
+            }
         },
         {
             "name" : "role",
@@ -766,24 +926,13 @@
                 "type" : "text/javascript",
                 "file" : "roles/onDelete-roles.js"
             },
-            "postCreate" : {
-                "type" : "text/javascript",
-                "source" : "require('roles/postOperation-roles').manageTemporalConstraints(resourceName);"
-            },
-            "postUpdate" : {
-                "type" : "text/javascript",
-                "source" : "require('roles/postOperation-roles').manageTemporalConstraints(resourceName);"
-            },
-            "postDelete" : {
-                "type" : "text/javascript",
-                "source" : "require('roles/postOperation-roles').manageTemporalConstraints(resourceName);"
-            },
             "schema" : {
                 "id" : "urn:jsonschema:org:forgerock:openidm:managed:api:Role",
                 "$schema" : "http://forgerock.org/json-schema#",
                 "type" : "object",
                 "title" : "Role",
-                "icon" : "fa-check-square-o",
+                "icon" : "fa-check-square",
+                "mat-icon" : "assignment_ind",
                 "description" : "",
                 "properties" : {
                     "_id" : {
@@ -861,53 +1010,6 @@
                             ]
                         }
                     },
-                    "authzMembers" : {
-                        "description" : "Authorization Role Members",
-                        "title" : "Authorization Role Members",
-                        "viewable" : true,
-                        "type" : "array",
-                        "returnByDefault" : false,
-                        "items" : {
-                            "type" : "relationship",
-                            "id" : "urn:jsonschema:org:forgerock:openidm:managed:api:Role:authzMembers:items",
-                            "title" : "Authorization Role Members Items",
-                            "reverseRelationship" : true,
-                            "reversePropertyName" : "authzRoles",
-                            "validate" : true,
-                            "properties" : {
-                                "_ref" : {
-                                    "description" : "References a relationship from a managed object",
-                                    "type" : "string"
-                                },
-                                "_refProperties" : {
-                                    "description" : "Supports metadata within the relationship",
-                                    "type" : "object",
-                                    "title" : "Authorization Role Members Items _refProperties",
-                                    "properties" : {
-                                        "_id" : {
-                                            "description" : "_refProperties object ID",
-                                            "type" : "string"
-                                        }
-                                    }
-                                }
-                            },
-                            "resourceCollection" : [
-                                {
-                                    "path" : "managed/user",
-                                    "conditionalAssociation" : true,
-                                    "label" : "User",
-                                    "query" : {
-                                        "queryFilter" : "true",
-                                        "fields" : [
-                                            "userName",
-                                            "givenName",
-                                            "sn"
-                                        ]
-                                    }
-                                }
-                            ]
-                        }
-                    },
                     "assignments" : {
                         "description" : "Managed Assignments",
                         "title" : "Managed Assignments",
@@ -969,6 +1071,7 @@
                         "title" : "Temporal Constraints",
                         "viewable" : false,
                         "returnByDefault" : true,
+                        "isTemporalConstraint" : true,
                         "type" : "array",
                         "items" : {
                             "type" : "object",
@@ -999,7 +1102,6 @@
                     "name",
                     "description",
                     "members",
-                    "authzMembers",
                     "assignments",
                     "condition",
                     "temporalConstraints"
@@ -1014,6 +1116,7 @@
                 "type" : "object",
                 "title" : "Assignment",
                 "icon" : "fa-key",
+                "mat-icon" : "vpn_key",
                 "description" : "A role assignment",
                 "properties" : {
                     "_id" : {
@@ -1166,32 +1269,97 @@
                 "$schema" : "http://forgerock.org/json-schema#",
                 "type" : "object",
                 "title" : "Group",
-                "description" : "OUD Groups",
+                "description" : null,
                 "icon" : "fa-group",
                 "properties" : {
-                    "cn" : {
-                        "title" : "Group CN",
-                        "type" : "string",
+                    "displayName" : {
+                        "title" : null,
+                        "type" : [
+                            "string",
+                            "null"
+                        ],
                         "viewable" : true,
                         "searchable" : true,
-                        "userEditable" : true
+                        "userEditable" : true,
+                        "description" : null,
+                        "isVirtual" : false,
+                        "deleteQueryConfig" : false
                     },
                     "description" : {
-                        "title" : "Description",
-                        "type" : "string",
+                        "title" : null,
+                        "type" : [
+                            "array",
+                            "null"
+                        ],
                         "viewable" : true,
-                        "searchable" : true,
-                        "userEditable" : true
-                    },
-                    "displayName" : {
-                        "title" : "Display Name",
-                        "type" : "string",
-                        "viewable" : true,
-                        "searchable" : true,
-                        "userEditable" : true
+                        "searchable" : false,
+                        "userEditable" : true,
+                        "items" : {
+                            "type" : "string"
+                        },
+                        "description" : null,
+                        "isVirtual" : false,
+                        "deleteQueryConfig" : false
                     },
                     "uniqueMember" : {
-                        "title" : "User",
+                        "title" : null,
+                        "type" : "array",
+                        "viewable" : true,
+                        "searchable" : false,
+                        "userEditable" : true,
+                        "items" : {
+                            "type" : "string"
+                        }
+                    },
+                    "dn" : {
+                        "title" : null,
+                        "type" : "string",
+                        "viewable" : true,
+                        "searchable" : true,
+                        "userEditable" : true
+                    },
+                    "ou" : {
+                        "title" : null,
+                        "type" : "array",
+                        "viewable" : true,
+                        "searchable" : false,
+                        "userEditable" : true,
+                        "items" : {
+                            "type" : "string"
+                        }
+                    },
+                    "businessCategory" : {
+                        "title" : null,
+                        "type" : "array",
+                        "viewable" : true,
+                        "searchable" : false,
+                        "userEditable" : true,
+                        "items" : {
+                            "type" : "string"
+                        }
+                    },
+                    "o" : {
+                        "title" : null,
+                        "type" : "array",
+                        "viewable" : true,
+                        "searchable" : false,
+                        "userEditable" : true,
+                        "items" : {
+                            "type" : "string"
+                        }
+                    },
+                    "owner" : {
+                        "title" : null,
+                        "type" : "array",
+                        "viewable" : true,
+                        "searchable" : false,
+                        "userEditable" : true,
+                        "items" : {
+                            "type" : "string"
+                        }
+                    },
+                    "cn" : {
+                        "title" : null,
                         "type" : "array",
                         "viewable" : true,
                         "searchable" : false,
@@ -1202,14 +1370,17 @@
                     }
                 },
                 "order" : [
-                    "cn",
-                    "description",
                     "displayName",
-                    "uniqueMember"
-                ],
-                "required" : [
+                    "description",
+                    "uniqueMember",
+                    "dn",
+                    "ou",
+                    "businessCategory",
+                    "o",
+                    "owner",
                     "cn"
-                ]
+                ],
+                "required" : [ ]
             }
         }
     ]
