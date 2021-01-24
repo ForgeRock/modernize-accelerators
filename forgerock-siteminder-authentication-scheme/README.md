@@ -90,7 +90,7 @@ mvn package
 	![Step2](images/Step2.png)
 
 ### 3.3. Add a new Rule
-	![Step3](images/Step3.png)
+![Step3](images/Step3.png)
 
 ### 3.4. Create a Domain Policy
 + Make sure you configure the same user repository as the one OpenAM is pointing to or that the two disparate repositories are synchronized.
