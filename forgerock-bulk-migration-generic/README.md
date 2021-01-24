@@ -88,7 +88,7 @@ Mapping IDM Group -> Forgerock 	| New				| A new mapping was created in order to
 
 
 ### 3.2. Install config files
-+ <b>Important note:</b> The assets presented below are built based on OpenIDM version 6.5.2.
++ <b>Important note:</b> The assets presented below are built based on OpenIDM version 7.0.1.
 
 Before copying the config files (under /conf location on the github repository, you should change accordingly all the properties inside them):
 + connection details to the <b>Legacy IAM repository</b>
