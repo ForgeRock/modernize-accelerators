@@ -9,6 +9,14 @@ ForgeRock shall not be liable for any direct, indirect or consequential damages 
 One-time and incremental import of user profiles and groups from an external legacy IAM user store to Forgerock DS is often a requirement in complex migration process.
 With custom schema being used by Legacy IAM systems (custom object classes, custom attributes, custom naming and organization units/suffix) the process of synchronizing information can be complex to design and implement. In addition, the particular mapping of the extended schema (attributes, object classes and group-membership used for core IAM transactions) can also be cumbersome and lengthy.
 
+# What's New
+This chapter covers the new features and improvements for the 7.0 Miami Accelerators Bulk User Migration Toolkit
+
++ Updated bundle versions and configurations for:
+	+ provisioner.openicf-ldap.json
+	+ provisioner.openicf-legacyIAM.json
+	+ sync.json
+
 ## 1. Contents
 The following assets have been included in the Migration Accelerators for this purpose:
 	- A template for LDAPv3 to LDAPv3 user reconciliation from Legacy IAM to ForgeRock DS;

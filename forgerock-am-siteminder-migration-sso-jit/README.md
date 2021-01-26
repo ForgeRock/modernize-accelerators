@@ -9,6 +9,18 @@ ForgeRock shall not be liable for any direct, indirect or consequential damages 
 With deployments of tens or hundreds of legacy applications, migration waves may be required to minimize the operational impact on production systems. With this type of use case, coexistence and SSO between Siteminder and ForgeRock IAM is often needed.
 Sometimes putting IG in front of a legacy system is not an option for commercial reasons. 
 
+# What's New
+This chapter covers the new features and improvements for the 7.0 Miami Accelerators AM Based Bi-Directional SSO and JIT Toolkit for Siteminder 12.8
+
++ Switched to using the AM 7 identity management nodes
+    + Decomissioned Legacy-SM-Set Password node and replaced it with Patch Object node
+    + Decomissioned Legacy-SM-Migration Status node and replaced it with Identify Existing User node
+	+ Removed the IDM managed user API call from the Legacy-SM-Create FR User node. This node has been updated to fetch the user information and add it to the shared state on the objectAttributes object.
+	+ Create Object node is used to create the migrated user.
++ New node: Add Attributes To Object Attributes - this node reads the attributes specified as keys from shared state, and adds them to the fields specified as values on the objectAttributes object of the user that needs to be migrated.
++ New service: SiteminderService - this service holds all the configurations related to the Siteminder legacy systems.
++ Updated code base to support Java 11 dependencies.
+
 ## 1. Contents
 The toolkit provides a collection of custom Nodes and an authentication tree that can handle very complex migration scenarios, including Bi-Directional SSO between Legacy Siteminder 12.8 and Forgerock AM.
 The framework can be easily extended to support migrations from any Siteminder platform that is capable of exposing client SDKs/APIs for operations such as:
