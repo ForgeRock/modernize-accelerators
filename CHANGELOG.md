@@ -27,11 +27,6 @@ This chapter covers the new features and improvements for the 7.0 Miami Accelera
 + Updated code base to support Java 11 dependencies.
 
 
-## New - Modernize IAM Accelerators - Siteminder Authentication Scheme
-
-+ Added the toolkit that contains an authentication scheme which enables Siteminder to recognize ForgeRock AM session cookies.
-
-
 ## Updated - Modernize IAM Accelerators - AM Based Bi-Directional SSO and JIT Toolkit - Migration from Siteminder 12.8 to ForgeRock
 
 + Switched to using the AM 7 identity management nodes
@@ -42,6 +37,11 @@ This chapter covers the new features and improvements for the 7.0 Miami Accelera
 + New node: Add Attributes To Object Attributes - this node reads the attributes specified as keys from shared state, and adds them to the fields specified as values on the objectAttributes object of the user that needs to be migrated.
 + New service: SiteminderService - this service holds all the configurations related to the Siteminder legacy systems.
 + Updated code base to support Java 11 dependencies.
+
+## New - Modernize IAM Accelerators - Siteminder Authentication Scheme
+
++ Added the toolkit that contains an authentication scheme which enables Siteminder to recognize ForgeRock AM session cookies.
+
 
 
 ## Updated - Modernize IAM Accelerators - AM Based Bi-Directional SSO and JIT Toolkit - Migration from Oracle 11G OAM to ForgerRock
