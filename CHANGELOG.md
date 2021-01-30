@@ -29,7 +29,7 @@ This chapter covers the new features and improvements for the 7.0 Miami Accelera
 + Updated code base to support Java 11 dependencies.
 
 
-### <h2>ForgeRock Modernize IAM Framework Updates</h2>
+### <h2>ForgeRock MIAMi Accelerators Siteminder Plug In Updates</h2>
 
 ### <i>Updated - Modernize IAM Accelerators - AM Based Bi-Directional SSO and JIT Toolkit - Migration from Siteminder 12.8 to ForgeRock</i>
 
