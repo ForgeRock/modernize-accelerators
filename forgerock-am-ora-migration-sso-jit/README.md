@@ -106,7 +106,7 @@ Example for installing the JAR file as a Maven artifact in a local Maven reposit
 mvn install:install-file \
    -Dfile='/path/to/oamasdk-api.jar' \
    -DgroupId=oamasdk-api \
-   -DartifactId=identitystore \
+   -DartifactId=oamasdk-api \
    -Dversion=1.0.0 \
    -Dpackaging=jar \
    -DgeneratePom=true
@@ -131,7 +131,7 @@ Usually all components are deployed to the same domain, but if your legacy IAM s
 If you want to run the code unmodified, clone the ForgeRock repository:
 
 ```
-mkdir demo
+mkdir demo && cd demo
 git clone https://github.com/ForgeRock/modernize-accelerators.git
 ```
 
@@ -140,15 +140,17 @@ git clone https://github.com/ForgeRock/modernize-accelerators.git
 
 The build process and dependencies are managed by Maven. The first time you build the project, Maven pulls 
 down all the dependencies and Maven plugins required by the build, which can take a while. Subsequent builds are much faster!
-									  
+
++ Move into the project's root directory and copy the required OAM Access SDK libraries. Once the files are copied, you can package the modernize authentication nodes project.
 
 ```
-cd modernize-accelerators/forgerock-am-ora-migration-sso-jit/openam-modernize-oracle-auth-nodes
+cd ~/demo/modernize-accelerators/forgerock-am-ora-migration-sso-jit/openam-modernize-oracle-auth-nodes
+cp ~/Downloads/oam-libs/* ~/demo/modernize-accelerators/forgerock-am-ora-migration-sso-jit/openam-modernize-oracle-auth-nodes/ext-lib/oam-libs/
 mvn package
 ```
 
-Maven builds the binary in the `openam-modernize-oracle-auth-nodes/target/` directory. The file name format is `openam-modernize-oracle-auth-nodes-<nextversion>-SNAPSHOT.jar`.
-For example, "openam-modernize-oracle-auth-nodes-1.0.0-SNAPSHOT.jar".
+Maven builds the binary in the `openam-modernize-oracle-auth-nodes/target/` directory. The file name format is `openam-modernize-oracle-auth-nodes-<current-version>.jar`.
+For example, "openam-modernize-oracle-auth-nodes-7.0.1.jar".
 
 
 ### 2.4. Adding the Library to the AM WAR File
@@ -157,19 +159,27 @@ For example, "openam-modernize-oracle-auth-nodes-1.0.0-SNAPSHOT.jar".
 [https://backstage.forgerock.com/downloads/browse/am/latest](https://backstage.forgerock.com/downloads/browse/am/featured)
 
 ```
+cd ~/demo
 mkdir openam && cd openam
 jar -xf ~/Downloads/AM-7.0.1.war
 ```
 
-+ Copy the newly generated JAR file to the /openam/WEB-INF/lib directory:
++ Copy the generated JAR file to the /openam/WEB-INF/lib directory:
 
 ```
-cp ~/openam-modernize-oracle-auth-nodes-<nextversion>-SNAPSHOT.jar WEB-INF/lib
+cp ~/demo/modernize-accelerators/openam-modernize-oracle-auth-nodes-<current-version>.jar ~/demo/openam/WEB-INF/lib
+```
+
++ Copy the required OAM Access SDK libraries to the /openam/WEB-INF/lib directory:
+
+```
+cp ~/Downloads/oam-libs/* ~/demo/openam/WEB-INF/lib
 ```
 
 + Rebuild the WAR file: 
 
 ```
+cd ~/demo/openam
 jar -cf ../openam.war *
 ```
 

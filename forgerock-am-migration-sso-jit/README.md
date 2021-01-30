@@ -93,24 +93,24 @@ Usually all components are deployed under the same domain, but if your legacy IA
 If you want to run the code unmodified, you can simply clone the ForgeRock repository:
 
 ```
-mkdir demo
+mkdir demo && cd demo
 git clone https://github.com/ForgeRock/modernize-accelerators.git
 ```
 
 
-### 2.3. Building the Code
+### 2.3. Building the Source Code
 
 The build process and dependencies are managed by Maven. The first time you build the project, Maven will pull 
 down all the dependencies and Maven plugins required by the build, which can take a longer time. 
 Subsequent builds will be much faster!
 
 ```
-cd modernize-accelerators/forgerock-am-migration-sso-jit/openam-modernize-auth-nodes
+cd ~/demo/modernize-accelerators/forgerock-am-migration-sso-jit/openam-modernize-auth-nodes
 mvn package
 ```
 
-Maven builds the binary in `openam-modernize-auth-nodes/target/`. The file name format is `openam-modernize-auth-nodes-<nextversion>-SNAPSHOT.jar` . 
-For example, "openam-modernize-auth-nodes-1.0.0-SNAPSHOT.jar".
+Maven builds the binary in `openam-modernize-auth-nodes/target/`. The file name format is `openam-modernize-auth-nodes-<current-version>.jar` . 
+For example, "openam-modernize-auth-nodes-7.0.1.jar".
 
 
 ### 2.4. Adding the Library to the AM WAR File
@@ -119,19 +119,21 @@ For example, "openam-modernize-auth-nodes-1.0.0-SNAPSHOT.jar".
 [https://backstage.forgerock.com/downloads/browse/am/latest](https://backstage.forgerock.com/downloads/browse/am/featured)
 
 ```
+cd ~/demo
 mkdir openam && cd openam
-jar -xf ~/Downloads/AM-6.5.2.2.war
+jar -xf ~/Downloads/AM-7.0.1.war
 ```
 
-+ Copy the newly generated JAR file to the /openam/WEB-INF/lib folder:
++ Copy the generated JAR file to the /openam/WEB-INF/lib folder:
 
 ```
-cp ~/openam-modernize-auth-nodes-<nextversion>-SNAPSHOT.jar WEB-INF/lib
+cp ~/demo/modernize-accelerators/forgerock-am-migration-sso-jit/openam-modernize-auth-nodes/openam-modernize-auth-nodes-<current-version>.jar ~/demo/openam/WEB-INF/lib
 ```
 
 + Rebuild the WAR file: 
 
 ```
+cd ~/demo/openam
 jar -cf ../openam.war *
 ```
 

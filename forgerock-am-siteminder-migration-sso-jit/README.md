@@ -114,7 +114,7 @@ Example for installing the .jar file as a Maven artifact in a local Maven reposi
 mvn install:install-file \
    -Dfile='/path/to/smagentapi.jar' \
    -DgroupId=smagentapi \
-   -DartifactId=identitystore \
+   -DartifactId=smagentapi \
    -Dversion=1.0.0 \
    -Dpackaging=jar \
    -DgeneratePom=true
@@ -136,11 +136,10 @@ Usually all components are deployed under the same domain, but if your legacy IA
 
 ### 2.2. Getting the Code
 
-If you want to run the code unmodified, clone the ForgeRock repository:
++ If you want to run the code unmodified, clone the ForgeRock repository:
 
 ```
-mkdir demo
-cd demo
+mkdir demo && cd demo
 git clone https://github.com/ForgeRock/modernize-accelerators.git
 ```
 
@@ -149,15 +148,17 @@ git clone https://github.com/ForgeRock/modernize-accelerators.git
 
 The build process and dependencies are managed by Maven. The first time you build the project, Maven pulls 
 down all the dependencies and Maven plugins required by the build, which can take a while. Subsequent builds are much faster!
-									  
+
++ Move into the project's root directory and copy the required Siteminder Java AgentAPI and the DMS API libraries. Once the files are copied, you can package the modernize authentication nodes project.
 
 ```
-cd modernize-accelerators/forgerock-am-siteminder-migration-sso-jit/openam-modernize-siteminder-auth-nodes
+cd ~/demo/modernize-accelerators/forgerock-am-siteminder-migration-sso-jit/openam-modernize-siteminder-auth-nodes
+cp ~/Downloads/siteminder-libs/* ~/demo/modernize-accelerators/forgerock-am-siteminder-migration-sso-jit/openam-modernize-siteminder-auth-nodes/ext-lib/siteminder/
 mvn package
 ```
 
-Maven builds the binary in the `openam-modernize-siteminder-auth-nodes/target/` directory. The file name format is `openam-modernize-siteminder-auth-nodes-<nextversion>-SNAPSHOT.jar`.
-For example, "openam-modernize-siteminder-auth-nodes-1.0.0-SNAPSHOT.jar".
+Maven builds the binary in the `openam-modernize-siteminder-auth-nodes/target/` directory. The file name format is `openam-modernize-siteminder-auth-nodes-<current-version>.jar`.
+For example, "openam-modernize-siteminder-auth-nodes-7.0.1.jar".
 
 
 ### 2.4. Adding the Library to the AM WAR File
@@ -166,21 +167,29 @@ For example, "openam-modernize-siteminder-auth-nodes-1.0.0-SNAPSHOT.jar".
 [https://backstage.forgerock.com/downloads/browse/am/latest](https://backstage.forgerock.com/downloads/browse/am/featured)
 
 ```
+cd ~/demo
 mkdir openam && cd openam
 jar -xf ~/Downloads/AM-7.0.1.war
 ```
 
 <b>Note:</b> It is not recommended to use the openam context, as shown in this example. The name of the folder should be changed to match your application context - e.g. <b>openam</b>
 
-+ Copy the newly generated JAR file to the /openam/WEB-INF/lib directory:
++ Copy the generated JAR file to the /openam/WEB-INF/lib directory:
 
 ```
-cp ~/openam-modernize-siteminder-auth-nodes-<nextversion>-SNAPSHOT.jar WEB-INF/lib
+cp ~/demo/modernize-accelerators/openam-modernize-siteminder-auth-nodes-<current-version>.jar ~/demo/openam/WEB-INF/lib
+```
+
++ Copy the required Siteminder Java AgentAPI and the DMS API libraries to the /openam/WEB-INF/lib directory:
+
+```
+cp ~/Downloads/siteminder-libs/* ~/demo/openam/WEB-INF/lib
 ```
 
 + Rebuild the WAR file: 
 
 ```
+cd ~/demo/openam
 jar -cf ../openam.war *
 ```
 
