@@ -12,9 +12,9 @@ Sometimes putting IG in front of a legacy system is not an option for commercial
 # What's New
 Please find below the new features and improvements for the 7.0 Miami Accelerators
 
-## ForgeRock Modernize IAM Framework Updates
+### <h2>ForgeRock Modernize IAM Framework Updates</h2>
 
-## <i>Updated - Modernize IAM Accelerators - AM Based Bi-Directional SSO and JIT Toolkit</i>
+### <i>Updated - Modernize IAM Accelerators - AM Based Bi-Directional SSO and JIT Toolkit</i>
 
 + Switched to using the AM 7 identity management nodes
     + Decomissioned Legacy-FR-Set Password node and replaced it with Patch Object node
