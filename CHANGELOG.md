@@ -1,7 +1,9 @@
 # What's New
 This chapter covers the new features and improvements for the 7.0 Miami Accelerators
 
-## Updated - Modernize IAM Accelerators - AM Based Bi-Directional SSO and JIT Toolkit
+### <h2>ForgeRock Modernize IAM Framework Updates</h2>
+
+### <i>Updated - Modernize IAM Accelerators - AM Based Bi-Directional SSO and JIT Toolkit</i>
 
 + Switched to using the AM 7 identity management nodes
     + Decomissioned Legacy-FR-Set Password node and replaced it with Patch Object node
@@ -12,7 +14,7 @@ This chapter covers the new features and improvements for the 7.0 Miami Accelera
 + New service: LegacyFRService - this service holds all the configurations related to the legacy IAM systems.
 
 
-## Updated - Modernize IAM Accelerators - Bulk User Migration Toolkit
+### <i>Updated - Modernize IAM Accelerators - Bulk User Migration Toolkit</i>
 
 + Updated bundle versions and configurations for:
 	+ provisioner.openicf-ldap.json
@@ -20,14 +22,16 @@ This chapter covers the new features and improvements for the 7.0 Miami Accelera
 	+ sync.json
 
 
-## Updated - Modernize IAM Accelerators - IG Based Bi-Directional SSO and JIT Toolkit
+### <i>Updated - Modernize IAM Accelerators - IG Based Bi-Directional SSO and JIT Toolkit</i>
 
 + Added OAuth 2.0 integration between IG-AM-IDM 7.0.1 using the ClientCredentialsOAuth2ClientFilter
 + Removed configurations and API calls related to IDM user creation API calls
 + Updated code base to support Java 11 dependencies.
 
 
-## Updated - Modernize IAM Accelerators - AM Based Bi-Directional SSO and JIT Toolkit - Migration from Siteminder 12.8 to ForgeRock
+### <h2>ForgeRock Modernize IAM Framework Updates</h2>
+
+### <i>Updated - Modernize IAM Accelerators - AM Based Bi-Directional SSO and JIT Toolkit - Migration from Siteminder 12.8 to ForgeRock</i>
 
 + Switched to using the AM 7 identity management nodes
     + Decomissioned Legacy-SM-Set Password node and replaced it with Patch Object node
@@ -38,13 +42,14 @@ This chapter covers the new features and improvements for the 7.0 Miami Accelera
 + New service: SiteminderService - this service holds all the configurations related to the Siteminder legacy systems.
 + Updated code base to support Java 11 dependencies.
 
-## New - Modernize IAM Accelerators - Siteminder Authentication Scheme
+### <i>New - Modernize IAM Accelerators - Siteminder Authentication Scheme</i>
 
 + Added the toolkit that contains an authentication scheme which enables Siteminder to recognize ForgeRock AM session cookies.
 
 
+### <h2>ForgeRock MIAMi Accelerators Oracle Plug In Updates</h2>
 
-## Updated - Modernize IAM Accelerators - AM Based Bi-Directional SSO and JIT Toolkit - Migration from Oracle 11G OAM to ForgerRock
+### <i>Updated - Modernize IAM Accelerators - AM Based Bi-Directional SSO and JIT Toolkit - Migration from Oracle 11G OAM to ForgerRock</i>
 
 + Switched to using the AM 7 identity management nodes
     + Decomissioned Legacy-ORA-Set Password node and replaced it with Patch Object node
@@ -55,7 +60,7 @@ This chapter covers the new features and improvements for the 7.0 Miami Accelera
 + New service: OracleService - this service holds all the configurations related to the OAM legacy systems.
 + Updated code base to support Java 11 dependencies.
 
-## Updated - Modernize IAM Accelerators - Bulk User Migration Toolkit - Oracle Unified Directory (OUD)
+### <i>Updated - Modernize IAM Accelerators - Bulk User Migration Toolkit - Oracle Unified Directory (OUD)</i>
 
 + Updated bundle versions and configurations for:
 	+ provisioner.openicf-ldap.json
