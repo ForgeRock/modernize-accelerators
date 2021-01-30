@@ -172,8 +172,6 @@ mkdir openam && cd openam
 jar -xf ~/Downloads/AM-7.0.1.war
 ```
 
-<b>Note:</b> It is not recommended to use the openam context, as shown in this example. The name of the folder should be changed to match your application context - e.g. <b>openam</b>
-
 + Copy the generated JAR file to the /openam/WEB-INF/lib directory:
 
 ```
@@ -368,7 +366,7 @@ The Patch Object node is used to update attributes in an existing managed object
 <br>
 
 #### 3.4.12. Siteminder Service
-Siteminder Service holds all the configurations related to the legacy OAM platform
+Siteminder Service holds all the configurations related to the legacy Siteminder platform
 
 ![SiteminderService](images/SiteminderService.png)
 

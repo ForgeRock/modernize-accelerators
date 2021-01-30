@@ -240,7 +240,7 @@ Configuration File: /src/main/resources/org/forgerock/openam/auth/node/AddAttrib
 ```
 | Configuration             | Example              | Description                                                                                                                                     |
 | ------------------------- | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| List of attributes        | Map<String,String>   | A map which should hold as keys the name of the SiteMinder user attributes, and as values their equivalent name in the ForgeRock IDM database.  |             
+| List of attributes        | Map<String,String>   | A map which should hold as keys the name of the legacy IAM user attributes, and as values their equivalent name in the ForgeRock IDM database.  |             
 
 <br>
 
