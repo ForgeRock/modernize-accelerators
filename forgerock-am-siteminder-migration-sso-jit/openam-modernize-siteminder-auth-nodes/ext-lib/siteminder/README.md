@@ -1,0 +1,1 @@
+This is a placeholder folder, where the Siteminder Agent API jar dependencies should be placed
