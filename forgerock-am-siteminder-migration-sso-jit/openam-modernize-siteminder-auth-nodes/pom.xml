@@ -18,8 +18,8 @@
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>openam-modernize-auth-nodes-SNAPSHOT</artifactId>
-	<name>OpenAM Custom Auth Nodes</name>
+	<artifactId>openam-modernize-siteminder-auth-nodes</artifactId>
+	<name>OpenAM Siteminder Custom Auth Nodes</name>
 
 	<dependencies>
 		<dependency>
