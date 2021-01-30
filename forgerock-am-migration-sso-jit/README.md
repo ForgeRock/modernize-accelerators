@@ -50,7 +50,7 @@ AM      | Authentication Tree | migrationTree                    | Implements th
 
 ## 2. Building The Source Code
 
-+ <b>Important note:</b> The assets presented below are built based on OpenAM version 7.0.1.
++ <b>Important note:</b> The assets presented below are built based on OpenAM version 7.0.
 
 In order to build the project from the command line, follow the steps presented below. Make sure that you have all the prerequisites installed correctly before starting.
 <br>

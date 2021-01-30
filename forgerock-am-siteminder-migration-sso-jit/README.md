@@ -55,7 +55,7 @@ ForgeRock understands the customer needs to speed up migration design decisions 
 ## 2. Building The Source Code
 
 + <b>Important notes:</b> 
-    + The assets presented in this package are built based on AM version 7.0.1.
+    + The assets presented in this package are built based on AM version 7.0.
 	+ This package was tested with a Siteminder Web Agent version 4.x. Web agent 5.x was not fully tested on a dedicated environment and the package can be unstable for this type of agent.
 
 Follow these instructions to build the project from the command line. Make sure that you have all the prerequisites installed correctly before starting.

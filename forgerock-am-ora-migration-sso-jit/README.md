@@ -51,7 +51,7 @@ ForgeRock understands the customer needs to speed up migration design decisions 
 
 ## 2. Building The Source Code
 
-+ <b>Important note:</b> The assets presented below are built based on AM version 7.0.1.
++ <b>Important note:</b> The assets presented below are built based on AM version 7.0.
 
 Follow these instructions to build the project from the command line. Make sure that you have all the prerequisites installed correctly before starting.
 
