@@ -47,7 +47,7 @@ This chapter covers the new features and improvements for the 7.0 Miami Accelera
 + Added the toolkit that contains an authentication scheme which enables Siteminder to recognize ForgeRock AM session cookies.
 
 
-### <h2>ForgeRock MIAMi Accelerators Oracle Plug In Updates</h2>
+### <h2>ForgeRock Modernize IAM Accelerators Oracle Plug In Updates</h2>
 
 ### <i>Updated - Modernize IAM Accelerators - AM Based Bi-Directional SSO and JIT Toolkit - Migration from Oracle 11G OAM to ForgerRock</i>
 

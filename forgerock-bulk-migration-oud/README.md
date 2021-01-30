@@ -12,7 +12,7 @@ With custom schema being used by Legacy IAM systems (custom object classes, cust
 # What's New
 Please find below the new features and improvements for the 7.0 Miami Accelerators
 
-### <h2>ForgeRock MIAMi Accelerators Oracle Plug In Updates</h2>
+### <h2>ForgeRock Modernize IAM Accelerators Oracle Plug In Updates</h2>
 
 ### <i>Updated - Modernize IAM Accelerators - Bulk User Migration Toolkit - Oracle Unified Directory (OUD)</i>
 

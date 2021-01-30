@@ -12,7 +12,7 @@ Sometimes putting IG in front of a legacy system is not an option for commercial
 # What's New
 Please find below the new features and improvements for the 7.0 Miami Accelerators
 
-### <h2>ForgeRock MIAMi Accelerators Oracle Plug In Updates</h2>
+### <h2>ForgeRock Modernize IAM Accelerators Oracle Plug In Updates</h2>
 
 ### <i>Updated - Modernize IAM Accelerators - AM Based Bi-Directional SSO and JIT Toolkit - Migration from Oracle 11G OAM to ForgerRock</i>
 
