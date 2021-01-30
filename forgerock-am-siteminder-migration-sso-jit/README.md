@@ -10,7 +10,11 @@ With deployments of tens or hundreds of legacy applications, migration waves may
 Sometimes putting IG in front of a legacy system is not an option for commercial reasons. 
 
 # What's New
-This chapter covers the new features and improvements for the 7.0 Miami Accelerators AM Based Bi-Directional SSO and JIT Toolkit for Siteminder 12.8
+Please find below the new features and improvements for the 7.0 Miami Accelerators
+
+### <h2>ForgeRock MIAMi Accelerators Siteminder Plug In Updates</h2>
+
+### <i>Updated - Modernize IAM Accelerators - AM Based Bi-Directional SSO and JIT Toolkit - Migration from Siteminder 12.8 to ForgeRock</i>
 
 + Switched to using the AM 7 identity management nodes
     + Decomissioned Legacy-SM-Set Password node and replaced it with Patch Object node

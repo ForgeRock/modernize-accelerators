@@ -9,7 +9,11 @@ ForgeRock shall not be liable for any direct, indirect or consequential damages 
 With deployments of tens or hundreds of legacy applications, migration waves may be required to minimize the operational impact on production systems. With this type of use case, coexistence and SSO between legacy IAM and ForgeRock IAM is often needed.
 
 # What's New
-This chapter covers the new features and improvements for the 7.0 Miami Accelerators IG Based Bi-Directional SSO and JIT Toolkit
+Please find below the new features and improvements for the 7.0 Miami Accelerators
+
+### <h2>ForgeRock Modernize IAM Framework Updates</h2>
+
+### <i>Updated - Modernize IAM Accelerators - IG Based Bi-Directional SSO and JIT Toolkit</i>
 
 + Added OAuth 2.0 integration between IG-AM-IDM 7.0.1 using the ClientCredentialsOAuth2ClientFilter
 + Removed configurations and API calls related to IDM user creation API calls

@@ -10,7 +10,11 @@ One-time and incremental import of user profiles and groups from Legacy OUD LDAP
 With custom schema being used by Legacy IAM systems (custom object classes, custom attributes, custom naming and organization units/suffix) the process of synchronizing information can be complex to design and implement. In addition, the particular mapping of the extended schema (attributes, object classes and group-membership used for core IAM transactions) can also be cumbersome and lengthy.
 
 # What's New
-This chapter covers the new features and improvements for the 7.0 Miami Accelerators Bulk User Migration Toolkit with Oracle Unified Directory (OUD)  
+Please find below the new features and improvements for the 7.0 Miami Accelerators
+
+### <h2>ForgeRock MIAMi Accelerators Oracle Plug In Updates</h2>
+
+### <i>Updated - Modernize IAM Accelerators - Bulk User Migration Toolkit - Oracle Unified Directory (OUD)</i>
 
 + Updated bundle versions and configurations for:
 	+ provisioner.openicf-ldap.json
