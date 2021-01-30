@@ -1,0 +1,1 @@
+This is a placeholder folder, where the oamsdk API jar dependencies should be placed.
