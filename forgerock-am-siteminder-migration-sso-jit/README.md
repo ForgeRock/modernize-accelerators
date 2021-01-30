@@ -17,8 +17,8 @@ Please find below the new features and improvements for the 7.0 Miami Accelerato
 ### <i>Updated - Modernize IAM Accelerators - AM Based Bi-Directional SSO and JIT Toolkit - Migration from Siteminder 12.8 to ForgeRock</i>
 
 + Switched to using the AM 7 identity management nodes
-    + Decomissioned Legacy-SM-Set Password node and replaced it with Patch Object node
-    + Decomissioned Legacy-SM-Migration Status node and replaced it with Identify Existing User node
+    + Decommissioned Legacy-SM-Set Password node and replaced it with Patch Object node
+    + Decommissioned Legacy-SM-Migration Status node and replaced it with Identify Existing User node
 	+ Removed the IDM managed user API call from the Legacy-SM-Create FR User node. This node has been updated to fetch the user information and add it to the shared state on the objectAttributes object.
 	+ Create Object node is used to create the migrated user.
 + New node: Add Attributes To Object Attributes - this node reads the attributes specified as keys from shared state, and adds them to the fields specified as values on the objectAttributes object of the user that needs to be migrated.
