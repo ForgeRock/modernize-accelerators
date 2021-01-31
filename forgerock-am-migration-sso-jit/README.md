@@ -334,17 +334,17 @@ Configuration File: /src/main/resources/org/forgerock/openam/services/LegacyFRSe
 ![Scenario3](images/Scenario3.png)
 <br>
 
-### 4.4. Scenario 4 - The user is already migrated, and the Data Store Decision node authenticates the user successfully
-- The user accesses the authentication tree. The tree prompts the user for the username and password.
-- The outcome of this scenario is that the user is authenticated automatically to both the legacy IAM instance and to ForgeRock AM after execution of the tree has completed.
+### 4.4. Scenario 4 - This scenario is triggered when the user has a valid legacy SSO token in the browser and is already migrated
+- The user (previously migrated) authenticates first to the legacy IAM.
+- The user accesses the authentication tree.
+ - The outcome of this scenario is that the user is authenticated automatically to both the legacy IAM, and to ForgeRock AM after execution of the tree has completed.
 <br><br>
 ![Scenario4](images/Scenario4.png)
 <br>
 
-### 4.5. Scenario 5 - This scenario is triggered when the user has a valid legacy SSO token in the browser and is already migrated
-- The user (previously migrated) authenticates first to the legacy IAM.
-- The user accesses the authentication tree.
- - The outcome of this scenario is that the user is authenticated automatically to both the legacy IAM, and to ForgeRock AM after execution of the tree has completed.
+### 4.5. Scenario 5 - The user is already migrated, and the Data Store Decision node authenticates the user successfully
+- The user accesses the authentication tree. The tree prompts the user for the username and password.
+- The outcome of this scenario is that the user is authenticated automatically to both the legacy IAM instance and to ForgeRock AM after execution of the tree has completed.
 <br><br>
 ![Scenario5](images/Scenario5.png)
 <br>
