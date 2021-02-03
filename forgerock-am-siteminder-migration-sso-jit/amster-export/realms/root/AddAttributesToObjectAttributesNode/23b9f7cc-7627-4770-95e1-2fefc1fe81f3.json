@@ -1,0 +1,24 @@
+{
+  "metadata" : {
+    "realm" : "/",
+    "amsterVersion" : "7.0.0-SNAPSHOT",
+    "entityType" : "AddAttributesToObjectAttributesNode",
+    "entityId" : "23b9f7cc-7627-4770-95e1-2fefc1fe81f3",
+    "pathParams" : { }
+  },
+  "data" : {
+    "_id" : "23b9f7cc-7627-4770-95e1-2fefc1fe81f3",
+    "attributesList" : {
+      "username" : "userName"
+    },
+    "_type" : {
+      "_id" : "AddAttributesToObjectAttributesNode",
+      "name" : "Add Attributes To Object Attributes",
+      "collection" : true
+    },
+    "_outcomes" : [ {
+      "id" : "outcome",
+      "displayName" : "Outcome"
+    } ]
+  }
+}

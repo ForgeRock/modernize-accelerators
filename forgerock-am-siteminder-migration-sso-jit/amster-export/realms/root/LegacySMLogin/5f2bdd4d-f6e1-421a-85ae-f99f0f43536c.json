@@ -1,0 +1,24 @@
+{
+  "metadata" : {
+    "realm" : "/",
+    "amsterVersion" : "7.0.0-SNAPSHOT",
+    "entityType" : "LegacySMLogin",
+    "entityId" : "5f2bdd4d-f6e1-421a-85ae-f99f0f43536c",
+    "pathParams" : { }
+  },
+  "data" : {
+    "_id" : "5f2bdd4d-f6e1-421a-85ae-f99f0f43536c",
+    "_type" : {
+      "_id" : "LegacySMLogin",
+      "name" : "Legacy-SM-Login",
+      "collection" : true
+    },
+    "_outcomes" : [ {
+      "id" : "true",
+      "displayName" : "True"
+    }, {
+      "id" : "false",
+      "displayName" : "False"
+    } ]
+  }
+}

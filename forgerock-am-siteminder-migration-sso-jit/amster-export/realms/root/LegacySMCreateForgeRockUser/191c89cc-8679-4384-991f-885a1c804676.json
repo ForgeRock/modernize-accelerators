@@ -1,0 +1,31 @@
+{
+  "metadata" : {
+    "realm" : "/",
+    "amsterVersion" : "7.0.0-SNAPSHOT",
+    "entityType" : "LegacySMCreateForgeRockUser",
+    "entityId" : "191c89cc-8679-4384-991f-885a1c804676",
+    "pathParams" : { }
+  },
+  "data" : {
+    "_id" : "191c89cc-8679-4384-991f-885a1c804676",
+    "migrationAttributesMap" : {
+      "cn" : "cn",
+      "mail" : "mail",
+      "name" : "sn",
+      "givenName" : "givenName"
+    },
+    "setPasswordReset" : false,
+    "_type" : {
+      "_id" : "LegacySMCreateForgeRockUser",
+      "name" : "Legacy-SM-Create FR User",
+      "collection" : true
+    },
+    "_outcomes" : [ {
+      "id" : "true",
+      "displayName" : "True"
+    }, {
+      "id" : "false",
+      "displayName" : "False"
+    } ]
+  }
+}

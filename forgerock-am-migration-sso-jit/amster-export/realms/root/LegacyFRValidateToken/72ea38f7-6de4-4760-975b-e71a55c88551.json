@@ -1,0 +1,24 @@
+{
+  "metadata" : {
+    "realm" : "/",
+    "amsterVersion" : "7.0.0-SNAPSHOT",
+    "entityType" : "LegacyFRValidateToken",
+    "entityId" : "72ea38f7-6de4-4760-975b-e71a55c88551",
+    "pathParams" : { }
+  },
+  "data" : {
+    "_id" : "72ea38f7-6de4-4760-975b-e71a55c88551",
+    "_type" : {
+      "_id" : "LegacyFRValidateToken",
+      "name" : "Legacy-FR-Validate Token",
+      "collection" : true
+    },
+    "_outcomes" : [ {
+      "id" : "true",
+      "displayName" : "True"
+    }, {
+      "id" : "false",
+      "displayName" : "False"
+    } ]
+  }
+}

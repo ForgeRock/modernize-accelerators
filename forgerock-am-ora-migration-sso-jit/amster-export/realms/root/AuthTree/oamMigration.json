@@ -1,0 +1,176 @@
+{
+  "metadata" : {
+    "realm" : "/",
+    "amsterVersion" : "7.0.0-SNAPSHOT",
+    "entityType" : "AuthTree",
+    "entityId" : "oamMigration",
+    "pathParams" : { }
+  },
+  "data" : {
+    "_id" : "oamMigration",
+    "entryNodeId" : "c9673010-6577-405e-a123-b8466bf8ab81",
+    "nodes" : {
+      "c9673010-6577-405e-a123-b8466bf8ab81" : {
+        "x" : 221,
+        "y" : 662,
+        "connections" : {
+          "false" : "d11c405e-ed42-4f3a-b783-9d207fd5758b",
+          "true" : "b73a34c5-c53c-4eba-bbfb-a32e294a81e8"
+        },
+        "nodeType" : "LegacyORAValidateToken",
+        "displayName" : "Legacy-ORA-Validate Token"
+      },
+      "d11c405e-ed42-4f3a-b783-9d207fd5758b" : {
+        "x" : 499,
+        "y" : 377,
+        "connections" : {
+          "outcome" : "ee46fcc1-bc3d-4f0a-94e9-4bd132de6185"
+        },
+        "nodeType" : "PageNode",
+        "displayName" : "Page Node"
+      },
+      "ee46fcc1-bc3d-4f0a-94e9-4bd132de6185" : {
+        "x" : 750,
+        "y" : 422.375,
+        "connections" : {
+          "true" : "ab2b2923-90f3-4574-b566-b097d5c07b60",
+          "false" : "034f5cc9-2f54-4ae9-ba4d-0ab757258cef"
+        },
+        "nodeType" : "DataStoreDecisionNode",
+        "displayName" : "Data Store Decision"
+      },
+      "ab2b2923-90f3-4574-b566-b097d5c07b60" : {
+        "x" : 1021,
+        "y" : 83,
+        "connections" : {
+          "true" : "70e691a5-1e33-4ac3-a356-e7b6d60d92e0",
+          "false" : "e301438c-0bd0-429c-ab0c-66126501069a"
+        },
+        "nodeType" : "LegacyORALogin",
+        "displayName" : "Legacy-ORA-Login"
+      },
+      "034f5cc9-2f54-4ae9-ba4d-0ab757258cef" : {
+        "x" : 915,
+        "y" : 621,
+        "connections" : {
+          "outcome" : "5b05ad4d-2240-49fd-a393-faf0f14d26c3"
+        },
+        "nodeType" : "AddAttributesToObjectAttributesNode",
+        "displayName" : "Add userName To Object Attributes"
+      },
+      "5b05ad4d-2240-49fd-a393-faf0f14d26c3" : {
+        "x" : 1176,
+        "y" : 406,
+        "connections" : {
+          "true" : "71a1d26b-05b5-406b-b894-fb602f0b288e",
+          "false" : "387acffd-5d9c-4382-9155-5efa6572310c"
+        },
+        "nodeType" : "IdentifyExistingUserNode",
+        "displayName" : "Identify Existing User"
+      },
+      "71a1d26b-05b5-406b-b894-fb602f0b288e" : {
+        "x" : 1419,
+        "y" : 287,
+        "connections" : {
+          "true" : "1162e3d8-7466-47d2-9749-fd63af80ca39",
+          "false" : "e301438c-0bd0-429c-ab0c-66126501069a"
+        },
+        "nodeType" : "LegacyORALogin",
+        "displayName" : "Legacy-ORA-Login"
+      },
+      "387acffd-5d9c-4382-9155-5efa6572310c" : {
+        "x" : 1405,
+        "y" : 550,
+        "connections" : {
+          "true" : "87805f30-4904-4ffd-bb85-2ede86d3dd5e",
+          "false" : "e301438c-0bd0-429c-ab0c-66126501069a"
+        },
+        "nodeType" : "LegacyORALogin",
+        "displayName" : "Legacy-ORA-Login"
+      },
+      "1162e3d8-7466-47d2-9749-fd63af80ca39" : {
+        "x" : 1595,
+        "y" : 99,
+        "connections" : {
+          "outcome" : "6a6280a6-c5b6-4335-84c3-67a6eff65a97"
+        },
+        "nodeType" : "AddAttributesToObjectAttributesNode",
+        "displayName" : "Add password To Object Attributes"
+      },
+      "6a6280a6-c5b6-4335-84c3-67a6eff65a97" : {
+        "x" : 2013,
+        "y" : 166,
+        "connections" : {
+          "PATCHED" : "70e691a5-1e33-4ac3-a356-e7b6d60d92e0",
+          "FAILURE" : "e301438c-0bd0-429c-ab0c-66126501069a"
+        },
+        "nodeType" : "PatchObjectNode",
+        "displayName" : "Patch Object"
+      },
+      "87805f30-4904-4ffd-bb85-2ede86d3dd5e" : {
+        "x" : 1634,
+        "y" : 413,
+        "connections" : {
+          "false" : "e301438c-0bd0-429c-ab0c-66126501069a",
+          "true" : "f6b0495f-bc42-4b1e-b15e-bfc28852e57d"
+        },
+        "nodeType" : "LegacyORACreateForgeRockUser",
+        "displayName" : "Legacy-ORA-Create FR User"
+      },
+      "b73a34c5-c53c-4eba-bbfb-a32e294a81e8" : {
+        "x" : 533,
+        "y" : 890,
+        "connections" : {
+          "outcome" : "db87140a-6634-4f02-9b59-89eec8020cb1"
+        },
+        "nodeType" : "AddAttributesToObjectAttributesNode",
+        "displayName" : "Add userNameTo Object Attributes"
+      },
+      "db87140a-6634-4f02-9b59-89eec8020cb1" : {
+        "x" : 872,
+        "y" : 863,
+        "connections" : {
+          "true" : "70e691a5-1e33-4ac3-a356-e7b6d60d92e0",
+          "false" : "f0288419-1340-4e54-b724-42d022a757ec"
+        },
+        "nodeType" : "IdentifyExistingUserNode",
+        "displayName" : "Identify Existing User"
+      },
+      "f0288419-1340-4e54-b724-42d022a757ec" : {
+        "x" : 1177,
+        "y" : 1034,
+        "connections" : {
+          "true" : "f6b0495f-bc42-4b1e-b15e-bfc28852e57d",
+          "false" : "e301438c-0bd0-429c-ab0c-66126501069a"
+        },
+        "nodeType" : "LegacyORACreateForgeRockUser",
+        "displayName" : "Legacy-ORA-Create FR User"
+      },
+      "f6b0495f-bc42-4b1e-b15e-bfc28852e57d" : {
+        "x" : 2056,
+        "y" : 828,
+        "connections" : {
+          "FAILURE" : "e301438c-0bd0-429c-ab0c-66126501069a",
+          "CREATED" : "70e691a5-1e33-4ac3-a356-e7b6d60d92e0"
+        },
+        "nodeType" : "CreateObjectNode",
+        "displayName" : "Create Object"
+      }
+    },
+    "staticNodes" : {
+      "startNode" : {
+        "x" : 67,
+        "y" : 677
+      },
+      "70e691a5-1e33-4ac3-a356-e7b6d60d92e0" : {
+        "x" : 2625,
+        "y" : 329
+      },
+      "e301438c-0bd0-429c-ab0c-66126501069a" : {
+        "x" : 2625,
+        "y" : 506
+      }
+    },
+    "uiConfig" : { }
+  }
+}

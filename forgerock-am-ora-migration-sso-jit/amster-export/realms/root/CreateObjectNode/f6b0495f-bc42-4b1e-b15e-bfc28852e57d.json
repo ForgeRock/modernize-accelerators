@@ -1,0 +1,25 @@
+{
+  "metadata" : {
+    "realm" : "/",
+    "amsterVersion" : "7.0.0-SNAPSHOT",
+    "entityType" : "CreateObjectNode",
+    "entityId" : "f6b0495f-bc42-4b1e-b15e-bfc28852e57d",
+    "pathParams" : { }
+  },
+  "data" : {
+    "_id" : "f6b0495f-bc42-4b1e-b15e-bfc28852e57d",
+    "identityResource" : "managed/user",
+    "_type" : {
+      "_id" : "CreateObjectNode",
+      "name" : "Create Object",
+      "collection" : true
+    },
+    "_outcomes" : [ {
+      "id" : "CREATED",
+      "displayName" : "Created"
+    }, {
+      "id" : "FAILURE",
+      "displayName" : "Failed"
+    } ]
+  }
+}

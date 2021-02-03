@@ -1,0 +1,21 @@
+{
+  "metadata" : {
+    "realm" : "/",
+    "amsterVersion" : "7.0.0-SNAPSHOT",
+    "entityType" : "LegacyFRService",
+    "entityId" : "LegacyFRService",
+    "pathParams" : { }
+  },
+  "data" : {
+    "_id" : "",
+    "checkLegacyTokenUri" : "<<proto>>://<<host>>/openam/json/realms/root/sessions?tokenId=",
+    "legacyLoginUri" : "<<proto>>://<<host>>/openam/json/authenticate",
+    "legacyCookieName" : "<<legacyCookieName>>",
+    "legacyEnvURL" : "<<proto>>://<<host>>/openam/json/realms/root/users/",
+    "_type" : {
+      "_id" : "LegacyFRService",
+      "name" : "Legacy ForgeRock Service",
+      "collection" : false
+    }
+  }
+}

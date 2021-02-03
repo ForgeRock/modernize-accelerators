@@ -1,0 +1,31 @@
+{
+  "metadata" : {
+    "realm" : "/",
+    "amsterVersion" : "7.0.0-SNAPSHOT",
+    "entityType" : "LegacyORACreateForgeRockUser",
+    "entityId" : "f0288419-1340-4e54-b724-42d022a757ec",
+    "pathParams" : { }
+  },
+  "data" : {
+    "_id" : "f0288419-1340-4e54-b724-42d022a757ec",
+    "setPasswordReset" : false,
+    "migrationAttributesMap" : {
+      "lastname" : "sn",
+      "firstname" : "cn",
+      "mail" : "mail",
+      "name" : "givenName"
+    },
+    "_type" : {
+      "_id" : "LegacyORACreateForgeRockUser",
+      "name" : "Legacy-ORA-Create FR User",
+      "collection" : true
+    },
+    "_outcomes" : [ {
+      "id" : "true",
+      "displayName" : "True"
+    }, {
+      "id" : "false",
+      "displayName" : "False"
+    } ]
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "metadata" : {
+    "realm" : "/",
+    "amsterVersion" : "7.0.0-SNAPSHOT",
+    "entityType" : "SiteminderService",
+    "entityId" : "SiteminderService",
+    "pathParams" : { }
+  },
+  "data" : {
+    "_id" : "",
+    "protectedResourceAction" : "GET",
+    "connectionMin" : 2,
+    "webAgentName" : "iisagent",
+    "legacyCookieDomain" : "<<domain>>",
+    "smUserSearchAttr" : "samaccountname",
+    "webAgentPasswordSecretId" : "agentsecretid",
+    "timeout" : 60,
+    "authenticationPort" : 44442,
+    "smUserSearchClass" : "user",
+    "authorizationPort" : 44443,
+    "debug" : true,
+    "protectedResource" : "/resource",
+    "policyServerIP" : "96.96.96.96",
+    "is4xAgent" : true,
+    "smUserDirectory" : "ad",
+    "smDirectoryRoot" : "dc=example,dc=com",
+    "legacyCookieName" : "SMSESSION",
+    "connectionStep" : 2,
+    "smAdminUser" : "siteminderadmin",
+    "connectionMax" : 20,
+    "smAdminPasswordSecretId" : "siteminderadminsecretid",
+    "accountingPort" : 44441,
+    "_type" : {
+      "_id" : "SiteminderService",
+      "name" : "Siteminder Service",
+      "collection" : false
+    }
+  }
+}

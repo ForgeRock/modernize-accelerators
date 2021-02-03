@@ -1,0 +1,26 @@
+{
+  "metadata" : {
+    "realm" : "/",
+    "amsterVersion" : "7.0.0-SNAPSHOT",
+    "entityType" : "IdentifyExistingUserNode",
+    "entityId" : "5b05ad4d-2240-49fd-a393-faf0f14d26c3",
+    "pathParams" : { }
+  },
+  "data" : {
+    "_id" : "5b05ad4d-2240-49fd-a393-faf0f14d26c3",
+    "identifier" : "userName",
+    "identityAttribute" : "userName",
+    "_type" : {
+      "_id" : "IdentifyExistingUserNode",
+      "name" : "Identify Existing User",
+      "collection" : true
+    },
+    "_outcomes" : [ {
+      "id" : "true",
+      "displayName" : "True"
+    }, {
+      "id" : "false",
+      "displayName" : "False"
+    } ]
+  }
+}

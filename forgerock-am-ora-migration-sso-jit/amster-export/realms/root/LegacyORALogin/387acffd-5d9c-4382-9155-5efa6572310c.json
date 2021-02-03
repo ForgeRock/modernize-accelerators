@@ -1,0 +1,24 @@
+{
+  "metadata" : {
+    "realm" : "/",
+    "amsterVersion" : "7.0.0-SNAPSHOT",
+    "entityType" : "LegacyORALogin",
+    "entityId" : "387acffd-5d9c-4382-9155-5efa6572310c",
+    "pathParams" : { }
+  },
+  "data" : {
+    "_id" : "387acffd-5d9c-4382-9155-5efa6572310c",
+    "_type" : {
+      "_id" : "LegacyORALogin",
+      "name" : "Legacy-ORA-Login",
+      "collection" : true
+    },
+    "_outcomes" : [ {
+      "id" : "true",
+      "displayName" : "True"
+    }, {
+      "id" : "false",
+      "displayName" : "False"
+    } ]
+  }
+}

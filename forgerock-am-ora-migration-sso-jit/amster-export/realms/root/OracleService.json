@@ -1,0 +1,25 @@
+{
+  "metadata" : {
+    "realm" : "/",
+    "amsterVersion" : "7.0.0-SNAPSHOT",
+    "entityType" : "OracleService",
+    "entityId" : "OracleService",
+    "pathParams" : { }
+  },
+  "data" : {
+    "_id" : "",
+    "msConfigLocation" : "path/to/config",
+    "msProtocol" : "http",
+    "legacyEnvURL" : "<<proto>>://<<oamHost>>:<<port>>/oic_rest/rest/userprofile/people/",
+    "namingAttribute" : "cn",
+    "legacyCookieName" : "OAMAuthnCookie",
+    "legacyCookieDomain" : "<<domain>>",
+    "msMethod" : "GET",
+    "msResource" : "//<<oamHost>>:<<port>>/oam/server/obrareq.cgi",
+    "_type" : {
+      "_id" : "OracleService",
+      "name" : "Oracle Service",
+      "collection" : false
+    }
+  }
+}
