@@ -262,7 +262,7 @@
                     "transform" : {
                         "type" : "text/javascript",
                         "globals" : { },
-                        "source" : "\"cn=\" + source.cn[0].toLowerCase() + \",ou=groups,dc=openam,dc=forgerock,dc=org\";"
+                        "source" : "\"cn=\" + source.cn[0].toLowerCase() + \",ou=groups,&{userstore.basecontext}\";"
                     },
                     "source" : ""
                 }
@@ -333,7 +333,7 @@
             "onCreate" : {
                 "type" : "text/javascript",
                 "globals" : { },
-                "source" : "target.dn = 'uid=' + source.userName + ',ou=people,dc=openam,dc=forgerock,dc=org';"
+                "source" : "target.dn = 'uid=' + source.userName + ',ou=people,&{userstore.basecontext}';"
             },
             "properties" : [
                 {

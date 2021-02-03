@@ -5,28 +5,14 @@
         "connectorName" : "org.identityconnectors.ldap.LdapConnector"
     },
     "configurationProperties" : {
-        "host" : "localhost",
+        "host" : "&{userstore.host}",
         "port" : 50636,
         "ssl" : true,
         "principal" : "cn=Directory Manager",
-        "credentials" : {
-            "$crypto" : {
-                "type" : "x-simple-encryption",
-                "value" : {
-                    "cipher" : "AES/CBC/PKCS5Padding",
-                    "stableId" : "openidm-sym-default",
-                    "salt" : "Zbpfpw8RhGqelGm/KHXBVg==",
-                    "data" : "o1EPSvGqDeUMjfERnYKqJg==",
-                    "keySize" : 16,
-                    "purpose" : "idm.config.encryption",
-                    "iv" : "gOpiDmCd7r2n5YlmiCXWWw==",
-                    "mac" : "ybleIVezQ2y0/l+vnoDsZw=="
-                }
-            }
-        },
+        "credentials" : "&{userstore.password}",
         "baseContexts" : [
-            "ou=people,dc=openam,dc=forgerock,dc=org",
-            "ou=groups,dc=openam,dc=forgerock,dc=org"
+            "ou=people,&{userstore.basecontext}",
+            "ou=groups,&{userstore.basecontext}"
         ],
         "accountSearchFilter" : null,
         "accountSynchronizationFilter" : null,
@@ -69,8 +55,8 @@
         "maintainLdapGroupMembership" : false,
         "respectResourcePasswordPolicyChangeAfterReset" : false,
         "baseContextsToSynchronize" : [
-            "ou=people,dc=openam,dc=forgerock,dc=org",
-            "ou=groups,dc=openam,dc=forgerock,dc=org"
+            "ou=people,&{userstore.basecontext}",
+            "ou=groups,&{userstore.basecontext}"
         ]
     },
     "resultsHandlerConfig" : {

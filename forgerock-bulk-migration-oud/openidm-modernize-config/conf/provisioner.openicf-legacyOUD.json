@@ -40,8 +40,8 @@
             "inetOrgPerson"
         ],
         "baseContextsToSynchronize" : [
-            "ou=users,ou=enterprise,dc=miami",
-            "ou=groups,ou=enterprise,dc=miami"
+            "ou=users,&{ouduserstore.basecontext}",
+            "ou=groups,&{ouduserstore.basecontext}"
         ],
         "attributesToSynchronize" : [ ],
         "changeNumberAttribute" : "changeNumber",
@@ -75,7 +75,7 @@
         "checkAliveMinInterval" : 60,
         "groupSearchFilter" : null,
         "referralsHandling" : "follow",
-        "host" : "ec2-107-23-96-14.compute-1.amazonaws.com",
+        "host" : "&{ouduserstore.host}",
         "maintainLdapGroupMembership" : false,
         "resetSyncToken" : "never",
         "vlvSortAttribute" : "uid",
@@ -84,8 +84,8 @@
             "whenChanged"
         ],
         "baseContexts" : [
-            "ou=users,ou=enterprise,dc=miami",
-            "ou=groups,ou=enterprise,dc=miami"
+            "ou=users,&{ouduserstore.basecontext}",
+            "ou=groups,&{ouduserstore.basecontext}"
         ],
         "hostNameVerification" : false,
         "blockSize" : "100",
@@ -98,7 +98,7 @@
             "cn"
         ],
         "failover" : [ ],
-        "port" : "1389",
+        "port" : "&{ouduserstore.port}",
         "convertADIntervalToISO8601" : [
             "pwdLastSet",
             "accountExpires",
@@ -114,7 +114,7 @@
         "allowTreeDelete" : false,
         "respectResourcePasswordPolicyChangeAfterReset" : false,
         "uidAttribute" : "entryUUID",
-        "principal" : "cn=Directory Manager",
+        "principal" : "&{ouduserstore.principal}",
         "accountObjectClasses" : [
             "top",
             "person",
@@ -122,7 +122,7 @@
             "inetOrgPerson"
         ],
         "alternateKeyStoreType" : null,
-        "passwordHashAlgorithm" : null,
+        "passwordHashAlgorithm" : SSHA,
         "alternateKeyStore" : null,
         "authType" : "simple",
         "connectionTimeout" : 30000,
