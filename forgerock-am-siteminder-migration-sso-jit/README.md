@@ -200,16 +200,16 @@ jar -cf ../openam.war *
 The configurations below must be done on the Siteminder environment, to make sure the SDK integration will be successfull:
 
 + Make sure you have a valid domain configuration
-![domain](images/siteminderDomain.png)
+![domain](images/domain.png)
 
 + Create a web agent that will be used in the authorization process. To create a web agent, go to Agent > Agents.
-![webAgent](images/siteminderWebAgent.png)
+![webAgent](images/webAgent.png)
 
 + Create an agent configuration object (ACO). To create a new ACO, go to Agent > Agents > Agent Configuration Objects.  To make sure that the cookies created by the SDK are accepted by the web agent, make sure you set AcceptTPCokie to YES.
-![agentConfigurationObject](images/siteminderAgentConfigurationObject.png)
+![agentConfigurationObject](images/agentConfigurationObject.png)
 
 + Configure the web agent on the realm that will be protected. To configure the web agent on the realm, go to Policies > Domain > Realms > your realm > Modify > Resource. You can configure the protected resource and the web agent used to authenticate in this section.
-![webAgentRealm](images/siteminderWebAgentRealm.png)
+![webAgentRealm](images/webAgentRealm.png)
 
 ### 3.2. Configuring Secret Stores
 
