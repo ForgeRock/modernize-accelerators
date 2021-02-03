@@ -197,12 +197,19 @@ jar -cf ../openam.war *
 
 ### 3.1. Getting ready the Siteminder environment for integration with the SDK
 
-The configurations below must be done on the Siteminder enivornment, to make sure the SDK integration will be successfull:
+The configurations below must be done on the Siteminder environment, to make sure the SDK integration will be successfull:
 
-+ Make sure you have a valid domain configuration. 
-+ Create a web agent and configure it on the realm that will be protected. To configure the web agent on the realm, go to Policies > Domain > Realms > your realm > Modify > Resource. You can configure the protected resource and the web agent used to authenticate in this section.
-+ Go to Agents > Webgates > Search.
-+ Allow third party cookies in the agent configuration object (ACO). This ensures that the cookies created by the SDK are accepted by the web agent. To do this, go to: Infrastructure > Agent > Agent Configuration Objects > your agent ACO > AcceptTPCookie > YES
++ Make sure you have a valid domain configuration
+![siteminderDomain](images/siteminderDomain.png)
+
++ Create a web agent that will be used in the authorization process. To create a web agent, go to Agent > Agents.
+![siteminderWebAgent](images/siteminderWebAgent.png)
+
++ Create an agent configuration object (ACO). To create a new ACO, go to Agent > Agents > Agent Configuration Objects.  To make sure that the cookies created by the SDK are accepted by the web agent, make sure you set AcceptTPCokie to YES.
+![siteminderAgentConfigurationObject](images/siteminderAgentConfigurationObject.png)
+
++ Configure the web agent on the realm that will be protected. To configure the web agent on the realm, go to Policies > Domain > Realms > your realm > Modify > Resource. You can configure the protected resource and the web agent used to authenticate in this section.
+![siteminderWebAgentRealm](images/siteminderWebAgentRealm.png)
 
 ### 3.2. Configuring Secret Stores
 
