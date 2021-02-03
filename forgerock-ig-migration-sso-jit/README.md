@@ -85,7 +85,7 @@ cd forgerock-ig-migration-sso-jit
 + LegacyIAMProvider contains the 3 base methods that must be implemented:
     + getUserCredentials - Implementation must read the user credentials from the Forgerock HTTP Request. The HTTP request gives flexibility to capture the user's credentials from the request headers or from the request body. Should output a User object with the intercepted username and password.
     + getExtendedUserAttributes - Get user profile attributes from the legacy IAM, with userName as input.
-    + validateLegacyAuthResponse - Validate if the authentication response from the legacy system is successfull.
+    + validateLegacyAuthResponse - Validate if the authentication response from the legacy system is successful.
 
 
 #### 2.3.2. The interface implementation example
@@ -154,11 +154,11 @@ The section below shows an example for a FileSystemSecretStore configuration.
   }
 ```
 
-On the IG instance filesystem, create the directory path configured in the directory field and add the needed secrets. 
+On the IG instance filesystem, create the directory path configured in the directory field and add the needed secrets as files where the filename represents the alias and plain-text content is the secret value. You should avoid using plain-text values.
 
 ### 3.2. Routes
 
-The route provided with this toolkit serves as an example of implementation. The route requires specific adaptation to each user's case and should not be used as packaged here.
+The route provided with this toolkit serves as an example implementation. The route requires specific adaptation to each user's case and should not be used as packaged here.
 
 + [migration-assets-authentication-route](https://github.com/ForgeRock/modernize-accelerators/blob/develop/forgerock-ig-migration-sso-jit/openig-modernize-routes/migration-assets-authentication-route.json)
 <br>Route filters:
@@ -216,12 +216,6 @@ Filter Class: /openig-modernize-filters/src/main/java/org/forgerock/openig/moder
 | acceptApiVersionHeaderValue        | resource=2.0, protocol=1.0                                                     | The Accept-API-Version version used. |
 | setCookieHeader                    | Set-Cookie                                                                     | The Set-Cookie header name. |
 
-
-<br>
-
-- <b>HeaderFilter-ChangeHostFilter</b> - Out of the box filter that comes with the IG application. This filter is used to remove and add new headers on the HTTP request or response.
-
-<br>
 
 - <b>ClientCredentialsOAuth2ClientFilter</b> - Authenticates OAuth 2.0 clients by using the client's OAuth 2.0 credentials to obtain an access_token from an authorization server, and injecting the access_token into the inbound request as a Bearer Authorization header. For this toolkit it's used to obtain the token needed by the MigrationSsoFilter to call IDM to check if a user is migrated, or to create a new user.
 
