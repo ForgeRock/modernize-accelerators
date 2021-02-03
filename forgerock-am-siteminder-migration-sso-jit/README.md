@@ -200,7 +200,7 @@ jar -cf ../openam.war *
 The configurations below must be done on the Siteminder enivornment, to make sure the SDK integration will be successfull:
 
 + Make sure you have a valid domain configuration. 
-+ Create a web agent and configure it on the realm that will be protected. To configure the web agent on the realm, go to Policies > Realms > your realm > Modify > Resource. You can configure the protected resource and the web agent used to authenticate in this section.
++ Create a web agent and configure it on the realm that will be protected. To configure the web agent on the realm, go to Policies > Domain > Realms > your realm > Modify > Resource. You can configure the protected resource and the web agent used to authenticate in this section.
 + Go to Agents > Webgates > Search.
 + Allow third party cookies in the agent configuration object (ACO). This ensures that the cookies created by the SDK are accepted by the web agent. To do this, go to: Infrastructure > Agent > Agent Configuration Objects > your agent ACO > AcceptTPCookie > YES
 

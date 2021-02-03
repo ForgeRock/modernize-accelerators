@@ -55,7 +55,7 @@ ForgeRock understands the customer needs to speed up migration design decisions 
 
 Follow these instructions to build the project from the command line. Make sure that you have all the prerequisites installed correctly before starting.
 
-+ Demo video - [downloading and building the source code](https://github.com/ForgeRock/modernize-accelerators/blob/develop/forgerock-am-ora-migration-sso-jit/video/Oracle%20-%20Building%20The%20Tree.mp4) 
++ Demo video - [downloading and building the source code](https://github.com/ForgeRock/modernize-accelerators/blob/develop/forgerock-am-ora-migration-sso-jit/video/Oracle-BuildingTheCode.mp4) 
 
 ### 2.1. Prerequisites - Prepare Your Environment
 
@@ -240,7 +240,7 @@ To set your custom authentication tree as the default authentication tree inside
 
 #### 3.3.1. Building the Tree
 
-+ Demo video - [building the tree](https://github.com/ForgeRock/modernize-accelerators/blob/develop/forgerock-am-ora-migration-sso-jit/video/Oracle%20-%20Building%20The%20Tree.mp4) 
++ Demo video - [building the tree](https://github.com/ForgeRock/modernize-accelerators/blob/develop/forgerock-am-ora-migration-sso-jit/video/Oracle-BuildingTheTree.mp4) 
 
 ![oracleMigrationSsoTree](images/oracleMigrationSsoTree.PNG)
 
