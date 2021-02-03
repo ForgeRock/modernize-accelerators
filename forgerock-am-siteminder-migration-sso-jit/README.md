@@ -96,7 +96,7 @@ Note: You need access to the ForgeRock private-releases maven repository, and yo
     + smagentapi.jar
     + smjavasdk2.jar
     + smcrypto.jar
-    + bc-fips-1.0.1.jar
+    + bc-fips-1.0.1.jar - Use appropriate jar version, as per your Siteminder installation.
 
 + To setup the SDK and the migration toolkit correctly you must:
     + copy the external Siteminder dependencies inside the /WEB-INF/lib of your AM-x.y.z.war file, or directly to you /WEB-INF/lib folder of your ForgeRock AM installation;
