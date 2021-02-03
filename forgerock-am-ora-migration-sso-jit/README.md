@@ -384,7 +384,7 @@ Configuration File: /src/main/resources/org/forgerock/openam/services/OracleServ
 ## 4. Scenarios
 
 
-+ Demo video - [testing the main tree scenarios](https://github.com/ForgeRock/modernize-accelerators/blob/develop/forgerock-am-ora-migration-sso-jit/video/Oracle%20-%20Testing%20The%20Tree.mp4)
++ Demo video - [testing the main tree scenarios](https://github.com/ForgeRock/modernize-accelerators/blob/develop/forgerock-am-ora-migration-sso-jit/video/Oracle-TestingTheTree.mp4)
 
 
 
