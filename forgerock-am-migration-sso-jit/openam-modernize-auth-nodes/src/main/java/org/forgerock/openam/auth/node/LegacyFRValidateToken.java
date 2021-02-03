@@ -1,5 +1,5 @@
 /***************************************************************************
- *  Copyright 2021 ForgeRock AS
+ *  Copyright 2019-2021 ForgeRock AS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,6 @@ import org.forgerock.openam.auth.node.base.AbstractValidateTokenNode;
 import org.forgerock.openam.core.realms.Realm;
 import org.forgerock.openam.services.LegacyFRService;
 import org.forgerock.openam.sm.AnnotatedServiceRegistry;
-import org.forgerock.util.promise.NeverThrowsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,7 +85,7 @@ public class LegacyFRValidateToken extends AbstractValidateTokenNode {
 		try {
 			legacyFRService = serviceRegistry.getRealmSingleton(LegacyFRService.class, realm).get();
 		} catch (SSOException | SMSException e) {
-			e.printStackTrace();
+			logger.error("LegacyFRValidateToken::constructor > SSOException | SMSException: ", e);
 		}
 	}
 
@@ -102,17 +101,15 @@ public class LegacyFRValidateToken extends AbstractValidateTokenNode {
 
 		try {
 			uid = validateLegacySession(legacyCookie);
-		} catch (NeverThrowsException e) {
-			logger.error("LegacyFRValidateToken::process > NeverThrowsException in async call: {0}", e);
-		} catch (InterruptedException e) {
-			logger.error("LegacyFRValidateToken::process > InterruptedException: {0}", e);
+		}catch (InterruptedException e) {
+			logger.error("LegacyFRValidateToken::process > InterruptedException: ", e);
 			Thread.currentThread().interrupt();
 		} catch (UnknownHostException e) {
-			logger.error("LegacyFRValidateToken::process > UnknownHostException in async call: {0}", e);
+			logger.error("LegacyFRValidateToken::process > UnknownHostException in async call: ", e);
 		} catch (IOException e) {
 			throw new NodeProcessException("LegacyFRValidateToken::process > IOException: " + e);
 		} catch (Exception e) {
-			logger.error("LegacyFRValidateToken::process > Exception: {0}", e);
+			logger.error("LegacyFRValidateToken::process > Exception: ", e);
 		}
 
 		logger.info("LegacyFRValidateToken::process > User id from legacy cookie: {}", uid);
@@ -154,11 +151,11 @@ public class LegacyFRValidateToken extends AbstractValidateTokenNode {
 						return responseValue.get("uid").asString();
 					}
 				} catch (HttpApplicationException | UnknownHostException e) {
-					logger.error("LegacyFRValidateToken::validateLegacySession > Failed. Exception: {0}", e);
+					logger.error("LegacyFRValidateToken::validateLegacySession > Failed. Exception: ", e);
 				}
 
 			} catch (URISyntaxException | UnknownHostException e) {
-				logger.error("LegacyFRValidateToken::validateLegacySession > Failed. Exception: {0}", e);
+				logger.error("LegacyFRValidateToken::validateLegacySession > Failed. Exception: ", e);
 			}
 		}
 		return null;

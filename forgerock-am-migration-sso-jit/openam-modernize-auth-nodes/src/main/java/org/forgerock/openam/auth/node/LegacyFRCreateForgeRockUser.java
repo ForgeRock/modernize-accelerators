@@ -1,5 +1,5 @@
 /***************************************************************************
- *  Copyright 2021 ForgeRock AS
+ *  Copyright 2019-2021 ForgeRock AS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,9 +55,7 @@ import com.sun.identity.sm.SMSException;
 
 /**
  * <p>
- * A node which creates a user in ForgeRock IDM by calling the user endpoint
- * with the action query parameter set to create:
- * <b><i>{@code ?_action=create}</i></b>.
+ * A node which gets the user's attributes and prepares them for migration.
  * </p>
  */
 @Node.Metadata(configClass = LegacyFRCreateForgeRockUser.LegacyFRCreateForgeRockUserConfig.class, outcomeProvider = AbstractLegacyCreateForgeRockUserNode.OutcomeProvider.class)
@@ -90,7 +88,7 @@ public class LegacyFRCreateForgeRockUser extends AbstractLegacyCreateForgeRockUs
 		try {
 			legacyFRService = serviceRegistry.getRealmSingleton(LegacyFRService.class, realm).get();
 		} catch (SSOException | SMSException e) {
-			e.printStackTrace();
+			logger.error("LegacyFRCreateForgeRockUser::constructor > SSOException | SMSException: ", e);
 		}
 	}
 
@@ -115,11 +113,11 @@ public class LegacyFRCreateForgeRockUser extends AbstractLegacyCreateForgeRockUs
 				entity = JsonValue.json(response.getEntity().getJson());
 				return updateStates(context, entity);
 			} catch (RuntimeException e) {
-				logger.error("LegacyFRCreateForgeRockUser::process > RuntimeException {0}", e);
+				logger.error("LegacyFRCreateForgeRockUser::process > RuntimeException: ", e);
 			} catch (IOException e) {
-				logger.error("LegacyFRCreateForgeRockUser::process > IOException {0}", e);
+				logger.error("LegacyFRCreateForgeRockUser::process > IOException: ", e);
 			} catch (InterruptedException e) {
-				logger.error("LegacyFRCreateForgeRockUser::process > InterruptedException {0}", e);
+				logger.error("LegacyFRCreateForgeRockUser::process > InterruptedException: ", e);
 				Thread.currentThread().interrupt();
 			}
 		} else {
@@ -215,7 +213,7 @@ public class LegacyFRCreateForgeRockUser extends AbstractLegacyCreateForgeRockUs
 				return new Client(httpClientHandler).send(request).getOrThrow();
 			}
 		} catch (URISyntaxException | HttpApplicationException | IOException e) {
-			logger.error("LegacyFRCreateForgeRockUser::getUser > Failed. Exception: {0}", e);
+			logger.error("LegacyFRCreateForgeRockUser::getUser > Failed. Exception: ", e);
 		}
 		return null;
 	}

@@ -1,5 +1,5 @@
 /***************************************************************************
- *  Copyright 2021 ForgeRock AS
+ *  Copyright 2019-2021 ForgeRock AS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,7 +82,7 @@ public class LegacyORALogin extends AbstractLegacyLoginNode {
 		try {
 			oracleService = serviceRegistry.getRealmSingleton(OracleService.class, realm).get();
 		} catch (SSOException | SMSException e) {
-			e.printStackTrace();
+			logger.error("LegacyORALogin::constructor > SSOException | SMSException: ", e);
 		}
 	}
 
@@ -123,7 +123,7 @@ public class LegacyORALogin extends AbstractLegacyLoginNode {
 			return ORAAccessClient.getInstance().authenticateUser(username, password, oracleService.msProtocol(),
 					oracleService.msResource(), oracleService.msMethod(), oracleService.msConfigLocation());
 		} catch (AccessException e) {
-			logger.error("LegacyORALogin::getLegacyCookie > Error getting legacy SSO token: {0}", e);
+			logger.error("LegacyORALogin::getLegacyCookie > Error getting legacy SSO token: ", e);
 		}
 		return null;
 	}

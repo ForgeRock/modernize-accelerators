@@ -1,5 +1,5 @@
 /***************************************************************************
- *  Copyright 2021 ForgeRock AS
+ *  Copyright 2019-2021 ForgeRock AS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -101,7 +101,7 @@ public class LegacyFRLogin extends AbstractLegacyLoginNode {
 		try {
 			legacyFRService = serviceRegistry.getRealmSingleton(LegacyFRService.class, realm).get();
 		} catch (SSOException | SMSException e) {
-			e.printStackTrace();
+			logger.error("LegacyFRLogin::constructor > SSOException | SMSException: ", e);
 		}
 	}
 
@@ -132,12 +132,12 @@ public class LegacyFRLogin extends AbstractLegacyLoginNode {
 				return goTo(false).build();
 			}
 		} catch (RuntimeException e) {
-			logger.error("LegacyFRLogin::process > RuntimeException: {0}", e);
+			logger.error("LegacyFRLogin::process > RuntimeException: ", e);
 		} catch (InterruptedException e) {
-			logger.error("LegacyFRLogin::process > InterruptedException: {0}", e);
+			logger.error("LegacyFRLogin::process > InterruptedException: ", e);
 			Thread.currentThread().interrupt();
 		} catch (IOException e) {
-			logger.error("LegacyFRLogin::process > IOException: {0}", e);
+			logger.error("LegacyFRLogin::process > IOException: ", e);
 		}
 		return goTo(false).build();
 	}
@@ -162,7 +162,7 @@ public class LegacyFRLogin extends AbstractLegacyLoginNode {
 				return new Client(httpClientHandler).send(request).getOrThrow().getEntity().getString();
 			}
 		} catch (URISyntaxException | HttpApplicationException e) {
-			logger.error("LegacyFRLogin::getCallbacks > Failed. Exception: {0}", e);
+			logger.error("LegacyFRLogin::getCallbacks > Failed. Exception: ", e);
 		}
 
 		return null;
@@ -222,7 +222,7 @@ public class LegacyFRLogin extends AbstractLegacyLoginNode {
 						.orElse(null);
 			}
 		} catch (URISyntaxException | IOException | HttpApplicationException e) {
-			logger.error("LegacyFRLogin::getLegacyCookie > Failed. Exception: {0}", e);
+			logger.error("LegacyFRLogin::getLegacyCookie > Failed. Exception: ", e);
 		}
 
 		return null;

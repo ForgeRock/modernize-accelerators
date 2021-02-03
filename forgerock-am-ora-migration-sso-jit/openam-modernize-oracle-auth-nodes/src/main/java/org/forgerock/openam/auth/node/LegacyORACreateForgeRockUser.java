@@ -1,5 +1,5 @@
 /***************************************************************************
- *  Copyright 2021 ForgeRock AS
+ *  Copyright 2019-2021 ForgeRock AS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -94,7 +94,7 @@ public class LegacyORACreateForgeRockUser extends AbstractLegacyCreateForgeRockU
 		try {
 			oracleService = serviceRegistry.getRealmSingleton(OracleService.class, realm).get();
 		} catch (SSOException | SMSException e) {
-			e.printStackTrace();
+			logger.error("LegacyORACreateForgeRockUser::constructor > SSOException | SMSException: ", e);
 		}
 	}
 
@@ -121,9 +121,9 @@ public class LegacyORACreateForgeRockUser extends AbstractLegacyCreateForgeRockU
 				entity = JsonValue.json(response.getEntity().getJson());
 				return updateStates(context, entity);
 			} catch (IOException e) {
-				logger.error("LegacyORACreateForgeRockUser::process > IOException {0}", e);
+				logger.error("LegacyORACreateForgeRockUser::process > IOException: ", e);
 			} catch (InterruptedException e) {
-				logger.error("LegacyORACreateForgeRockUser::process > InterruptedException {0}", e);
+				logger.error("LegacyORACreateForgeRockUser::process > InterruptedException: ", e);
 				Thread.currentThread().interrupt();
 			}
 		}
@@ -186,7 +186,7 @@ public class LegacyORACreateForgeRockUser extends AbstractLegacyCreateForgeRockU
 				return client.send(request).getOrThrow();
 			}
 		} catch (URISyntaxException | HttpApplicationException | IOException e) {
-			logger.error("LegacyORACreateForgeRockUser::getUser > Failed. Exception: {0}", e);
+			logger.error("LegacyORACreateForgeRockUser::getUser > Failed. Exception: ", e);
 		}
 
 		return null;

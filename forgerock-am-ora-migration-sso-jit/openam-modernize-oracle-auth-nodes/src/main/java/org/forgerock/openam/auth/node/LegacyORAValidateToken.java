@@ -1,5 +1,5 @@
 /***************************************************************************
- *  Copyright 2021 ForgeRock AS
+ *  Copyright 2019-2021 ForgeRock AS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,7 +71,7 @@ public class LegacyORAValidateToken extends AbstractDecisionNode {
 		try {
 			oracleService = serviceRegistry.getRealmSingleton(OracleService.class, realm).get();
 		} catch (SSOException | SMSException e) {
-			e.printStackTrace();
+			logger.error("LegacyORAValidateToken::constructor > SSOException | SMSException: ", e);
 		}
 	}
 
@@ -124,7 +124,7 @@ public class LegacyORAValidateToken extends AbstractDecisionNode {
 					}
 				}
 			} catch (AccessException ae) {
-				logger.error("LegacyORAValidateToken::validateLegacySession > Access Exception: {0}", ae);
+				logger.error("LegacyORAValidateToken::validateLegacySession > Access Exception: ", ae);
 			}
 			if (ac != null)
 				ac.shutdown();

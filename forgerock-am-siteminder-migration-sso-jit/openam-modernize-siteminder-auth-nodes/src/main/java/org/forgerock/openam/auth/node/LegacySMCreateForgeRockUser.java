@@ -1,5 +1,5 @@
 /***************************************************************************
- *  Copyright 2021 ForgeRock AS
+ *  Copyright 2019-2021 ForgeRock AS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -118,7 +118,7 @@ public class LegacySMCreateForgeRockUser extends AbstractLegacyCreateForgeRockUs
 		try {
 			siteminderService = serviceRegistry.getRealmSingleton(SiteminderService.class, realm).get();
 		} catch (SSOException | SMSException e) {
-			e.printStackTrace();
+			logger.error("LegacySMCreateForgeRockUser::constructor > SSOException | SMSException: ", e);
 		}
 		if (secretsProvider != null) {
 			try {

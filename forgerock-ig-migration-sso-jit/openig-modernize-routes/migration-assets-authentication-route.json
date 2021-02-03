@@ -1,107 +1,74 @@
 {
-  "_copyright": "Copyright 2021 ForgeRock AS Licensed under the Apache License, Version 2.0 (the \"License\"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions andlimitations under the License.",
-  "name": "Legacy AM Authenticate Route",
-  "properties": {
-        "legacyIamHost": "<<proto:legacyIamHost:port>>",
-		"idmHost": "<<proto:idmHost:port>>",
-		"amHost": "<<proto:amHost:port>>"
-  },
-  "baseURI": "${legacyIamHost}",
-  "condition": "${matches(request.uri.path, '/authenticateResourceEndpoint')}",
+  "_copyright": "Copyright 2019-2021 ForgeRock AS Licensed under the Apache License, Version 2.0 (the \"License\"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions andlimitations under the License.",
+  "name": "migration-assets-authentication-route",
+  "baseURI": "&{legacyHost}",
+  "condition": "${matches(request.uri.path, '^/pattern')}",
+  "handler": "Chain",
   "heap": [
+    {
+      "name": "Chain",
+      "type": "Chain",
+      "config": {
+        "filters": [
+          "ClientCredentialsOAuth2ClientFilter-oauth2EnabledClientHandler-1",
+          "MigrationSsoFilter"
+        ],
+        "handler": "ReverseProxyHandler"
+      }
+    },
+    {
+      "name": "ClientCredentialsOAuth2ClientFilter-oauth2EnabledClientHandler-1",
+      "type": "ClientCredentialsOAuth2ClientFilter",
+      "config": {
+        "clientId": "idm-provisioning",
+        "clientSecretId": "client.secret.id",
+        "secretsProvider": {
+          "type": "Base64EncodedSecretStore",
+          "config": {
+            "secrets": {
+              "client.secret.id": "secret"
+            }
+          }
+        },
+        "tokenEndpoint": "&{amTokenEndpoint}",
+        "scopes": [
+          "openid"
+        ]
+      }
+    },
+    {
+      "name": "MigrationSsoFilter",
+      "type": "MigrationSsoFilter",
+      "config": {
+        "userAttributesMapping": {
+          "uid": "userName",
+          "givenName": "givenName",
+          "password": "password",
+          "cn": "cn",
+          "sn": "sn",
+          "mail": "mail"
+        },
+        "getUserMigrationStatusEndpoint": "&{idmManagedUserUrl}",
+        "provisionUserEndpoint": "&{idmCreateUserUrl}",
+        "openaAmAuthenticateURL": "&{amAuthenticateUrl}",
+        "openAmCookieName": "iPlanetDirectoryPro",
+        "acceptApiVersionHeader": "Accept-API-Version",
+        "acceptApiVersionHeaderValue": "resource=2.0, protocol=1.0",
+        "setCookieHeader": "Set-Cookie",
+        "handler": "ClientHandler"
+      }
+    },
     {
       "name": "ReverseProxyHandler",
       "type": "ReverseProxyHandler",
       "config": {
         "connectionTimeout": "60 seconds",
         "soTimeout": "unlimited"
-      }
-    },
-    {
-      "name": "ForgeRockClientHandler",
-      "type": "Chain",
-      "config": {
-        "filters": [
-          "TransactionIdOutboundFilter"
-        ],
-        "handler": "ClientHandler"
-      }
+      },
+      "capture": [
+        "response",
+        "request"
+      ]
     }
-  ],
-    "secrets": {
-    "stores": [
-      {
-        "type": "FileSystemSecretStore",
-        "config": {
-          "format": "PLAIN",
-          "directory": "${openig.baseDirectory.path}/secrets"
-        }
-      }
-    ]
-  },
-  "handler": {
-    "type": "Chain",
-    "config": {
-      "filters": [
-        {
-          "name" : "ClientCredentialsOAuth2ClientFilter-oauth2EnabledClientHandler-1",
-          "type" : "ClientCredentialsOAuth2ClientFilter",
-          "config" : {
-            "clientId" : "idm-provisioning",
-            "clientSecretId" : "client.secret.id",
-            "secretsProvider" : {
-              "type" : "Base64EncodedSecretStore",
-              "config" : {
-                "secrets" : {
-                  "client.secret.id" : "b3BlbmlkbQ=="
-                }
-              }
-            },
-            "tokenEndpoint" : "${amHost}/openam/oauth2/access_token",
-            "scopes" : [ "openid" ]
-          }
-        },
-        {
-          "name": "HeaderFilter-ChangeHostFilter",
-          "type": "HeaderFilter",
-          "config": {
-            "messageType": "REQUEST",
-            "remove": [
-              "host",
-              "x-forwarded-host"
-            ],
-            "add": {
-              "host": [
-                "${legacyIamHost}"
-              ],
-              "x-forwarded-host": [
-                "${legacyIamHost}"
-              ]
-            }
-          }
-        },
-        {
-        "name" : "MigrationSsoFilter",
-        "type" : "MigrationSsoFilter",
-        "config" : {
-          "userAttributesMapping" : {
-            "username" : "userName",
-            "givenName" : "givenName",
-            "cn" : "cn",
-            "sn" : "sn",
-            "mail" : "mail"
-          },
-          "getUserMigrationStatusEndpoint" : "${idmHost}/openidm/managed/user",
-          "provisionUserEndpoint" : "${idmHost}/openidm/managed/user?_action=create",
-          "openaAmAuthenticateURL" : "${amHost}/openam/json/realms/root/authenticate",
-          "openAmCookieName" : "iPlanetDirectoryPro",
-          "acceptApiVersionHeader" : "Accept-API-Version",
-          "acceptApiVersionHeaderValue" : "resource=2.0, protocol=1.0",
-          "setCookieHeader" : "Set-Cookie"
-        }
-      }
-      ],
-      "handler": "ReverseProxyHandler"
-    }
-  }
+  ]
 }
