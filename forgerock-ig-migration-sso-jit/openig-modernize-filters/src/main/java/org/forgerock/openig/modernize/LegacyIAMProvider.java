@@ -15,9 +15,12 @@
  ***************************************************************************/
 package org.forgerock.openig.modernize;
 
+import org.forgerock.http.Handler;
 import org.forgerock.http.protocol.Request;
 import org.forgerock.http.protocol.Response;
 import org.forgerock.json.JsonValue;
+import org.forgerock.util.promise.NeverThrowsException;
+import org.forgerock.util.promise.Promise;
 
 import java.util.Map;
 
@@ -47,7 +50,8 @@ public interface LegacyIAMProvider {
 	 * 
 	 * @param request - ForgeRock HTTP {@link Request}
 	 * 
-	 * @return {@link User} - An user object with userName and userPassword set.
+	 * @return {@link User} - JsonValue representation of the user with userName and
+	 *         userPassword set.
 	 * @throws Exception - in case of any error
 	 * 
 	 */
@@ -59,17 +63,17 @@ public interface LegacyIAMProvider {
 	 * 
 	 * @param response - ForgeRock HTTP {@link Response}
 	 * @param userName - The user for which to retrieve the profile attributes
-	 * @return {@link User} - An user object with userName and userPassword set.
+	 * @return {@link User} - JsonValue representation of the user
 	 */
-	JsonValue getExtendedUserAttributes(Response response, String userName, Map<String, Object> userAttributesMapping);
+	Promise<Response, NeverThrowsException> getExtendedUserAttributes(Response response, String userName,
+			Map<String, Object> userAttributesMapping, Handler httpClientHandler);
 
 	/**
 	 * 
-	 * Validate if the authentication response from the legacy system is
-	 * successfull.
+	 * Validate if the authentication response from the legacy system is successful.
 	 * 
 	 * @param response - ForgeRock HTTP {@link Response}
-	 * @return true if the authentication is successfull, false if authentication
+	 * @return true if the authentication is successful, false if authentication
 	 *         failed
 	 */
 	boolean validateLegacyAuthResponse(Response response);
