@@ -253,7 +253,7 @@ To set your custom authentication tree as the default authentication tree inside
 
 #### 3.3.1. Building the Tree
 
-+ Demo video - [building the tree](https://github.com/ForgeRock/modernize-accelerators/blob/master/forgerock-am-siteminder-migration-sso-jit/video/Siteminder%20-%20Building%20The%20Tree.mp4) 
++ Demo video - [building the tree](https://github.com/ForgeRock/modernize-accelerators/blob/master/forgerock-am-siteminder-migration-sso-jit/video/Siteminder-BuildingTheTree.mp4) 
 
 ![siteminderMigrationSsoTree](images/migrationTree.PNG)
 
@@ -411,7 +411,7 @@ Configuration File: /src/main/resources/org/forgerock/openam/services/Siteminder
 
 ## 4. Scenarios
 
-+ Demo video - [testing the main tree scenarios](https://github.com/ForgeRock/modernize-accelerators/blob/master/forgerock-am-siteminder-migration-sso-jit/video/Siteminder%20-%20Testing%20The%20Tree.mp4)
++ Demo video - [testing the main tree scenarios](https://github.com/ForgeRock/modernize-accelerators/blob/master/forgerock-am-siteminder-migration-sso-jit/video/Siteminder-TestingTheTree.mp4)
 
 ### 4.1. Scenario 1 - The user has a valid legacy Siteminder SSO token in the browser, and accesses the authentication tree
 - The user (not previously migrated) authenticates first to the legacy Siteminder protected resource.
