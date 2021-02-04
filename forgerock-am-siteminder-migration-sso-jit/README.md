@@ -60,7 +60,7 @@ ForgeRock understands the customer needs to speed up migration design decisions 
 
 Follow these instructions to build the project from the command line. Make sure that you have all the prerequisites installed correctly before starting.
 
-+ Demo video - [downloading and building the source code](https://github.com/ForgeRock/modernize-accelerators/blob/master/forgerock-am-siteminder-migration-sso-jit/video/Siteminder%20-%20Building%20The%20Code.mp4) 
++ Demo video - [downloading and building the source code](https://github.com/ForgeRock/modernize-accelerators/blob/master/forgerock-am-siteminder-migration-sso-jit/video/Siteminder-BuildingTheCode.mp4) 
 
 ### 2.1. Prerequisites - Prepare Your Environment
 
