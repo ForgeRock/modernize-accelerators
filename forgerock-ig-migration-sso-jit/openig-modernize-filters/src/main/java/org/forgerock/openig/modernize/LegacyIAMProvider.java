@@ -22,8 +22,6 @@ import org.forgerock.json.JsonValue;
 import org.forgerock.util.promise.NeverThrowsException;
 import org.forgerock.util.promise.Promise;
 
-import java.util.Map;
-
 public interface LegacyIAMProvider {
 
 	/**
@@ -49,32 +47,19 @@ public interface LegacyIAMProvider {
 	   </code>
 	 * 
 	 * @param request - ForgeRock HTTP {@link Request}
-	 * 
-	 * @return {@link User} - JsonValue representation of the user with userName and
-	 *         userPassword set.
-	 * @throws Exception - in case of any error
-	 * 
+	 * @return - JsonValue describing the user object with set userName and userPassword.
 	 */
-	JsonValue getUserCredentials(Request request) throws Exception;
+	JsonValue getUserCredentials(Request request);
 
 	/**
 	 * 
 	 * Get user profile attributes from the legacy IAM, with userName as input.
 	 * 
-	 * @param response - ForgeRock HTTP {@link Response}
-	 * @param userName - The user for which to retrieve the profile attributes
-	 * @return {@link User} - JsonValue representation of the user
+	 * @param response 			- ForgeRock HTTP {@link Response}
+	 * @param userName 			- user for which to retrieve the profile attributes
+	 * @param httpClientHandler - http client handler for executing requests
+	 * @return - An user object with set userName and userPassword.
 	 */
 	Promise<Response, NeverThrowsException> getExtendedUserAttributes(Response response, String userName,
-			Map<String, Object> userAttributesMapping, Handler httpClientHandler);
-
-	/**
-	 * 
-	 * Validate if the authentication response from the legacy system is successful.
-	 * 
-	 * @param response - ForgeRock HTTP {@link Response}
-	 * @return true if the authentication is successful, false if authentication
-	 *         failed
-	 */
-	boolean validateLegacyAuthResponse(Response response);
+			Handler httpClientHandler);
 }

@@ -116,4 +116,4 @@ mvn package
 <br><b>Solution</b>: Ensure that you have the login.html file in the web server’s docroot/openam/login.html directory or any other path of your choice to which the SiteMinder Policy Realm is pointing to.
 
 + <b>Problem</b>: CoreSystem debug log file of openam - Caused by: java.lang.NoClassDefFoundError: Could not initialize class com.ca.siteminder.sdk.agentapi.connection.SmAgentApiConnection
-<br><b>Solution</b>: https://docops.ca.com/ca-single-sign-on/12-52-sp1/en/programming/programming-in-java/agent-api-guidance-for-java#AgentAPIGuidanceforJava-ImplementthePureJavaAgentAPI
+<br><b>Solution</b>: Go to the appropriate Siteminder version for the AngetAPI Java programming guide: https://techdocs.broadcom.com/us/en/symantec-security-software/identity-security/siteminder/12-8/programming/sdks/programming-in-java/agent-api-in-java.html

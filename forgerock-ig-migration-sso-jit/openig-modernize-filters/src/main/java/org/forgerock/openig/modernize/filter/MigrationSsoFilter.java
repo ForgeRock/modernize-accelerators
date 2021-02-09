@@ -15,6 +15,7 @@
  ***************************************************************************/
 package org.forgerock.openig.modernize.filter;
 
+import static org.forgerock.openig.modernize.provider.ForgeRockProvider.getErrorResponse;
 import static org.forgerock.openig.modernize.utils.FilterConstants.Attributes.PASSWORD;
 import static org.forgerock.openig.modernize.utils.FilterConstants.Attributes.USERNAME;
 import static org.forgerock.openig.modernize.utils.FilterConstants.Headers.AUTHORIZATION;
@@ -34,6 +35,7 @@ import org.forgerock.json.JsonValue;
 import org.forgerock.openig.heap.GenericHeaplet;
 import org.forgerock.openig.heap.HeapException;
 import org.forgerock.openig.heap.Keys;
+import org.forgerock.openig.modernize.LegacyIAMProvider;
 import org.forgerock.openig.modernize.impl.LegacyOpenSSOProvider;
 import org.forgerock.openig.modernize.provider.ForgeRockProvider;
 import org.forgerock.services.context.Context;
@@ -47,8 +49,7 @@ import org.slf4j.LoggerFactory;
 public class MigrationSsoFilter implements Filter {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MigrationSsoFilter.class);
-
-	private LegacyOpenSSOProvider legacyIAMProvider;
+	private LegacyIAMProvider legacyIAMProvider;
 
 	private String getUserMigrationStatusEndpoint;
 	private String provisionUserEndpoint;
@@ -69,48 +70,33 @@ public class MigrationSsoFilter implements Filter {
 		String requestMethod = request.getMethod();
 
 		// Authentication calls should only use POST method
-		// && request.getUri().getPath().contains("authenticate")
-		try {
-			if (POST.equalsIgnoreCase(requestMethod) && request.getEntity().getJson() != null) {
-				LOGGER.debug("MigrationSsoFilter::filter > Started authentication request filtering");
-				JsonValue user = ForgeRockProvider.getUserCredentials(legacyIAMProvider, request);
+		if (POST.equalsIgnoreCase(requestMethod) && !request.getEntity().isRawContentEmpty()) {
+			LOGGER.info("MigrationSsoFilter::filter > Started authentication request filtering");
+			JsonValue user = ForgeRockProvider.getUserCredentials(legacyIAMProvider, request);
 
-				// continue normal authentication in legacy IAM if no user found
-				if (user == null) {
-					return next.handle(context, request);
-				}
-
-				LOGGER.debug("MigrationSsoFilter::filter > User: {}", user);
-				try {
-					String authorizationToken = request.getHeaders().getFirst(AUTHORIZATION);
-					LOGGER.debug("MigrationSsoFilter::filter > obtained token: {}", authorizationToken);
-
-					// Verify if user is already migrated in IDM
-					Promise<Boolean, NeverThrowsException> isUserMigrated = ForgeRockProvider.userMigrated(
-							getUserMigrationStatusEndpoint, user.get(USERNAME).asString(), authorizationToken,
-							httpClientHandler);
-
-					Promises.when(isUserMigrated).then(results -> {
-						LOGGER.debug("MigrationSsoFilter::filter > results.get(0): {}", results.get(0));
-						if (Boolean.TRUE.equals(results.get(0))) {
-							LOGGER.debug(
-									"MigrationSsoFilter::filter > User is migrated - processing migrated user request");
-							return processMigratedAccess(user, next, context, request);
-						} else {
-							LOGGER.debug(
-									"MigrationSsoFilter::filter > User is not migrated - allowing request to pass");
-							Promise<Response, NeverThrowsException> promise = next.handle(context, request);
-							return promise
-									.thenOnResult(response -> processFirstLogin(response, user, authorizationToken));
-						}
-					});
-
-				} catch (Exception e) {
-					LOGGER.error("MigrationSsoFilter::filter > Error in main filter method: ", e);
-				}
+			// Continue normal authentication in legacy IAM if no user found
+			if (user == null) {
+				return next.handle(context, request);
 			}
-		} catch (IOException e) {
-			LOGGER.error("MigrationSsoFilter::filter > IOException: ", e);
+			String authorizationToken = request.getHeaders().getFirst(AUTHORIZATION);
+
+			// Verify if user is already migrated in IDM
+			Promise<Boolean, NeverThrowsException> isUserMigrated = ForgeRockProvider.userMigrated(
+					getUserMigrationStatusEndpoint, user.get(USERNAME).asString(), authorizationToken,
+					httpClientHandler);
+
+			return isUserMigrated.thenAsync(resultMigrated -> {
+				if (Boolean.TRUE.equals(resultMigrated)) {
+					LOGGER.info("MigrationSsoFilter::filter > User is migrated - processing migrated user request");
+
+					return processMigratedAccess(user, next, context, request);
+				} else {
+					LOGGER.info("MigrationSsoFilter::filter > User is not migrated - allowing request to pass");
+
+					Promise<Response, NeverThrowsException> promise = next.handle(context, request);
+					return promise.thenAsync(response -> processFirstLogin(response, user, authorizationToken));
+				}
+			});
 		}
 
 		return next.handle(context, request);
@@ -125,27 +111,44 @@ public class MigrationSsoFilter implements Filter {
 	 * @param request - current filter's request managed so far
 	 * @return - the authentication result response
 	 */
-	private Promise<Object, NeverThrowsException> processMigratedAccess(JsonValue user, Handler next, Context context,
+	private Promise<Response, NeverThrowsException> processMigratedAccess(JsonValue user, Handler next, Context context,
 			Request request) {
 
 		Promise<Response, NeverThrowsException> openAmCookie = ForgeRockProvider.authenticateUser(user,
 				openAmAuthenticateURL, acceptApiVersionHeader, acceptApiVersionHeaderValue, httpClientHandler);
-
-		return Promises.when(openAmCookie).then(responses -> manageCookies(next, context, request, responses.get(0)));
+		return openAmCookie.thenAsync(setCookies(next, context, request));
 	}
 
-	private Promise<Response, NeverThrowsException> manageCookies(Handler next, Context context, Request request,
-			Response cookieResponse) {
-		String openAmCookie = ForgeRockProvider.extractCookie(cookieResponse, openAmCookieName);
+	/**
+	 *
+	 * Executed when user is already migrated, this async function authenticates the user in AM by passing
+	 * the request to the end of the filter chain, then fetching and setting the obtained cookie on top of the
+	 * legacy cookie the response.
+	 *
+	 * @param next	  - handler to the next filter in chain
+	 * @param context - current's filter context
+	 * @param request - current's filter request
+	 * @return - the final response containing both cookies
+	 */
+	private AsyncFunction<Response, Response, NeverThrowsException> setCookies(Handler next, Context context, Request request) {
+		return cookieResponse -> {
+			String openAmCookie = ForgeRockProvider.extractCookie(cookieResponse, openAmCookieName);
 
-		LOGGER.debug("MigrationSsoFilter::manageCookies > openAmCookie: {}", openAmCookie);
-		if (openAmCookie != null) {
-			Promise<Response, NeverThrowsException> promise = next.handle(context, request);
-			return Promises.when(promise).then(response -> processSecondLogin(response.get(0), openAmCookie));
-		}
+			LOGGER.info("MigrationSsoFilter::setCookies > Extracted OpenAmCookie: {}", openAmCookie);
+			if (openAmCookie != null) {
+				// Let the request pass further, obtaining the legacy cookie
+				Promise<Response, NeverThrowsException> promise = next.handle(context, request);
 
-		LOGGER.debug("MigrationSsoFilter::fetchCookie > Authentication failed. Username or password invalid");
-		return Promises.newResultPromise(getUnauthorizedResponse());
+				// Then return response with the added extracted cookie alongside the legacy cookie
+				return promise.thenAsync(legacyResponse -> {
+					legacyResponse.getHeaders().add(setCookieHeader, openAmCookie);
+					return Promises.newResultPromise(legacyResponse);
+				});
+			}
+
+			LOGGER.error("MigrationSsoFilter::setCookies > Authentication failed. Username or password invalid");
+			return getErrorResponse(Status.UNAUTHORIZED);
+		};
 	}
 
 	/**
@@ -159,47 +162,91 @@ public class MigrationSsoFilter implements Filter {
 	 * @param user               - user to authenticate
 	 * @param authorizationToken - token used to authenticate the user
 	 */
-	private void processFirstLogin(Response response, JsonValue user, String authorizationToken) {
-		LOGGER.debug("MigrationSsoFilter::processFirstLogin > Received authentication response: {}",
+	private Promise<Response, NeverThrowsException> processFirstLogin(Response response, JsonValue user, String authorizationToken) {
+		LOGGER.info("MigrationSsoFilter::processFirstLogin > Received authentication response: {}",
 				response.getHeaders().asMapOfHeaders());
 
 		// Authentication successful, therefore retrieving extended user profile
 		Promise<Response, NeverThrowsException> extendedUserProfile = ForgeRockProvider.getExtendedUserProfile(response,
-				user, legacyIAMProvider, userAttributesMapping, httpClientHandler);
-		extendedUserProfile.thenAsync(provisionUser(user, authorizationToken));
+				user, legacyIAMProvider, httpClientHandler);
+		return extendedUserProfile.thenAsync(provisionUser(response, user, authorizationToken));
 	}
 
-	private AsyncFunction<Response, Void, NeverThrowsException> provisionUser(JsonValue user,
+	/**
+	 *
+	 * This async method is executed when the user is not migrated, right after the filter has obtained
+	 * the extended user profile. Creates the user entry in IDM, authenticates the said user and sets
+	 * the obtained authentication cookie on the request.
+	 *
+	 * @param resultResponse	 - the final response that will be returned by this filter, containing the legacy cookie
+	 * @param user				 - JsonValue describing the user to provision
+	 * @param authorizationToken - token needed to for the IDM provisioning request
+	 * @return - the final response handled by this filter, containing both cookies
+	 */
+	private AsyncFunction<Response, Response, NeverThrowsException> provisionUser(Response resultResponse, JsonValue user,
 			String authorizationToken) {
-		LOGGER.debug("MigrationSsoFilter::provisionUser > Start");
-		return response -> {
-			JsonValue extendedUserProfile = setUserProperties(response, userAttributesMapping);
-			if (extendedUserProfile != null) {
-				extendedUserProfile.add(PASSWORD, user.get(PASSWORD).asString());
+		LOGGER.info("MigrationSsoFilter::provisionUser > Start");
 
-				LOGGER.debug("MigrationSsoFilter::processFirstLogin > extendedUserProfile: {}", extendedUserProfile);
-				LOGGER.debug("MigrationSsoFilter::processFirstLogin > Using authorization token: {}",
-						authorizationToken);
+		return response -> {
+			if (!response.getStatus().isSuccessful()) {
+				return Promises.newResultPromise(new Response(Status.BAD_REQUEST));
+			}
+
+			JsonValue extendedUserProfile = setUserProperties(response, userAttributesMapping);
+			LOGGER.info("MigrationSsoFilter::provisionUser > extendedUserProfile: {}", extendedUserProfile);
+
+			if (extendedUserProfile != null) {
+				extendedUserProfile.remove(PASSWORD);
+				extendedUserProfile.add(PASSWORD, user.get(PASSWORD).asString());
 
 				// Provision user in IDM
 				Promise<Response, NeverThrowsException> provisionResponse = ForgeRockProvider.provisionUser(
 						extendedUserProfile, authorizationToken, provisionUserEndpoint, httpClientHandler);
 
-				provisionResponse.thenOnResult(createdResponse -> {
-					LOGGER.info("MigrationSsoFilter::provisionUser > createdResponse.getStatus(): {}",
-							createdResponse.getStatus());
-
-					if (createdResponse.getStatus().equals(Status.CREATED)) {
-						// Authenticate the user that was just provisioned
-						Promise<Response, NeverThrowsException> openAmCookie = ForgeRockProvider.authenticateUser(user,
-								openAmAuthenticateURL, acceptApiVersionHeader, acceptApiVersionHeaderValue,
-								httpClientHandler);
-
-						response.getHeaders().add(setCookieHeader, openAmCookie);
-					}
-				});
+				Promise<Response, NeverThrowsException> authenticationResponse =
+						provisionResponse.thenAsync(authenticateProvisionedUser(user));
+				return authenticationResponse.thenAsync(setAuthenticationCookie(resultResponse));
 			}
-			return null;
+
+			return Promises.newResultPromise(new Response(Status.BAD_REQUEST));
+		};
+	}
+
+	/**
+	 *
+	 * Async method executed when the user is not provisioned, called after the provisioning of the user.
+	 * Authenticates the recently provisioned user.
+	 *
+	 * @param user - user to authenticate
+	 * @return - response containing the authentication cookie
+	 */
+	private AsyncFunction<Response, Response, NeverThrowsException> authenticateProvisionedUser(JsonValue user) {
+		return provisionedResponse -> {
+			LOGGER.info("MigrationSsoFilter::authenticateProvisionedUser > User provisioning response status: {}",
+					provisionedResponse.getStatus());
+
+			if (provisionedResponse.getStatus().equals(Status.CREATED)) {
+				// Authenticate the user that was just provisioned
+				return ForgeRockProvider.authenticateUser(user, openAmAuthenticateURL, acceptApiVersionHeader,
+						acceptApiVersionHeaderValue, httpClientHandler);
+			}
+
+			return getErrorResponse(Status.UNAUTHORIZED);
+		};
+	}
+
+	/**
+	 *
+	 * Async method that adds the cookie of the previous response (caller promise) to the given response.
+	 *
+	 * @param cookieDestination - response where to add the cookie
+	 * @return - cookieDestination containing the cookie of the caller's resulted response
+	 */
+	private AsyncFunction<Response, Response, NeverThrowsException> setAuthenticationCookie(Response cookieDestination) {
+		return response -> {
+			cookieDestination.getHeaders().add(setCookieHeader,
+					response.getHeaders().asMapOfHeaders().get(setCookieHeader).getFirstValue());
+			return Promises.newResultPromise(cookieDestination);
 		};
 	}
 
@@ -207,20 +254,19 @@ public class MigrationSsoFilter implements Filter {
 	 *
 	 * Creates the User object that will be provisioned into the IDM platform.
 	 *
-	 * @param responseEntity        - response containing the user attributes on the
-	 *                              entity
+	 * @param responseEntity 		- response containing the user attributes on the entity
 	 * @param userAttributesMapping - mapping of the attributes over the IDM schema
-	 * @return - a JsonValue describing the user's attributes
+	 * @return - JsonValue describing the user's attributes
 	 */
 	private JsonValue setUserProperties(Response responseEntity, Map<String, Object> userAttributesMapping) {
 
 		try {
-			LOGGER.debug("LegacyOpenSSOProvider::setUserProperties > responseEntity: {}", responseEntity.getEntity());
+			LOGGER.info("LegacyOpenSSOProvider::setUserProperties > responseEntity: {}", responseEntity.getEntity());
 			JsonValue entity = JsonValue.json(responseEntity.getEntity().getJson());
 			JsonValue userAttributes = JsonValue.json(JsonValue.object());
 
 			Iterator<Map.Entry<String, Object>> itr = userAttributesMapping.entrySet().iterator();
-			LOGGER.debug("LegacyOpenSSOProvider::setUserProperties > userAttributesMapping: {}", userAttributesMapping);
+			LOGGER.info("LegacyOpenSSOProvider::setUserProperties > userAttributesMapping: {}", userAttributesMapping);
 
 			while (itr.hasNext()) {
 				Map.Entry<String, Object> entry = itr.next();
@@ -234,36 +280,9 @@ public class MigrationSsoFilter implements Filter {
 			}
 			return userAttributes;
 		} catch (IOException e) {
-			LOGGER.error("LegacyOpenSSOProvider::setUserProperties > Null or invalid response entity: ", e);
+			LOGGER.error("LegacyOpenSSOProvider::setUserProperties > Null or invalid response entity: {0}", e);
 		}
 		return null;
-	}
-
-	/**
-	 * 
-	 * Processes the second login on the route response. This method is triggered if
-	 * the user was found migrated already, and the request reaches legacy IAM and
-	 * successfully completes the authentication.
-	 * 
-	 * @param response - the response
-	 * @param cookie   - the cookie set at the authentication phase
-	 */
-	private Response processSecondLogin(Response response, String cookie) {
-		LOGGER.debug("MigrationSsoFilter::processSecondLogin > Received authentication response - Setting cookie");
-		response.getHeaders().add(setCookieHeader, cookie);
-		return response;
-	}
-
-	/**
-	 *
-	 * Creates and returns a a 401: Unauthorized response
-	 *
-	 * @return - an unauthorized response
-	 */
-	private Response getUnauthorizedResponse() {
-		Response unauthorizedResponse = new Response(Status.UNAUTHORIZED);
-		unauthorizedResponse.setEntity(ForgeRockProvider.createFailedLoginError());
-		return unauthorizedResponse;
 	}
 
 	/**
