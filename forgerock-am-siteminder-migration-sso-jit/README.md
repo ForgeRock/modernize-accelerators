@@ -101,8 +101,7 @@ Note: You need access to the ForgeRock private-releases maven repository, and yo
 + To setup the SDK and the migration toolkit correctly you must:
     + copy the external Siteminder dependencies inside the /WEB-INF/lib of your AM-x.y.z.war file, or directly to you /WEB-INF/lib folder of your ForgeRock AM installation;
 	+ add the Siteminder dependencies to your classpath, so that your IDE can resolve all the dependencies correctly. To use the library as a dependency, add it to your lib directory for a simple Java project, or import it to your Maven or Gradle project as an artifact.
-	+ Add the Bouncy Castle FIPS .jar to your $JAVA_HOME/jre/lib/ext directory
-    + Create a Bouncy Castle FIPS provider entry in the $JAVA_HOME/jre/lib/security/java.security file. Eg: <b>security.provider.N=org.bouncycastle.jcajce.provider.BouncyCastleFipsProvider</b>. Replace N with the order of precedence you would like to give Bouncy Castle in comparison to the other providers in the file.
+	+ note that the bc-fips and bcprov libraries cannot coexist. In order to use the bc-fips jar file which is mandatory for enabling the Siteminder APIs, you would need to remove the bcprov library from your classpath.
 
 + Adding the Siteminder SDK to the classpath.
     + <b>Option 1</b> - copy the .jar files from the Siteminder web agent installation to the project folder /path/to/modernize-accelerators/forgerock-am-siteminder-migration-sso-jit/openam-modernize-siteminder-auth-nodes/ext-lib/siteminder/. This option works with the default pom.xml from this toolkit.
