@@ -25,10 +25,10 @@ ForgeRock shall not be liable for any direct, indirect or consequential damages 
 + [ForgeRock AM based SSO Toolkit](forgerock-am-migration-sso-jit)
 + [ForgeRock AM Based SSO Toolkit for OAM11G](forgerock-am-ora-migration-sso-jit)
 + [ForgeRock AM Based SSO & JIT Toolkit for Siteminder 12.8](https://github.com/ForgeRock/modernize-accelerators/tree/master/forgerock-am-siteminder-migration-sso-jit)
++ [ForgeRock Siteminder Authentication Scheme](https://github.com/ForgeRock/modernize-accelerators/tree/master/forgerock-siteminder-authentication-scheme)
 + [ForgeRock IG based SSO & JIT Toolkit](forgerock-ig-migration-sso-jit)
 + [ForgeRock Bulk User Migration Toolkit](forgerock-bulk-migration-generic)
 + [ForgeRock Bulk User Migration Toolkit with Oracle Unified Directory (OUD)](forgerock-bulk-migration-oud)
-+ [ForgeRock Siteminder Authentication Scheme](https://github.com/ForgeRock/modernize-accelerators/tree/master/forgerock-siteminder-authentication-scheme)
 
 ## License
 
