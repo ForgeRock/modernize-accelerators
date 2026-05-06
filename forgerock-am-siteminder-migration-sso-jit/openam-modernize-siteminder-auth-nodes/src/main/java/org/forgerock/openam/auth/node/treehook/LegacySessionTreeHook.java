@@ -73,7 +73,7 @@ public class LegacySessionTreeHook implements TreeHook {
 			LOGGER.error("LegacySessionTreeHook::accept > Error reading session property {}: {}",
 					LEGACY_COOKIE_SHARED_STATE_PARAM, e);
 		}
-		response.getHeaders().add("set-cookie", legacyCookie + "; Path=/" + "; Domain=" + legacyCookieDomain);
+		response.getHeaders().add("set-cookie", legacyCookie + "; Path=/" + "; Domain=" + legacyCookieDomain + "; secure; httpOnly;");
 	}
 
 }
